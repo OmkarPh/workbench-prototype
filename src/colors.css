@@ -1,0 +1,6 @@
+:root {
+  /* Default css variables (DARK) for intellisense purpose */
+  --textColor: #ffffff;
+  --textFocused: rgb(202, 202, 202);
+  --background: #282828;
+}
