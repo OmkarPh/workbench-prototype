@@ -10,16 +10,20 @@ import Help from './pages/Help';
 import Home from './pages/Home'
 
 // import c3 from 'c3';
+
+import Footer from './components/Footer/Footer';
+import TemporaryPage from './pages/TemporaryPage';
+import Navbar2 from './components/Navbar/Navbar2';
+
 import 'startbootstrap-simple-sidebar/dist/css/styles.css';
 import 'font-awesome/css/font-awesome.min.css';
 import './app.css';
-import Footer from './components/Footer/Footer';
-import TemporaryPage from './pages/TemporaryPage';
 
 const App = () => {
   return (
     <HashRouter>
-    <Navbar />
+    <Navbar2 />
+    {/* <Navbar /> */}
     <div style={{ marginLeft: 80, minHeight: "100vh" }}>
       <Routes>
         <Route path="/">

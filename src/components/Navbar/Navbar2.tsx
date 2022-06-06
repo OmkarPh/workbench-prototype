@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArchive, faBars, faChartColumn, faGavel, faHome, faInfoCircle, faQuestion, faTable } from '@fortawesome/free-solid-svg-icons';
 
 import 'react-pro-sidebar/dist/css/styles.css';
-import './navbar.css';
+import './navbar2.css';
 
 const MENU_ITEMS = [
     {
@@ -47,13 +47,11 @@ const MENU_ITEMS = [
     },
 ]
 
-const Navbar = () => {
+const Navbar2 = () => {
     const navigate = useNavigate();
     const location = useLocation();
     
     const [collapsed, setCollapsed] = useState<boolean>(true);
-
-
     const expandOnHover = true;
 
 
@@ -102,4 +100,4 @@ const Navbar = () => {
     )
 }
 
-export default Navbar
+export default Navbar2
