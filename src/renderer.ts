@@ -29,6 +29,15 @@
 import './index.css';
 import './colors.css';
 import { renderReactApp } from './reactApp';
+import { ipcRenderer } from 'electron';
+
+
+// import elec from '@electron/remote/main'
+// console.log(elec);
+
+// ipcRenderer.on('import-reply', (event, message) => {
+//   console.log("import reply in renderer.ts", message, event);
+// })
 
 
 renderReactApp();

@@ -2,7 +2,7 @@ import React from 'react'
 
 const Footer = () => {
   return (
-    <div className='text-center' style={{ bottom: 0, position: "absolute", left: "48%" }}>
+    <div className='text-center' style={{ bottom: 0, width: "100%" }}>
       Footer
       <br/><br/><br/>
     </div>

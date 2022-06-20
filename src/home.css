@@ -2,25 +2,40 @@
   Welcome Page
 -----------------------------------------*/
 
-#import-json, #open-file, #save-file{
-  border: 2px dashed skyblue;
-  display: inline-block;
-  width: 25%;
-  text-align: center;
-  margin: 3rem 2rem;
-  padding: 1rem;
-  cursor: pointer;
-}
 
 #welcomepage-view .icons h4{
   margin-top: 20px;
   font-size: 20px;
 }
-#welcomepage-view i{
-  font-size: 100px;
-}
-#welcomepage-title , .icons{
+#welcomepage-title{
   text-align: center;
+}
+.quickActions{
+  text-align: center;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  /* margin: 3rem 2rem; */
+  margin-bottom: 2rem;
+  padding: 1rem;
+}
+
+#import-json, #open-file, #save-file{
+  border: 2px dashed skyblue;
+  display: inline-block;
+  width: 25%;
+  text-align: center;
+  cursor: pointer;
+  min-width: 225px;
+  padding: 1rem;
+  margin-top: 3rem;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.quickActionIcon{
+  font-size: 80px;
+  margin-bottom: 25px;
 }
 
 .quicklinks h3{
