@@ -20,6 +20,7 @@ import 'font-awesome/css/font-awesome.min.css';
 import './app.css';
 import TableView from './pages/TableView';
 import LicenseInfoDash from './pages/LicenseInfoDash';
+import FileTree from './components/FileTree/FileTree';
 
 const App = () => {
   return (
@@ -27,6 +28,7 @@ const App = () => {
       <HashRouter>
       <Navbar2 />
       {/* <Navbar /> */}
+      {/* <FileTree style={{ marginLeft: 80, minHeight: "100vh" }} /> */}
       <div style={{ marginLeft: 80, minHeight: "100vh" }}>
         <Routes>
           <Route path="/">
