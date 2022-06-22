@@ -19,6 +19,8 @@ import { Sequelize, DataTypes, Model } from 'sequelize';
 import { jsonDataType } from './databaseUtils';
 
 export interface LicenseAttributes {
+  id: DataTypes.IntegerDataType,
+  fileId: DataTypes.IntegerDataType,
   key: DataTypes.StringDataType,
   score: DataTypes.IntegerDataType,
   short_name: DataTypes.StringDataType,
@@ -38,6 +40,13 @@ export default function licenseModel(sequelize: Sequelize) {
   return sequelize.define<Model<LicenseAttributes>>(
     'licenses',
     {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: DataTypes.INTEGER,
+      },
+      fileId: DataTypes.INTEGER,
       key: DataTypes.STRING,
       score: DataTypes.INTEGER,
       short_name: DataTypes.STRING,

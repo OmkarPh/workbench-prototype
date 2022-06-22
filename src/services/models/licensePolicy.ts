@@ -17,6 +17,7 @@
 import { Sequelize, DataTypes, Model } from 'sequelize';
 
 export interface LicensePolicyAttributes {
+  id: DataTypes.IntegerDataType,
   license_key: DataTypes.StringDataType,
   label: DataTypes.StringDataType,
   color_code: DataTypes.StringDataType,
@@ -27,6 +28,12 @@ export default function licensePolicyModel(sequelize: Sequelize) {
   return sequelize.define<Model<LicensePolicyAttributes>>(
     'license_policy',
     {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: DataTypes.INTEGER,
+      },
       license_key: DataTypes.STRING,
       label: DataTypes.STRING,
       color_code: DataTypes.STRING,

@@ -1,6 +1,7 @@
 import { shell } from "electron";
 import * as $ from 'jquery';
-import { DataType, DataTypes, StringDataType } from "sequelize/types";
+import { DataTypes } from "sequelize";
+import { LEGEND_LIMIT } from "../constants/data";
 
 
 /** Overrides original event and opens URL in default browser */
@@ -92,11 +93,15 @@ export function showSaveDialog(dialog, config) {
 
 type FormattedEntry = [string, number];
 
-export function limitChartData(data: FormattedEntry[], limit: number) {
-  // TODO: Use partitioning (like in quicksort) to find top "limit" more efficiently.
+const ascendingComparatorFunction = (a: FormattedEntry, b: FormattedEntry) => (a[1] > b[1]) ? 1 : -1;
+const descendingComparatorFunction = (a: FormattedEntry, b: FormattedEntry) => (a[1] < b[1]) ? 1 : -1;
 
-  const ascendingComparatorFunction = (a: FormattedEntry, b: FormattedEntry) => (a[1] > b[1]) ? 1 : -1;
-  const descendingComparatorFunction = (a: FormattedEntry, b: FormattedEntry) => (a[1] < b[1]) ? 1 : -1;
+function limitChartData(data: FormattedEntry[], limit: number) {
+  if(data.length <= limit)
+    return data.sort(ascendingComparatorFunction);
+
+
+  // TODO: Use partitioning (like in quicksort) to find top "limit" more efficiently.
 
   // Bring larger entries to the top
   const limitedData = data.sort(descendingComparatorFunction);
@@ -117,7 +122,14 @@ export function limitChartData(data: FormattedEntry[], limit: number) {
 }
 
 // Formats data for c3: [[key1, count1], [key2, count2], ...]
-export function formatChartData(names: (string | DataTypes.StringDataType)[]): FormattedEntry[] {
+export function formatChartData(
+  names: (string | DataTypes.StringDataType)[],
+  chartKey?: string,
+  limit?: number,
+): {
+  chartData: FormattedEntry[],
+  untrimmedLength: number,
+} {
   // Sum the total number of times the name appears
   const count = new Map<string, number>();
 
@@ -125,7 +137,15 @@ export function formatChartData(names: (string | DataTypes.StringDataType)[]): F
     count.set(name.toString({}), (count.get(name.toString({})) || 0) + 1);
   });
 
-  console.log(Array.from(count.entries()));
+  const chartData = Array.from(count.entries());
 
-  return Array.from(count.entries());
+  // console.log(`Untrimmed ${chartKey || ""} chart data:`, chartData);
+  const untrimmedLength = chartData.length;
+  
+  const chartDataLimit = limit || LEGEND_LIMIT;
+
+  return {
+    chartData: limitChartData(chartData, chartDataLimit),
+    untrimmedLength,
+  }
 }

@@ -15,12 +15,12 @@ import { LicenseAttributes } from './license';
  #
  */
 
-import { Model, ModelCtor, ModelStatic, Sequelize } from 'sequelize';
+import { Model, ModelStatic, Sequelize } from 'sequelize';
 
 import headerModel from './header';
 import fileModel, { FileAttributes } from './file';
 import licenseModel from './license';
-import licenseExpressionModel, { LicenseExpressionAttributes } from './licenseExpression';
+import licenseExpressionModel, { LicenseExpressionAttributes, OptionalLicenseExpressionAttributes } from './licenseExpression';
 import licensePolicyModel, { LicensePolicyAttributes } from './licensePolicy';
 import copyrightModel, { CopyrightAttributes } from './copyright';
 import packageModel, { PackageAttributes } from './package';
@@ -42,7 +42,7 @@ export interface DatabaseStructure{
   Header: any,
   File: ModelStatic<Model<FileAttributes>>,
   License: ModelStatic<Model<LicenseAttributes>>,
-  LicenseExpression: ModelStatic<Model<LicenseExpressionAttributes>>,
+  LicenseExpression: ModelStatic<Model<LicenseExpressionAttributes, OptionalLicenseExpressionAttributes>>,
   LicensePolicy: ModelStatic<Model<LicensePolicyAttributes>>,
   Copyright: ModelStatic<Model<CopyrightAttributes>>,
   Package: ModelStatic<Model<PackageAttributes>>,

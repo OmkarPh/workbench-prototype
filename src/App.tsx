@@ -15,12 +15,16 @@ import TemporaryPage from './pages/TemporaryPage';
 import Navbar2 from './components/Navbar/Navbar2';
 import { WorkbenchDBProvider } from './contexts/workbenchContext';
 
+import TableView from './pages/TableView';
+import LicenseInfoDash from './pages/LicenseInfoDash/LicenseInfoDash';
+
 import 'startbootstrap-simple-sidebar/dist/css/styles.css';
 import 'font-awesome/css/font-awesome.min.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 import './app.css';
-import TableView from './pages/TableView';
-import LicenseInfoDash from './pages/LicenseInfoDash';
-import FileTree from './components/FileTree/FileTree';
+import './dashStyles.css';
+import FileInfoDash from './pages/FileInfoDash/FileInfoDash';
 
 const App = () => {
   return (
@@ -35,7 +39,7 @@ const App = () => {
             <Route index element={<Home />} />
             <Route path="help" element={<Help />} />
             <Route path="table-view" element={<TableView />} />
-            <Route path="file-dashboard" element={<TemporaryPage text='File Info Dashboard' />} />
+            <Route path="file-dashboard" element={<FileInfoDash />} />
             <Route path="license-dashboard" element={<LicenseInfoDash />} />
             <Route path="package-dashboard" element={<TemporaryPage text='Package Info dashboard' />} />
             <Route path="chart-summary" element={<TemporaryPage text='Chart summary view' />} />
