@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react'
-import { Op } from 'sequelize';
 import c3 from 'c3';
+import { Op } from 'sequelize';
+import { Row, Col } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react'
 
 import { formatChartData } from '../../utils/format';
-import { useWorkbenchDB } from '../../contexts/workbenchContext';
 import { LEGEND_COLORS } from '../../constants/colors';
-import { Row, Col } from 'react-bootstrap';
+import { useWorkbenchDB } from '../../contexts/workbenchContext';
 
 const PROG_LANGS_ID = "programming-languages-id";
 const FILE_TYPES_ID = "file-types-chart";
@@ -32,32 +32,31 @@ const FileInfoDash = () => {
     const { db, initialized } = workbenchDB;
     if(!initialized || !db)
       return;
-    console.log("DB updated");
-    console.log(db, initialized);
 
-    console.log('Selected path:',);
+    console.log("DB updated", db, initialized);
 
     db.sync
-      .then((db) => db.File.findOne({ where: { id: 0 }}))
+      .then(db => db.File.findOne({ where: { id: 0 }}))
       .then(root => {
         console.log("Root dir", root);
-        console.log("Root dir path", root, root.getDataValue('path'));
         const rootPath = root.getDataValue('path');
-        console.log({where: {path: {[Op.like]: `%${rootPath}%`}}});
+        console.log("Root dir path", rootPath);
+        console.log("Path query", {where: {path: {[Op.like]: `%${rootPath}%`}}});
 
-
-        const filesCount = root.getDataValue('type').toString({}) === 'directory' ? root.getDataValue('files_count') : 1;
-        const dirsCount = root.getDataValue('type').toString({}) === 'directory' ? root.getDataValue('dirs_count') : 0;
+        // Prepare aggregate data
+        const filesCount =
+          root.getDataValue('type').toString({}) === 'directory' ? root.getDataValue('files_count') : 1;
+        const dirsCount =
+          root.getDataValue('type').toString({}) === 'directory' ? root.getDataValue('dirs_count') : 0;
+        
         setScanData(oldScanData => ({
           ...oldScanData,
           totalFiles: Number(filesCount),
           totalDirectories: Number(dirsCount),
         }));
 
-
         return db.sync.then(db => db.File.findAll({
           where: {path: {[Op.like]: `%${rootPath}%`}},
-          // where: {path: {[Op.like]: `${rootPath}%`}},
           // attributes: ['id'],
         }))
       })
@@ -78,8 +77,8 @@ const FileInfoDash = () => {
           }
         });
 
-      // Prepare chart for programming languages
-        const langs = files.map(val => val.getDataValue('programming_language') || 'No Value Detected');
+        // Prepare chart for programming languages
+        const langs = files.map(file => file.getDataValue('programming_language') || 'No Value Detected');
         const { chartData: langsChartData } = formatChartData(langs, 'programming-langs');
         c3.generate({
           bindto: '#' + PROG_LANGS_ID,
@@ -94,13 +93,13 @@ const FileInfoDash = () => {
 
         return files;
       })
-      .then((files) => files.map(val => val.getDataValue('id')))
-      .then((fileIds) => {
-        console.log("FileIDs to work on: ", fileIds);
+      .then((files) =>{
+        const fileIDs = files.map(file => file.getDataValue('id'));
+        console.log("FileIDs to work on: ", fileIDs);
 
         // Query and prepare chart for copyright holders
         db.sync
-          .then((db) => db.Copyright.findAll({where: { id: fileIds }}))
+          .then((db) => db.Copyright.findAll({where: { id: fileIDs }}))
           .then(copyrights => copyrights.map(
             copyright => copyright.getDataValue('holders') || 'No Value Detected'
           ))
@@ -111,12 +110,13 @@ const FileInfoDash = () => {
               totalUniqueCopyrightHolders: new Set(copyrightHolders).size
             }));
             
-            const { chartData } = formatChartData(copyrightHolders, 'policy');
-            console.log("Copyright formatted", chartData);
+            // Prepare chart for copyright holders
+            const { chartData: copyrightHoldersChartData } = formatChartData(copyrightHolders, 'policy');
+            console.log("Copyright formatted", copyrightHoldersChartData);
             c3.generate({
               bindto: '#' + COPYRIGHT_HOLDERS_ID,
               data: {
-                columns: chartData,
+                columns: copyrightHoldersChartData,
                 type : 'pie',
               },
               color: {
@@ -138,7 +138,11 @@ const FileInfoDash = () => {
         <Col sm={4}>
           <div className='card info-card'>
             <h4 className='value'>
-              { scanData.totalFiles || "...." }
+              {
+                scanData.totalFiles !== null ?
+                  scanData.totalFiles
+                : "...."
+              }
             </h4>
             <h5 className='title'>
               Total Number of Files
@@ -148,7 +152,11 @@ const FileInfoDash = () => {
         <Col sm={4}>
           <div className='card info-card'>
             <h4 className='value'>
-              { scanData.totalDirectories || "...." }
+              {
+                scanData.totalDirectories !== null ?
+                  scanData.totalDirectories
+                : "...."
+              }
             </h4>
             <h5 className='title'>
               Total Number of Directories
@@ -158,7 +166,11 @@ const FileInfoDash = () => {
         <Col sm={6} md={4}>
           <div className='card info-card'>
             <h4 className='value'>
-              { scanData.totalUniqueCopyrightHolders || "...." }
+              {
+                scanData.totalUniqueCopyrightHolders !== null ?
+                  scanData.totalUniqueCopyrightHolders
+                : "...."
+              }
             </h4>
             <h5 className='title'>
               Unique Copyright Holders Detected

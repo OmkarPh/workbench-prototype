@@ -25,6 +25,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './app.css';
 import './dashStyles.css';
 import FileInfoDash from './pages/FileInfoDash/FileInfoDash';
+import PackageInfoDash from './pages/PackageInfoDash/PackageInfoDash';
 
 const App = () => {
   return (
@@ -41,7 +42,7 @@ const App = () => {
             <Route path="table-view" element={<TableView />} />
             <Route path="file-dashboard" element={<FileInfoDash />} />
             <Route path="license-dashboard" element={<LicenseInfoDash />} />
-            <Route path="package-dashboard" element={<TemporaryPage text='Package Info dashboard' />} />
+            <Route path="package-dashboard" element={<PackageInfoDash />} />
             <Route path="chart-summary" element={<TemporaryPage text='Chart summary view' />} />
           </Route>
         </Routes>

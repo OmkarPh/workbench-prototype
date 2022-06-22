@@ -18,6 +18,7 @@ import { Sequelize, DataTypes, Model } from 'sequelize';
 import { jsonDataType } from './databaseUtils';
 
 export interface PackageAttributes {
+  id: DataTypes.IntegerDataType,
   type: DataTypes.StringDataType,
   namespace: DataTypes.StringDataType,
   name: DataTypes.StringDataType,
@@ -52,6 +53,12 @@ export default function packageModel(sequelize: Sequelize) {
   return sequelize.define<Model<PackageAttributes>>(
     'packages',
     {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: DataTypes.INTEGER,
+      },
       type: DataTypes.STRING,
       namespace: DataTypes.STRING,
       name: DataTypes.STRING,
