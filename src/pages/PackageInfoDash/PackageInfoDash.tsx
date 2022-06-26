@@ -1,15 +1,10 @@
-import c3 from 'c3';
 import { Op } from 'sequelize';
 import { Row, Col } from 'react-bootstrap';
 import React, { useEffect, useState } from 'react'
 
-import { formatChartData } from '../../utils/format';
-import { LEGEND_COLORS } from '../../constants/colors';
+import { formatChartData } from '../../utils/pie';
 import { useWorkbenchDB } from '../../contexts/workbenchContext';
-
-const PACKAGE_TYPE_ID = "package-type-chart";
-const PACKAGE_LANG_ID = "package-language-chart";
-const PACKAGE_LICENSE_ID = "package-license-chart";
+import PieChart from '../../components/PieChart/PieChart';
 
 interface ScanData {
   totalPackages: number | null,
@@ -20,6 +15,9 @@ import "./PackageInfoDash.css";
 const PackageInfoDash = () => {
 
   const workbenchDB = useWorkbenchDB();
+  const [packageTypeData, setPackageTypeData] = useState(null);
+  const [packageLangData, setPackageLangData] = useState(null);
+  const [packageLicenseData, setPackageLicenseData] = useState(null);
   const [scanData, setScanData] = useState<ScanData>({
     totalPackages: null,
   })
@@ -41,7 +39,6 @@ const PackageInfoDash = () => {
 
         return db.sync.then(db => db.File.findAll({
           where: {path: {[Op.like]: `%${rootPath}%`}},
-          // where: {path: {[Op.like]: `${rootPath}%`}},
           // attributes: ['id'],
         }))
       })
@@ -65,16 +62,7 @@ const PackageInfoDash = () => {
             );
             const { chartData: packageTypesChartData } = formatChartData(packageTypes, 'package types');
             console.log("Result packages types:", packageTypesChartData);
-            c3.generate({
-              bindto: '#' + PACKAGE_TYPE_ID,
-              data: {
-                columns: packageTypesChartData,
-                type : 'pie',
-              },
-              color: {
-                pattern: LEGEND_COLORS,
-              }
-            });
+            setPackageTypeData(packageTypesChartData);
 
             // Prepare chart for package languages
             const packageLangs = packages.map(
@@ -82,16 +70,7 @@ const PackageInfoDash = () => {
             );
             const { chartData: packageLangsChartData } = formatChartData(packageLangs, 'package langs');
             console.log("Result packages languages:", packageLangsChartData);
-            c3.generate({
-              bindto: '#' + PACKAGE_LANG_ID,
-              data: {
-                columns: packageLangsChartData,
-                type : 'pie',
-              },
-              color: {
-                pattern: LEGEND_COLORS,
-              }
-            });
+            setPackageLangData(packageLangsChartData);
 
             // Prepare chart for package license expression
             const packageLicenseExp = packages.map(
@@ -100,25 +79,16 @@ const PackageInfoDash = () => {
             const { chartData: packageLicenseExpChartData } = 
               formatChartData(packageLicenseExp, 'package license exp');
             console.log("Result packages license exp:", packageLicenseExpChartData);
-            c3.generate({
-              bindto: '#' + PACKAGE_LICENSE_ID,
-              data: {
-                columns: packageLicenseExpChartData,
-                type : 'pie',
-              },
-              color: {
-                pattern: LEGEND_COLORS,
-              }
-            });
+            setPackageLicenseData(packageLicenseExpChartData);
           });
       });
   }, [workbenchDB]);
 
   return (
     <div className='text-center'>
-      <br/><br/>
+      <br/>
         <h3>
-          License info - {'{path}'}
+          Package info - {'{path}'}
         </h3>
       <br/><br/>
       <Row className="dash-cards">
@@ -144,7 +114,7 @@ const PackageInfoDash = () => {
             <h5 className='title'>
               Package Types
             </h5>
-            <div id={PACKAGE_TYPE_ID} />
+            <PieChart chartData={packageTypeData} />
           </div>
         </Col>
         <Col sm={6} md={4}>
@@ -152,7 +122,7 @@ const PackageInfoDash = () => {
             <h5 className='title'>
               Package languages
             </h5>
-            <div id={PACKAGE_LANG_ID} />
+            <PieChart chartData={packageLangData} />
           </div>
         </Col>
         <Col sm={6} md={4}>
@@ -160,7 +130,7 @@ const PackageInfoDash = () => {
             <h5 className='title'>
               Package Licenses
             </h5>
-            <div id={PACKAGE_LICENSE_ID} />
+            <PieChart chartData={packageLicenseData} />
           </div>
         </Col>
       </Row>

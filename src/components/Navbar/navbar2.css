@@ -5,9 +5,10 @@
   height: 100vh;
   padding: 0;
 }
-.pro-sidebar.collapsed {
+.pro-sidebar.collapsed, .dummy-sidebar {
   width: 65px;
   min-width: 65px;
+  min-height: 100vh;
 }
 .pro-sidebar .pro-menu {
   padding: 0;
@@ -42,16 +43,3 @@
 .pro-icon-wrapper {
   color: #fff;
 }
-/* .pro-sidebar.collapsed{
-  width: 50px;
-  min-width: 50px;
-}
-.pro-inner-item {
-  padding: 0 !important;
-}
-.pro-icon-wrapper {
-  width: 50px !important;
-  min-width: 50px !important;
-  height: 50px !important;
-  min-height: 50px !important;
-} */

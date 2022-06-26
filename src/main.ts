@@ -98,7 +98,7 @@ ipcMain.on('open-file-dialog', (event, arg) => {
     }]
     }).then(({filePaths}) => {
         if (filePaths === undefined) {
-            return;
+          return;
         }
         const jsonFilePath = filePaths[0];
         let defaultPath;

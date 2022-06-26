@@ -1,15 +1,10 @@
-import c3 from 'c3';
 import { Op } from 'sequelize';
 import { Row, Col } from 'react-bootstrap';
 import React, { useEffect, useState } from 'react'
 
-import { formatChartData } from '../../utils/format';
-import { LEGEND_COLORS } from '../../constants/colors';
+import { formatChartData } from '../../utils/pie';
 import { useWorkbenchDB } from '../../contexts/workbenchContext';
-
-const PROG_LANGS_ID = "programming-languages-id";
-const FILE_TYPES_ID = "file-types-chart";
-const COPYRIGHT_HOLDERS_ID = "copyright-holders-chart";
+import PieChart from '../../components/PieChart/PieChart';
 
 interface ScanData {
   totalFiles: number | null,
@@ -22,6 +17,10 @@ import "./FileInfoDash.css";
 const FileInfoDash = () => {
 
   const workbenchDB = useWorkbenchDB();
+
+  const [progLangsData, setProgLangsData] = useState(null);
+  const [fileTypesData, setFileTypesData] = useState(null);
+  const [copyrightHoldersData, setCopyrightHoldersData] = useState(null);
   const [scanData, setScanData] = useState<ScanData>({
     totalFiles: null,
     totalDirectories: null,
@@ -57,7 +56,7 @@ const FileInfoDash = () => {
 
         return db.sync.then(db => db.File.findAll({
           where: {path: {[Op.like]: `%${rootPath}%`}},
-          // attributes: ['id'],
+          // attributes: ['id', 'mime_type', 'programming_language', ],
         }))
       })
       .then(files => {
@@ -66,30 +65,12 @@ const FileInfoDash = () => {
         // Prepare chart for file types
         const fileTypes = files.map(file => file.getDataValue('mime_type') || 'No Value Detected');
         const { chartData: fileTypesChartData } = formatChartData(fileTypes, 'file-types');
-        c3.generate({
-          bindto: '#' + FILE_TYPES_ID,
-          data: {
-            columns: fileTypesChartData,
-            type : 'pie',
-          },
-          color: {
-            pattern: LEGEND_COLORS,
-          }
-        });
+        setFileTypesData(fileTypesChartData);
 
         // Prepare chart for programming languages
-        const langs = files.map(file => file.getDataValue('programming_language') || 'No Value Detected');
+        const langs = files.map(file => file.getDataValue('programming_language') || 'No Value Detected')
         const { chartData: langsChartData } = formatChartData(langs, 'programming-langs');
-        c3.generate({
-          bindto: '#' + PROG_LANGS_ID,
-          data: {
-            columns: langsChartData,
-            type : 'pie',
-          },
-          color: {
-            pattern: LEGEND_COLORS,
-          }
-        });
+        setProgLangsData(langsChartData);
 
         return files;
       })
@@ -113,23 +94,14 @@ const FileInfoDash = () => {
             // Prepare chart for copyright holders
             const { chartData: copyrightHoldersChartData } = formatChartData(copyrightHolders, 'policy');
             console.log("Copyright formatted", copyrightHoldersChartData);
-            c3.generate({
-              bindto: '#' + COPYRIGHT_HOLDERS_ID,
-              data: {
-                columns: copyrightHoldersChartData,
-                type : 'pie',
-              },
-              color: {
-                pattern: LEGEND_COLORS,
-              }
-            });
-          })          
+            setCopyrightHoldersData(copyrightHoldersChartData);
+          });
       });
   }, [workbenchDB]);
 
   return (
     <div className='text-center'>
-      <br/><br/>
+      <br/>
         <h3>
           File info - {'{path}'}
         </h3>
@@ -185,7 +157,7 @@ const FileInfoDash = () => {
             <h5 className='title'>
               Programming languages
             </h5>
-            <div id={PROG_LANGS_ID} />
+            <PieChart chartData={progLangsData} />
           </div>
         </Col>
         <Col sm={6} md={4}>
@@ -193,7 +165,7 @@ const FileInfoDash = () => {
             <h5 className='title'>
               File types
             </h5>
-            <div id={FILE_TYPES_ID} />
+            <PieChart chartData={fileTypesData} />
           </div>
         </Col>
         <Col sm={6} md={4}>
@@ -201,7 +173,7 @@ const FileInfoDash = () => {
             <h5 className='title'>
               Copyright holders
             </h5>
-            <div id={COPYRIGHT_HOLDERS_ID} />
+            <PieChart chartData={copyrightHoldersData} />
           </div>
         </Col>
       </Row>

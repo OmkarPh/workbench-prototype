@@ -15,6 +15,7 @@ import { WorkbenchDB } from '../services/workbenchDB'
 
 import '../home.css'
 import { useWorkbenchDB } from '../contexts/workbenchContext'
+import { ROUTES } from '../constants/routes'
 
 const { version: workbenchVersion } = packageJson;
 const electron = window.require("electron");
@@ -79,34 +80,8 @@ const Home = () => {
             .then(() => {
                 console.log("Go to table-view with db:", workbenchDB);
                 updateWorkbenchDB(workbenchDB)
-                navigate('license-dashboard');
+                navigate(ROUTES.TABLE_VIEW);
             });
-            // .then(updateViews)
-            // .then(() => showScanDataButton.trigger('click'))
-            // .catch((err) => {
-            //     progressbar.hide();
-            //     if (WorkbenchDB.MissingFileInfoError && err instanceof WorkbenchDB.MissingFileInfoError) {
-            //     electronDialog.showErrorBox(
-            //         'Missing File Type Information',
-            //         'Missing file \'type\' information in the scanned data. ' +
-            //         '\n\nThis probably means you ran the scan without the -i ' +
-            //         'option in ScanCode. The app requires file information from ' +
-            //         'a ScanCode scan. Rerun the scan using \n./scancode ' +
-            //         '-clipeu options.'
-            //     );
-            //     } else {
-            //     // Show error for problem with the JSON file
-            //     electronDialog.showErrorBox(
-            //         'JSON Error',
-            //         'There is a problem with your JSON file. It may be malformed ' +
-            //         '(e.g., the addition of a trailing comma), ' +
-            //         'or there could be some other problem with the file. ' +
-            //         '\n\nPlease check your file and try again. ' +
-            //         '\n\nThe error thrown by the system is: \n\n' + err
-            //     );
-            //     }
-            //     console.error(err);
-            // });
         }
         ipcRenderer.removeAllListeners('import-reply');
         ipcRenderer.on('import-reply', (event, message) => {

@@ -1,0 +1,13 @@
+.pane-container {
+  min-width: 90vw !important;
+  height: 100vh !important;
+}
+
+.file-tree-pane {
+  border: 0;
+  box-shadow: rgb(177 177 177) 1px 0px 18px -3px;
+}
+
+.content-container {
+  padding: 15px;
+}

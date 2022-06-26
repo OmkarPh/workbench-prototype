@@ -1,5 +1,7 @@
 import Tree from 'rc-tree';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { Op } from 'sequelize';
+import { useWorkbenchDB } from '../../contexts/workbenchContext';
 
 import './FileTree.css';
 
@@ -23,7 +25,6 @@ const treeData = [
           { key: '0-0-1-7', title: 'parent 1-2-7' },
           { key: '0-0-1-8', title: 'parent 1-2-8' },
           { key: '0-0-1-9', title: 'parent 1-2-9' },
-          { key: 1128, title: 1128 },
         ],
       },
     ],
@@ -60,6 +61,8 @@ const arrowPath =
   '2-2L869 536.2c14.7-12.8 14.7-35.6 0-48.4z';
 
 const switcherIcon = (obj: any) => {
+  // console.log(obj.data);
+  
   if (obj.data.key?.startsWith('0-0-3')) {
     return false;
   }
@@ -78,10 +81,41 @@ const switcherIcon = (obj: any) => {
 };
 const treeCls = `myCls customIcon`;
 
-const FileTree = (props: { style?: React.CSSProperties, className?: string }) => {
+
+
+const FileTree = (props: React.HTMLProps<HTMLDivElement>) => {
+  
+  const workbenchDB = useWorkbenchDB();
+
+  useEffect(() => {
+    const { db, initialized } = workbenchDB;
+    if(!initialized || !db)
+      return;
+
+    
+    db.sync
+    .then((db) => db.File.findOne({ where: { id: 0 }}))
+    .then(root => {
+      console.log("File tree debug", "Root dir", root);
+      const rootPath = root.getDataValue('path');
+      console.log("File tree debug", "Root dir path", rootPath);
+      console.log("File tree debug", "Path query", {where: {path: {[Op.like]: `%${rootPath}%`}}});
+      db.findAllJSTree({
+        where: {
+          parent: 0,
+          // parent: root.getDataValue('id')
+        }
+      })
+        .then(res => {
+          console.log("File tree debug", res);
+          
+        })
+      // .then((children) => callback.call(this, children));
+    })
+  }, [workbenchDB])
+
   return (
-    <div {...props}>
-      FileTree
+    <div className="file-tree-container" {...props}>
       <Tree
         showLine
         defaultExpandAll={false}

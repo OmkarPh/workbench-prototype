@@ -1,15 +1,10 @@
-import c3 from 'c3';
 import { Op } from 'sequelize';
 import { Row, Col } from 'react-bootstrap';
 import React, { useEffect, useState } from 'react'
 
-import { formatChartData } from '../../utils/format';
-import { LEGEND_COLORS } from '../../constants/colors';
+import { formatChartData } from '../../utils/pie';
 import { useWorkbenchDB } from '../../contexts/workbenchContext';
-
-const LICENSE_EXP_ID = "license-expression-chart";
-const LICENSE_POLICY_ID = "license-policy-chart";
-const LICENSE_KEYS_ID = "license-keys-chart";
+import PieChart from '../../components/PieChart/PieChart';
 
 interface ScanData {
   totalLicenses: number | null,
@@ -20,13 +15,16 @@ interface ScanData {
 import "./licenseInfoDash.css";
 
 const LicenseInfoDash = () => {
-
   const workbenchDB = useWorkbenchDB();
+
+  const [licenseExpressionData, setLicenseExpressionData] = useState(null);
+  const [licenseKeyData, setLicenseKeyData] = useState(null);
+  const [licensePolicyData, setLicensePolicyData] = useState(null);
   const [scanData, setScanData] = useState<ScanData>({
     totalLicenses: null,
     totalLicenseFiles: null,
     totalSPDXLicenses: null,
-  })
+  });
   
   useEffect(() => {
     const { db, initialized } = workbenchDB;
@@ -63,16 +61,7 @@ const LicenseInfoDash = () => {
             // Prepare chart for license expressions
             const { chartData } = formatChartData(expressions, 'expressions');
             console.log("Result expressions:", chartData);
-            c3.generate({
-              bindto: '#' + LICENSE_EXP_ID,
-              data: {
-                columns: chartData,
-                type : 'pie',
-              },
-              color: {
-                pattern: LEGEND_COLORS,
-              }
-            });
+            setLicenseExpressionData(chartData);
           });
 
         // Query and prepare chart for license keys
@@ -104,17 +93,7 @@ const LicenseInfoDash = () => {
 
             // Prepare aggregate data
             setScanData(oldScanData => ({...oldScanData, totalLicenses: untrimmedLength}));
-
-            c3.generate({
-              bindto: '#' + LICENSE_KEYS_ID,
-              data: {
-                columns: chartData,
-                type : 'pie',
-              },
-              color: {
-                pattern: LEGEND_COLORS,
-              }
-            });
+            setLicenseKeyData(chartData);
           })
           
         // Query and prepare chart for license policy
@@ -124,23 +103,14 @@ const LicenseInfoDash = () => {
           .then(labels => {
             const { chartData } = formatChartData(labels, 'policy');
             console.log("Result License policy formatted", chartData);
-            c3.generate({
-              bindto: '#' + LICENSE_POLICY_ID,
-              data: {
-                columns: chartData,
-                type : 'pie',
-              },
-              color: {
-                pattern: LEGEND_COLORS,
-              }
-            });
+            setLicensePolicyData(chartData);
           })
       });
   }, [workbenchDB]);
 
   return (
     <div className='text-center'>
-      <br/><br/>
+      <br/>
         <h3>
           License info - {'{path}'}
         </h3>
@@ -196,7 +166,7 @@ const LicenseInfoDash = () => {
             <h5 className='title'>
               License expression
             </h5>
-            <div id={LICENSE_EXP_ID} />
+            <PieChart chartData={licenseExpressionData} />
           </div>
         </Col>
         <Col sm={6} md={4}>
@@ -204,7 +174,7 @@ const LicenseInfoDash = () => {
             <h5 className='title'>
               License keys
             </h5>
-            <div id={LICENSE_KEYS_ID} />
+            <PieChart chartData={licenseKeyData} />
           </div>
         </Col>
         <Col sm={6} md={4}>
@@ -212,7 +182,7 @@ const LicenseInfoDash = () => {
             <h5 className='title'>
               License policy
             </h5>
-            <div id={LICENSE_POLICY_ID} />
+            <PieChart chartData={licensePolicyData} />
           </div>
         </Col>
       </Row>

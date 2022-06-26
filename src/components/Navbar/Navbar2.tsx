@@ -56,6 +56,7 @@ const Navbar2 = () => {
 
 
     return (
+        <>
         <ProSidebar
             collapsed={collapsed}
             onMouseEnter={() => expandOnHover && setCollapsed(false)}
@@ -97,6 +98,10 @@ const Navbar2 = () => {
                 </button> */}
             </SidebarFooter>
         </ProSidebar>
+        {/* Dummy sidebar to occupy space in dom */}
+        <div className='dummy-sidebar'>
+        </div>
+        </>
     )
 }
 

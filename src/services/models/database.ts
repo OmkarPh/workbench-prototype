@@ -17,7 +17,7 @@ import { LicenseAttributes } from './license';
 
 import { Model, ModelStatic, Sequelize } from 'sequelize';
 
-import headerModel from './header';
+import headerModel, { HeaderAttributes } from './header';
 import fileModel, { FileAttributes } from './file';
 import licenseModel from './license';
 import licenseExpressionModel, { LicenseExpressionAttributes, OptionalLicenseExpressionAttributes } from './licenseExpression';
@@ -29,6 +29,7 @@ import urlModel, { UrlAttributes } from './url';
 import flatFileModel from './flatFile';
 import scanErrorModel, { ScanErrorAttributes } from './scanError';
 
+
 // let Header;
 // let File;
 // let License;
@@ -38,8 +39,11 @@ import scanErrorModel, { ScanErrorAttributes } from './scanError';
 // let Url;
 // let Scan;
 
+
+// type SupportedModels = <Model<HeaderAttributes, HeaderAttributes>>;
+
 export interface DatabaseStructure{
-  Header: any,
+  Header: ModelStatic<Model<HeaderAttributes, HeaderAttributes>>,
   File: ModelStatic<Model<FileAttributes>>,
   License: ModelStatic<Model<LicenseAttributes>>,
   LicenseExpression: ModelStatic<Model<LicenseExpressionAttributes, OptionalLicenseExpressionAttributes>>,
@@ -51,9 +55,9 @@ export interface DatabaseStructure{
   ScanError: ModelStatic<Model<ScanErrorAttributes>>,
 
   // TODO
-  FlatFile: ModelStatic<Model<any>>,
+  FlatFile: ModelStatic<any>,
 
-  fileIncludes: any[],
+  fileIncludes: { model: ModelStatic<Model<unknown>>, separate: boolean }[],
 }
 
 export function newDatabase(sequelize: Sequelize): DatabaseStructure {

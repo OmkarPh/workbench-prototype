@@ -17,7 +17,7 @@ import { Model } from 'sequelize';
 
 import { Sequelize, DataTypes } from 'sequelize';
 
-interface HeaderAttributes {
+export interface HeaderAttributes {
   workbench_version: DataTypes.StringDataType,
   workbench_notice: DataTypes.StringDataType,
   header_content: DataTypes.StringDataType,
