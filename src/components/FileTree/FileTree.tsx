@@ -1,11 +1,12 @@
 import Tree from 'rc-tree';
-import React, { useEffect } from 'react';
+import { DataNode } from 'rc-tree/lib/interface';
+import React, { useEffect, useState } from 'react';
 import { Op } from 'sequelize';
 import { useWorkbenchDB } from '../../contexts/workbenchContext';
 
 import './FileTree.css';
 
-const treeData = [
+const defaultTreeData = [
   {
     key: '0-0',
     title: 'parent 1',
@@ -87,29 +88,49 @@ const FileTree = (props: React.HTMLProps<HTMLDivElement>) => {
   
   const workbenchDB = useWorkbenchDB();
 
-  useEffect(() => {
-    const { db, initialized } = workbenchDB;
-    if(!initialized || !db)
-      return;
+  const [treeData, setTreeData] = useState<DataNode[]>(defaultTreeData);
 
+  useEffect(() => {
+    const { db, initialized, currentPath } = workbenchDB;
+    console.log("pathtest DB updated", db, initialized);
+    console.log("pathtest Initialized", initialized);
+    console.log("pathtest Current path", currentPath);
+    
+    if(!initialized || !db || !currentPath)
+      return;
     
     db.sync
-    .then((db) => db.File.findOne({ where: { id: 0 }}))
-    .then(root => {
-      console.log("File tree debug", "Root dir", root);
-      const rootPath = root.getDataValue('path');
-      console.log("File tree debug", "Root dir path", rootPath);
-      console.log("File tree debug", "Path query", {where: {path: {[Op.like]: `%${rootPath}%`}}});
-      db.findAllJSTree({
-        where: {
-          parent: 0,
-          // parent: root.getDataValue('id')
-        }
-      })
-        .then(res => {
-          console.log("File tree debug", res);
+      .then((db) => db.File.findOne({ where: { path: currentPath }}))
+      .then(root => {
+        console.log("pathtest", "Root dir", root);
+        console.log("pathtest", "Path query", {
+          where: {
+            parent: root.getDataValue('id'),
+          }
+        });
+
+        db.sync
+        .then(db => db.File.findAll({
+          where: {path: {[Op.like]: `${currentPath}%`}},
+          // attributes: ['id'],
+          raw: true,
+        }))
+        .then((files) =>{
+          console.log("Files", files);
           
-        })
+        });
+        // db.findAllJSTree({
+        //   where: {
+        //     // parent: root.getDataValue('path'),
+        //     // parent: root.getDataValue('id'),
+        //     parent: '#',
+        //   }
+        // })
+        // .then(res => {
+        //   console.log("pathtest File tree debug", res);
+          
+        //   // setTreeData();
+        // })
       // .then((children) => callback.call(this, children));
     })
   }, [workbenchDB])

@@ -36,7 +36,7 @@ console.log("OS", electronOs);
 const Home = () => {
     console.log(electronOs.platform());
     const navigate = useNavigate();
-    const { updateWorkbenchDB } = useWorkbenchDB();
+    const { updateCurrentPath, updateWorkbenchDB } = useWorkbenchDB();
 
     useEffect(() => {
         function sqliteParser(sqliteFilePath: string, jsonFilePath: string){
@@ -73,11 +73,24 @@ const Home = () => {
             .then(() => workbenchDB.addFromJson(
                 jsonFilePath,
                 workbenchVersion,
-                () => { console.log("Import done !", workbenchDB)},
+                (response: number) => { console.log("Import done with progress @", response, workbenchDB)},
                 // (progress) => progressbar.update(progress / 100)
             ))
             // .then(() => progressbar.hide())
             .then(() => {
+
+                console.log("Find default path");
+                workbenchDB.sync
+                    .then((db) => db.File.findOne({ where: { id: 0 }}))
+                    .then(root => {
+                        console.log("Root dir", root);
+                        const defaultPath = root.getDataValue('path');
+                        console.log("Root dir / default path", defaultPath);
+
+                        if(defaultPath)
+                            updateCurrentPath(defaultPath);
+                    });
+
                 console.log("Go to table-view with db:", workbenchDB);
                 updateWorkbenchDB(workbenchDB)
                 navigate(ROUTES.TABLE_VIEW);

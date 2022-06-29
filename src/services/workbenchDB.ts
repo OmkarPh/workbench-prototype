@@ -178,11 +178,16 @@ export class WorkbenchDB {
       .then((policies) => policies.map((policy) => policy.fileId));
     const restrictedPromise = this.db.LicensePolicy.findAll({where: {label: 'Restricted License'}, attributes: ['fileId']})
       .then((policies) => policies.map((policy) => policy.fileId));
+    
+    console.log([pkgPromise, approvedPromise, prohibitedPromise, recommendedPromise, restrictedPromise]);
+    console.log("udpated query", query);
 
     return Promise.all([pkgPromise, approvedPromise, prohibitedPromise, recommendedPromise, restrictedPromise]).then((promises) => this.sync
       .then((db) => db.File.findAll(query))
       .then((files) => {
-        return files.map((file) => {
+        console.log("Got files", files);
+        
+        const result = files.map((file) => {
           let file_name;
           if (!file.name) {
             file_name = path.basename(file.path);
@@ -197,6 +202,8 @@ export class WorkbenchDB {
             children: file.type === 'directory'
           };
         });
+        console.log(result);
+        return result;
       }));
   }
   
@@ -231,11 +238,15 @@ export class WorkbenchDB {
   }
 
   // Add rows to the flattened files table from a ScanCode json object
-  addFromJson(jsonFileName, workbenchVersion, onProgressUpdate): Promise<void> {
+  addFromJson(
+    jsonFileName: string,
+    workbenchVersion: string,
+    onProgressUpdate: (progress: number) => void,
+  ): Promise<void> {
     if (!jsonFileName) {
       throw new Error('Invalid json file name: ' + jsonFileName);
     }
-    console.log("Adding from json");
+    console.log("Adding from json with params", { jsonFileName, workbenchVersion, onProgressUpdate });
     
     const stream = fs.createReadStream(jsonFileName, {encoding: 'utf8'});
     const version = workbenchVersion;

@@ -55,33 +55,29 @@ const TableView = () => {
   const [tableData, setTableData] = useState<unknown[]>([]);
 
   useEffect(() => {
-    const { db, initialized } = workbenchDB;
-    if(!initialized || !db)
+    const { db, initialized, currentPath } = workbenchDB;
+    console.log("pathtest DB updated", db, initialized);
+    console.log("pathtest Initialized", initialized);
+    console.log("pathtest Current path", currentPath);
+    
+    if(!initialized || !db || !currentPath)
       return;
 
-    console.log("DB updated", db, initialized);
+    console.log("Root dir path in tableview", currentPath);
+    console.log("Path query", {where: {path: {[Op.like]: `%${currentPath}%`}}});
 
     db.sync
-      .then((db) => db.File.findOne({ where: { id: 0 }}))
-      .then(root => {
-        console.log("Root dir", root);
-        const rootPath = root.getDataValue('path');
-        console.log("Root dir path", rootPath);
-        console.log("Path query", {where: {path: {[Op.like]: `%${rootPath}%`}}});
-
-        return db.sync.then(db => db.File.findAll({
-          where: {path: {[Op.like]: `%${rootPath}%`}},
-          // where: {path: {[Op.like]: `${rootPath}%`}},
-          // attributes: ['id'],
-          raw: true,
-        }))
-      })
+      .then(db => db.File.findAll({
+        where: {path: {[Op.like]: `${currentPath}%`}},
+        // attributes: ['id'],
+        raw: true,
+      }))
       .then((files) =>{
         console.log("Files", files);
         setTableData(files);
         setFilteredTableData(files);
       });
-  }, []);
+  }, [workbenchDB]);
 
   function onSearchChange(e: ChangeEvent<HTMLInputElement>){
     const lowerText = e.target.value.toLowerCase();
