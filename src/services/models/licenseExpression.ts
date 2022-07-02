@@ -18,6 +18,7 @@ import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 
 export interface LicenseExpressionAttributes {
   id: DataTypes.IntegerDataType,
+  fileId: DataTypes.IntegerDataType,
   license_expression: DataTypes.StringDataType
 }
 
@@ -34,6 +35,7 @@ export default function licenseExpressionModel(sequelize: Sequelize) {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
+      fileId: DataTypes.INTEGER,
       license_expression: DataTypes.STRING
     },
     {

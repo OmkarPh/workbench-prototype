@@ -19,6 +19,7 @@ import { jsonDataType } from "./databaseUtils";
 
 export interface CopyrightAttributes {
   id: DataTypes.IntegerDataType,
+  fileId: DataTypes.IntegerDataType,
   start_line: DataTypes.IntegerDataType,
   end_line: DataTypes.IntegerDataType,
   holders: DataTypes.StringDataType,
@@ -36,6 +37,7 @@ export default function copyrightModel(sequelize: Sequelize) {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
+      fileId: DataTypes.INTEGER,
       start_line: DataTypes.INTEGER,
       end_line: DataTypes.INTEGER,
       holders: jsonDataType('holders'),

@@ -18,6 +18,7 @@ import { Sequelize, DataTypes, Model } from 'sequelize';
 
 export interface LicensePolicyAttributes {
   id: DataTypes.IntegerDataType,
+  fileId: DataTypes.IntegerDataType,
   license_key: DataTypes.StringDataType,
   label: DataTypes.StringDataType,
   color_code: DataTypes.StringDataType,
@@ -34,6 +35,7 @@ export default function licensePolicyModel(sequelize: Sequelize) {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
+      fileId: DataTypes.INTEGER,
       license_key: DataTypes.STRING,
       label: DataTypes.STRING,
       color_code: DataTypes.STRING,

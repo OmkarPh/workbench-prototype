@@ -16,13 +16,14 @@ import { DatabaseStructure } from './models/database';
  */
 
 import * as $ from 'jquery'
-import { Sequelize, Transaction, TransactionOptions } from 'sequelize';
+import { FindOptions, Model, QueryInterface, Sequelize, Transaction, TransactionOptions } from 'sequelize';
 import fs from 'fs';
 import path from 'path';
 import JSONStream from 'JSONStream';
 import { newDatabase } from './models/database';
 import {parentPath} from './models/databaseUtils';
 import { DebugLogger } from '../utils/logger';
+import { FileAttributes } from './models/file';
 
 /**
  * Manages the database created from a ScanCode JSON input.
@@ -163,21 +164,22 @@ export class WorkbenchDB {
 
 
   // Uses findAll to return JSTree format from the File Table
-  findAllJSTree(query) {
+  findAllJSTree(query: FindOptions) {
+    // query.attributes = ['id', 'path', 'parent', 'name', 'type'];
     query = $.extend(query, {
       attributes: ['id', 'path', 'parent', 'name', 'type']
     });
 
     const pkgPromise = this.db.Package.findAll({attributes: ['fileId']})
-      .then((pkgs) => pkgs.map((pkg) => pkg.fileId));
+      .then((pkgs) => pkgs.map((pkg) => pkg.getDataValue('fileId').toString({})));
     const approvedPromise = this.db.LicensePolicy.findAll({where: {label: 'Approved License'}, attributes: ['fileId']})
-      .then((policies) => policies.map((policy) => policy.fileId));
+      .then((policies) => policies.map((policy) => policy.getDataValue('fileId').toString({})));
     const prohibitedPromise = this.db.LicensePolicy.findAll({where: {label: 'Prohibited License'}, attributes: ['fileId']})
-      .then((policies) => policies.map((policy) => policy.fileId));
+      .then((policies) => policies.map((policy) => policy.getDataValue('fileId').toString({})));
     const recommendedPromise = this.db.LicensePolicy.findAll({where: {label: 'Recommended License'}, attributes: ['fileId']})
-      .then((policies) => policies.map((policy) => policy.fileId));
+      .then((policies) => policies.map((policy) => policy.getDataValue('fileId').toString({})));
     const restrictedPromise = this.db.LicensePolicy.findAll({where: {label: 'Restricted License'}, attributes: ['fileId']})
-      .then((policies) => policies.map((policy) => policy.fileId));
+      .then((policies) => policies.map((policy) => policy.getDataValue('fileId').toString({})));
     
     console.log([pkgPromise, approvedPromise, prohibitedPromise, recommendedPromise, restrictedPromise]);
     console.log("udpated query", query);
@@ -189,17 +191,21 @@ export class WorkbenchDB {
         
         const result = files.map((file) => {
           let file_name;
-          if (!file.name) {
-            file_name = path.basename(file.path);
+
+          const defaultFileName = file.getDataValue('name').toString({});
+          const defaultFilePath = file.getDataValue('path').toString({});
+
+          if (!defaultFileName) {
+            file_name = path.basename(defaultFilePath);
           } else {
-            file_name = file.name;
+            file_name = defaultFileName;
           }
           return {
-            id: file.path,
+            id: defaultFilePath,
             text: file_name,
-            parent: file.parent,
+            parent: file.getDataValue('parent').toString({}),
             type: this.determineJSTreeType(file, promises),
-            children: file.type === 'directory'
+            children: file.getDataValue('type').toString({}) === 'directory'
           };
         });
         console.log(result);
@@ -207,31 +213,35 @@ export class WorkbenchDB {
       }));
   }
   
-  determineJSTreeType(file, promises) {
+
+  determineJSTreeType(file: Model<FileAttributes, FileAttributes>, promises: string[][]) {
     let type = '';
 
-    const packages = promises[0];
-    const approvedPolicies = promises[1];
-    const prohibitedPolicies = promises[2];
-    const recommendedPolicies = promises[3];
-    const restrictedPolicies = promises[4];
+    const packages = promises[0] || [];
+    const approvedPolicies = promises[1] || [];
+    const prohibitedPolicies = promises[2] || [];
+    const recommendedPolicies = promises[3] || [];
+    const restrictedPolicies = promises[4] || [];
 
-    if (packages.includes(file.id)) {
-      if (file.type === 'file') {
+    const fileID = file.getDataValue('id').toString({});
+    const fileType = file.getDataValue('type').toString({});
+
+    if (packages.includes(fileID)) {
+      if (fileType === 'file') {
         type = 'packageFile';
-      } else if (file.type === 'directory') {
+      } else if (fileType === 'directory') {
         type = 'packageDir'; 
       }
-    } else if (approvedPolicies.includes(file.id)) {
+    } else if (approvedPolicies.includes(fileID)) {
       type = 'approvedLicense';
-    } else if (prohibitedPolicies.includes(file.id)) {
+    } else if (prohibitedPolicies.includes(fileID)) {
       type = 'prohibitedLicense';
-    } else if (recommendedPolicies.includes(file.id)) {
+    } else if (recommendedPolicies.includes(fileID)) {
       type = 'recommendedLicense';
-    } else if (restrictedPolicies.includes(file.id)) {
+    } else if (restrictedPolicies.includes(fileID)) {
       type = 'restrictedLicense';
     } else {
-      type = file.type;
+      type = fileType;
     }
     
     return type;

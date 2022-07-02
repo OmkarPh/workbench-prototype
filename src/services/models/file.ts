@@ -19,6 +19,7 @@ import { Sequelize, DataTypes, Model } from 'sequelize';
 export interface FileAttributes {
   path: string;
   id: DataTypes.IntegerDataType,
+  fileId: DataTypes.IntegerDataType,
   parent: DataTypes.StringDataType,
   type: DataTypes.StringDataType,
   name: DataTypes.StringDataType,
@@ -60,6 +61,7 @@ export default function fileModel(sequelize: Sequelize) {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
+      fileId: DataTypes.INTEGER,
       parent: DataTypes.STRING,
       type: DataTypes.STRING,
       name: DataTypes.STRING,

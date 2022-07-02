@@ -19,6 +19,7 @@ import { jsonDataType } from './databaseUtils';
 
 export interface PackageAttributes {
   id: DataTypes.IntegerDataType,
+  fileId: DataTypes.IntegerDataType,
   type: DataTypes.StringDataType,
   namespace: DataTypes.StringDataType,
   name: DataTypes.StringDataType,
@@ -59,6 +60,7 @@ export default function packageModel(sequelize: Sequelize) {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
+      fileId: DataTypes.INTEGER,
       type: DataTypes.STRING,
       namespace: DataTypes.STRING,
       name: DataTypes.STRING,

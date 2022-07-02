@@ -18,7 +18,9 @@ import { Model } from 'sequelize';
 import { Sequelize, DataTypes } from 'sequelize';
 
 export interface EmailAttributes {
+  id: DataTypes.IntegerDataType,
   email: DataTypes.StringDataType,
+  fileId: DataTypes.IntegerDataType,
   start_line: DataTypes.IntegerDataType,
   end_line: DataTypes.IntegerDataType
 }
@@ -27,6 +29,13 @@ export default function emailModel(sequelize: Sequelize) {
   return sequelize.define<Model<EmailAttributes>>(
     'emails',
     {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: DataTypes.INTEGER,
+      },
+      fileId: DataTypes.INTEGER,
       email: DataTypes.STRING,
       start_line: DataTypes.INTEGER,
       end_line: DataTypes.INTEGER
