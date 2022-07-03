@@ -1,7 +1,10 @@
-import Tree from 'rc-tree';
-import { DataNode } from 'rc-tree/lib/interface';
-import React, { useEffect, useState } from 'react';
-import { Op } from 'sequelize';
+import RcTree from 'rc-tree';
+import { DataNode, EventDataNode } from 'rc-tree/lib/interface';
+
+import { Tree, TreeApi } from 'react-arborist';
+import { IdObj } from 'react-arborist/dist/types';
+
+import React, { LegacyRef, StyleHTMLAttributes, useEffect, useState } from 'react';
 import { useWorkbenchDB } from '../../contexts/workbenchContext';
 
 import './FileTree.css';
@@ -83,24 +86,33 @@ const switcherIcon = (obj: any) => {
 const treeCls = `myCls customIcon`;
 
 
+function TreeNode(props: { ref: LegacyRef<HTMLDivElement>, styles: any, data: any }) {
+  const { ref, styles, data } = props;
+  return (
+    <div ref={ref} style={styles.row}>
+      <div style={styles.indent}>{data.name}</div>
+    </div>
+  );
+}
+
 
 const FileTree = (props: React.HTMLProps<HTMLDivElement>) => {
   
   const workbenchDB = useWorkbenchDB();
 
   const [treeData, setTreeData] = useState<DataNode[]>(defaultTreeData);
+  const [treeData2, setTreeData2] = useState<IdObj & any>({ id: "23", name: "abcd" });
 
   useEffect(() => {
-    const { db, initialized, currentPath } = workbenchDB;
-    console.log("pathtest DB updated", db, initialized);
-    console.log("pathtest Initialized", initialized);
-    console.log("pathtest Current path", currentPath);
+    const { db, initialized, importedFile } = workbenchDB;
     
-    if(!initialized || !db || !currentPath)
+    if(!initialized || !db || !importedFile)
       return;
     
+    console.log("pathtest File tree init started", db, initialized);
+    
     db.sync
-      .then((db) => db.File.findOne({ where: { path: currentPath }}))
+      .then((db) => db.File.findOne({ where: { parent: '#' }}))
       .then(root => {
         console.log("pathtest", "Root dir", root);
         console.log("pathtest", "Path query", {
@@ -109,16 +121,14 @@ const FileTree = (props: React.HTMLProps<HTMLDivElement>) => {
           }
         });
 
-        db.sync
-        .then(db => db.File.findAll({
-          where: {path: {[Op.like]: `${currentPath}%`}},
-          // attributes: ['id'],
-          raw: true,
-        }))
-        .then((files) =>{
-          console.log("Files", files);
-          
-        });
+        db.findAllJSTree(root.getDataValue('path'))
+          .then((treeData: any[]) => {
+            console.log(`pathtest Tree data for file ${importedFile}: `, treeData);
+            setTreeData(treeData);
+            setTreeData2(treeData)
+            console.log("pathtest File tree init completed", db, initialized);
+          })
+        
         // db.findAllJSTree({
         //   where: {
         //     // parent: root.getDataValue('path'),
@@ -133,17 +143,61 @@ const FileTree = (props: React.HTMLProps<HTMLDivElement>) => {
         // })
       // .then((children) => callback.call(this, children));
     })
-  }, [workbenchDB])
+  }, [workbenchDB]);
+
+  // function selectPath(node: EventDataNode<DataNode>){
+  //   console.log("pathtest selected", node);
+  //   console.log("pathtest selected path", );
+
+  // }
+  function spth(path: string){
+    if(!workbenchDB.initialized)
+      return;
+    console.log("pathtest selected", path);
+    workbenchDB.updateCurrentPath(path);
+    // workbenchDB.db.sync
+    //   .then(db => {
+    //     db.File.findOne({ where: { id }})
+    //       .then(file => {
+            // console.log("pathtest select path", file.getDataValue('path'));
+            // workbenchDB.updateCurrentPath(file.getDataValue('path'));
+          // })
+
+      // })
+    
+  }
 
   return (
     <div className="file-tree-container" {...props}>
-      <Tree
+      {/* <Tree
+        data={treeData2}
+        ref={(tree: TreeApi) => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          global.tree = tree;
+        }}
+        className="react-aborist"
+        getChildren="children"
+        isOpen="isOpen"
+        hideRoot
+        indent={24}
+        rowHeight={22}
+        onClick={(e) => console.log("clicked the tree", e)}
+        onContextMenu={() => console.log("context menu the tree")}
+      >
+        { TreeNode }
+      </Tree> */}
+      
+      <RcTree
         showLine
         defaultExpandAll={false}
         defaultExpandedKeys={[0]}
         motion={motion}
         treeData={treeData}
         switcherIcon={switcherIcon}
+        onActiveChange={spth}
+        // onSelect={(_, info) => selectPath(info.node)}
+        onSelect={keys => spth(keys[0].toString())}
       />
     </div>
   )

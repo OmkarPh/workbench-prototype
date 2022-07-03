@@ -76,24 +76,38 @@ const Home = () => {
                 (response: number) => { console.log("Import done with progress @", response, workbenchDB)},
                 // (progress) => progressbar.update(progress / 100)
             ))
+            // .then(() => {
+            //     return new Promise<void>((resolve) => {
+            //         setTimeout(() => {
+            //             console.log("Wait completed");
+            //             resolve();
+            //         }, 2000);
+            //     })
+            // })
             // .then(() => progressbar.hide())
             .then(() => {
+                console.log("add from json resolved");
+                
+                workbenchDB.sync
+                    .then(db => db.File.findAll().then(files => console.log(files)));
 
                 console.log("Find default path");
                 workbenchDB.sync
-                    .then((db) => db.File.findOne({ where: { id: 0 }}))
+                    .then((db) => db.File.findOne({ where: { parent: '#' }}))
+                    // .then((db) => db.File.findOne({ where: { id: 0 }}))
                     .then(root => {
                         console.log("Root dir", root);
                         const defaultPath = root.getDataValue('path');
                         console.log("Root dir / default path", defaultPath);
 
+                        console.log("Go to table-view with db:", workbenchDB);
+                        updateWorkbenchDB(workbenchDB, sqliteFilePath)
+                        navigate(ROUTES.TABLE_VIEW);
+
                         if(defaultPath)
                             updateCurrentPath(defaultPath);
                     });
 
-                console.log("Go to table-view with db:", workbenchDB);
-                updateWorkbenchDB(workbenchDB)
-                navigate(ROUTES.TABLE_VIEW);
             });
         }
         ipcRenderer.removeAllListeners('import-reply');

@@ -56,9 +56,9 @@ const TableView = () => {
 
   useEffect(() => {
     const { db, initialized, currentPath } = workbenchDB;
-    console.log("pathtest DB updated", db, initialized);
-    console.log("pathtest Initialized", initialized);
-    console.log("pathtest Current path", currentPath);
+    console.log("DB updated", db, initialized);
+    console.log("Initialized", initialized);
+    console.log("Current path", currentPath);
     
     if(!initialized || !db || !currentPath)
       return;

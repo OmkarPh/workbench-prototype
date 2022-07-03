@@ -3,17 +3,19 @@ import { WorkbenchDB } from '../services/workbenchDB';
 
 interface WorkbenchContextProperties {
   initialized: boolean,
+  importedFile: string | null,
   db: WorkbenchDB | null,
   currentPath: string | null,
   loadingStatus: number | null,
   startImport: () => void,
   updateCurrentPath: (newPath: string) => void,
-  updateWorkbenchDB: (db: WorkbenchDB) => void,
+  updateWorkbenchDB: (db: WorkbenchDB, path: string) => void,
 }
 
 export const defaultWorkbenchContextValue: WorkbenchContextProperties = {
   db: null,
   initialized: false,
+  importedFile: null,
   loadingStatus: null,
   currentPath: null,
   startImport: () => null,
@@ -23,10 +25,17 @@ export const defaultWorkbenchContextValue: WorkbenchContextProperties = {
 
 const WorkbenchContext = createContext<WorkbenchContextProperties>(defaultWorkbenchContextValue);
 
+interface BasicValueState {
+  db: WorkbenchDB | null,
+  initialized: boolean,
+  importedFile: string | null,
+  loadingStatus: number | null,
+}
 export const WorkbenchDBProvider = (props: React.PropsWithChildren<Record<string, unknown>>) => {
-  const [value, setValue] = useState({
+  const [value, setValue] = useState<BasicValueState>({
     db: null,
     initialized: false,
+    importedFile: null,
     loadingStatus: null,
   });
   const [currentPath, updateCurrentPath] = useState<string | null>(null);
@@ -34,16 +43,18 @@ export const WorkbenchDBProvider = (props: React.PropsWithChildren<Record<string
   const startImport = () => {
     setValue({
       db: null,
-      loadingStatus: 0,
       initialized: false,
+      importedFile: null,
+      loadingStatus: 0,
     })
   }
 
-  const updateWorkbenchDB = (db: WorkbenchDB) => {
+  const updateWorkbenchDB = (db: WorkbenchDB, path: string) => {
     setValue({
       db,
       loadingStatus: 100,
       initialized: true,
+      importedFile: path,
     });
   }
 

@@ -164,7 +164,7 @@ export class WorkbenchDB {
 
 
   // Uses findAll to return JSTree format from the File Table
-  findAllJSTree(query: FindOptions) {
+  findAllJSTreeLegacy(query: FindOptions) {
     // query.attributes = ['id', 'path', 'parent', 'name', 'type'];
     query = $.extend(query, {
       attributes: ['id', 'path', 'parent', 'name', 'type']
@@ -213,6 +213,102 @@ export class WorkbenchDB {
       }));
   }
   
+
+  // Uses findAll to return JSTree format from the File Table
+  findAllJSTree(currentPath: string) {
+    const fileQuery: FindOptions<FileAttributes> = {
+      // where : {
+      //   parent: `%${currentPath}%`,
+      //   // parent: '#'
+      // },
+      attributes: ['id', 'path', 'parent', 'name', 'type']
+    };
+
+    const pkgPromise = this.db.Package.findAll({attributes: ['fileId']})
+      .then((pkgs) => pkgs.map((pkg) => Number(pkg.getDataValue('fileId'))));
+    const approvedPromise = this.db.LicensePolicy.findAll({where: {label: 'Approved License'}, attributes: ['fileId']})
+      .then((policies) => policies.map((policy) => Number(policy.getDataValue('fileId'))));
+    const prohibitedPromise = this.db.LicensePolicy.findAll({where: {label: 'Prohibited License'}, attributes: ['fileId']})
+      .then((policies) => policies.map((policy) => Number(policy.getDataValue('fileId'))));
+    const recommendedPromise = this.db.LicensePolicy.findAll({where: {label: 'Recommended License'}, attributes: ['fileId']})
+      .then((policies) => policies.map((policy) => Number(policy.getDataValue('fileId'))));
+    const restrictedPromise = this.db.LicensePolicy.findAll({where: {label: 'Restricted License'}, attributes: ['fileId']})
+      .then((policies) => policies.map((policy) => Number(policy.getDataValue('fileId'))));
+    
+    console.log([pkgPromise, approvedPromise, prohibitedPromise, recommendedPromise, restrictedPromise]);
+    console.log("pathtest udpated query", fileQuery);
+    console.log("pathtest promises", [pkgPromise, approvedPromise, prohibitedPromise, recommendedPromise, restrictedPromise]);
+
+
+    return Promise.all([pkgPromise, approvedPromise, prohibitedPromise, recommendedPromise, restrictedPromise]).then((promises) => this.sync
+      .then((db) => db.File.findAll(fileQuery))
+      .then((files) => {
+        // console.log("pathtest Got files", files);
+        
+        // const result = files.map((file) => {
+        //   let file_name;
+
+        //   const defaultFileName = file.getDataValue('name').toString({});
+        //   const defaultFilePath = file.getDataValue('path');
+
+        //   if (!defaultFileName) {
+        //     file_name = path.basename(defaultFilePath);
+        //   } else {
+        //     file_name = defaultFileName;
+        //   }
+        //   const currentData = {
+        //     // id: defaultFilePath,
+        //     key: defaultFilePath,
+
+        //     // text: file_name,
+        //     title: file_name,
+        //     parent: file.getDataValue('parent').toString({}),
+        //     type: this.determineJSTreeType(file, promises),
+        //     children: file.getDataValue('type').toString({}) === 'directory'
+        //   };
+        // });
+
+
+        const result: unknown[] = this.listToTreeData(files);
+        console.log("pathtest", result);
+        return result;
+      }));
+  }
+  
+  listToTreeData(fileList: Model<FileAttributes, FileAttributes>[]) {
+    const pathToIndexMap = new Map<string, number>();
+    const roots: unknown[] = [];
+
+    console.log("pathtest got fileList", fileList);
+    
+
+    fileList.forEach((file, i) => {
+      // initialize the map
+      pathToIndexMap.set(file.getDataValue('path'), Number(file.getDataValue('id')));
+  
+      // initialize the children
+      file.key = file.getDataValue('path');
+      // file.key = file.getDataValue('path');
+      file.children = [];
+      file.title = path.basename(file.getDataValue('path'));
+    })
+    
+    fileList.forEach((file, i) => {
+      const parentPath = file.getDataValue('parent').toString({});
+      if (Number(file.getDataValue('id')) !== 0) {
+        if(pathToIndexMap.has(parentPath)){
+
+          // if you have dangling branches check that map[node.parentId] exists
+          fileList[pathToIndexMap.get(parentPath)].children.push(file);
+        }
+      } else {
+        roots.push(file);
+      }
+    });
+    
+    console.log("pathtest Prepared tree", roots);
+    return roots;
+  }
 
   determineJSTreeType(file: Model<FileAttributes, FileAttributes>, promises: string[][]) {
     let type = '';
@@ -324,12 +420,14 @@ export class WorkbenchDB {
             promiseChain = promiseChain
               .then(() => primaryPromise._batchCreateFiles(files, headerId))
               .then(() => {
+                console.log("batch create completed");
+                
                 const currProgress = Math.round(index / (files_count + dirs_count) * 100);
                 if (currProgress > progress) {
                   progress = currProgress;
                   onProgressUpdate(progress);
-                  console.log('Progress: ' + `${progress}% ` +
-                              `(${index}/(${files_count}+${dirs_count}))`);
+
+                  console.log('Progress: ' + `${progress}% ` + `(${index}/(${files_count}+${dirs_count}))`);
                 }
               })
               .then(() => {

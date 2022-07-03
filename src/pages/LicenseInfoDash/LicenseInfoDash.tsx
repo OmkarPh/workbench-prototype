@@ -28,9 +28,9 @@ const LicenseInfoDash = () => {
   
   useEffect(() => {
     const { db, initialized, currentPath } = workbenchDB;
-    console.log("pathtest DB updated", db, initialized);
-    console.log("pathtest Initialized", initialized);
-    console.log("pathtest Current path", currentPath);
+    console.log("DB updated", db, initialized);
+    console.log("Initialized", initialized);
+    console.log("Current path", currentPath);
     
     if(!initialized || !db || !currentPath)
       return;
@@ -109,7 +109,7 @@ const LicenseInfoDash = () => {
     <div className='text-center'>
       <br/>
         <h3>
-          License info - {'{path}'}
+          License info - { workbenchDB.currentPath || ""}
         </h3>
       <br/><br/>
       <Row className="dash-cards">

@@ -39,7 +39,7 @@ const Layout = (props: React.PropsWithChildren) => {
           visible={show}
           minSize={120}
           maxSize={400}
-          className="file-tree-pane"
+          className="file-tree-pane overflow-scroll"
           preferredSize="20%"
         >
           <FileTree style={{ minHeight: "100vh" }} />
