@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import SplitPane from 'react-split-pane-v2'
 import { useLocation } from 'react-router-dom';
 import { ReflexContainer, ReflexElement, ReflexSplitter } from 'react-reflex';
@@ -20,23 +20,16 @@ import "allotment/dist/style.css";
 const Layout = (props: React.PropsWithChildren) => {
   const { pathname } = useLocation();
   
-  const show = FILE_TREE_ROUTES.find(route => pathname.includes(route)) !== undefined;
-  console.log("filetree Path", pathname);
-  console.log("filetree Show", show);
+  const showFileTree = FILE_TREE_ROUTES.find(route => pathname.includes(route)) !== undefined;
 
   return (
     <div className='d-flex flex-row'>
       <Navbar2 />
       {/* <Navbar /> */}
 
-      {/* No filetree */}
-      {/* <div style={{ width: "100%", padding: "10px"}}>
-        { props.children }
-      </div> */}
-
       <Allotment className='pane-container'>
         <Allotment.Pane
-          visible={show}
+          visible={showFileTree}
           minSize={120}
           maxSize={400}
           className="file-tree-pane overflow-scroll"
@@ -44,7 +37,7 @@ const Layout = (props: React.PropsWithChildren) => {
         >
           <FileTree style={{ minHeight: "100vh" }} />
         </Allotment.Pane>
-        <Allotment.Pane>
+        <Allotment.Pane className='overflow-scroll'>
           <div className='content-container'>
             { props.children }
           </div>

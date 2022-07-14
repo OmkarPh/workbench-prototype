@@ -55,7 +55,7 @@ const Home = () => {
                 });
             }
 
-            console.log("Final sqlitefile path", sqliteFilePath);
+            console.log("SQlitefile path", sqliteFilePath);
 
             // Create a new database when importing a json file
             const workbenchDB = new WorkbenchDB({
@@ -94,7 +94,6 @@ const Home = () => {
                 console.log("Find default path");
                 workbenchDB.sync
                     .then((db) => db.File.findOne({ where: { parent: '#' }}))
-                    // .then((db) => db.File.findOne({ where: { id: 0 }}))
                     .then(root => {
                         console.log("Root dir", root);
                         const defaultPath = root.getDataValue('path');
@@ -111,8 +110,8 @@ const Home = () => {
             });
         }
         ipcRenderer.removeAllListeners('import-reply');
-        ipcRenderer.on('import-reply', (event, message) => {
-            console.log("import reply in home.ts", message);
+        ipcRenderer.on('import-reply', (_, message) => {
+            console.log("importing file:", message.jsonFilePath, message);
             sqliteParser(message.sqliteFilePath, message.jsonFilePath);
         });
         return () => {
@@ -122,9 +121,8 @@ const Home = () => {
 
     /** Import a ScanCode JSON file and create a SQLite database */
     function importJson() {
-        console.log("Importing json guys");
         ipcRenderer.send('open-file-dialog')
-        console.log("done");
+        console.log("Open file dialog opened");
         return;
     }
 

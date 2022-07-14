@@ -14,18 +14,103 @@
  #
  */
 
+import { DataTypeJSONType, Model } from 'sequelize';
 import { Sequelize, DataTypes } from 'sequelize';
 import { jsonDataType, parentPath } from './databaseUtils';
 
+
+export interface FlatFileAttributes {
+  path: string;
+  id: DataTypes.IntegerDataType,
+  fileId: DataTypes.IntegerDataType,
+  parent: DataTypes.StringDataType,
+  copyright_statements: DataTypes.AbstractDataType,
+  copyright_holders: DataTypeJSONType,
+  copyright_authors: DataTypeJSONType,
+  copyright_start_line: DataTypeJSONType,
+  copyright_end_line: DataTypeJSONType,
+  license_policy: DataTypeJSONType,
+  license_expressions: DataTypeJSONType,
+  license_key: DataTypeJSONType,
+  license_score: DataTypeJSONType,
+  license_short_name: DataTypeJSONType,
+  license_category: DataTypeJSONType,
+  license_owner: DataTypeJSONType,
+  license_homepage_url: DataTypeJSONType,
+  license_text_url: DataTypeJSONType,
+  license_reference_url: DataTypeJSONType,
+  license_spdx_key: DataTypeJSONType,
+  license_start_line: DataTypeJSONType,
+  license_end_line: DataTypeJSONType,
+  license_matched_rule: DataTypeJSONType,
+  email: DataTypeJSONType,
+  email_start_line: DataTypeJSONType,
+  email_end_line: DataTypeJSONType,
+  url: DataTypeJSONType,
+  url_start_line: DataTypeJSONType,
+  url_end_line: DataTypeJSONType,
+  type: DataTypes.StringDataType,
+  name: DataTypes.StringDataType,
+  extension: DataTypes.StringDataType,
+  date: DataTypes.StringDataType,
+  size: DataTypes.IntegerDataType,
+  sha1: DataTypes.StringDataType,
+  md5: DataTypes.StringDataType,
+  file_count: DataTypes.IntegerDataType
+  mime_type: DataTypes.StringDataType,
+  file_type: DataTypes.StringDataType,
+  programming_language: DataTypes.StringDataType,
+  is_binary: boolean,
+  is_text: boolean,
+  is_archive: boolean,
+  is_media: boolean,
+  is_source: boolean,
+  is_script: boolean,
+  scan_errors: DataTypeJSONType,
+  packages_type: DataTypeJSONType,
+  packages_namespace: DataTypeJSONType,
+  packages_name: DataTypeJSONType,
+  packages_version: DataTypeJSONType,
+  packages_qualifiers: DataTypeJSONType,
+  packages_subpath: DataTypeJSONType,
+  packages_purl: DataTypeJSONType,
+  packages_primary_language: DataTypeJSONType,
+  packages_code_type: DataTypeJSONType,
+  packages_description: DataTypeJSONType,
+  packages_size: DataTypeJSONType,
+  packages_release_date: DataTypeJSONType,
+  packages_keywords: DataTypeJSONType,
+  packages_homepage_url: DataTypeJSONType,
+  packages_download_url: DataTypeJSONType,
+  packages_donwload_checksums: DataTypeJSONType,
+  packages_bug_tracking_url: DataTypeJSONType,
+  packages_code_view_url: DataTypeJSONType,
+  packages_vcs_tool: DataTypeJSONType,
+  packages_vcs_repository: DataTypeJSONType,
+  packages_vcs_revision: DataTypeJSONType,
+  packages_declared_licensing: DataTypeJSONType,
+  packages_license_expression: DataTypeJSONType,
+  packages_notice_text: DataTypeJSONType,
+  packages_dependencies: DataTypeJSONType,
+  packages_related_packages: DataTypeJSONType,
+}
+
 export default function flatFileModel(sequelize: Sequelize) {
-  const Model = sequelize.define(
+  const FlatFileModel = sequelize.define<Model<FlatFileAttributes>>(
     'flat_files',
     {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: DataTypes.INTEGER,
+      },
       path: {
         type: DataTypes.STRING,
         unique: true,
         allowNull: false
       },
+      fileId: DataTypes.INTEGER,
       parent: {type: DataTypes.STRING, defaultValue: ''},
       copyright_statements: jsonDataType('copyright_statements'),
       copyright_holders: jsonDataType('copyright_holders'),
@@ -129,7 +214,7 @@ export default function flatFileModel(sequelize: Sequelize) {
    * @param file.is_source
    * @param file.is_script
    */
-  Model.flatten = function(file) {
+  FlatFileModel.flatten = function(file) {
     return {
       path: file.path,
       parent: parentPath(file.path),
@@ -205,7 +290,7 @@ export default function flatFileModel(sequelize: Sequelize) {
     };
   };
 
-  return Model;
+  return FlatFileModel;
 };
 
 function getLicensePolicyLabel(policy) {

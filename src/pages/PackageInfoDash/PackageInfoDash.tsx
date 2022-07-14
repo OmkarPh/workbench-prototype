@@ -24,31 +24,32 @@ const PackageInfoDash = () => {
   
   useEffect(() => {
     const { db, initialized, currentPath } = workbenchDB;
-    console.log("DB updated", db, initialized);
-    console.log("Initialized", initialized);
-    console.log("Current path", currentPath);
     
     if(!initialized || !db || !currentPath)
       return;
 
-    console.log("DB updated", db, initialized);
-
-    console.log("Path query", {where: {path: {[Op.like]: `%${currentPath}%`}}});
-
     db.sync.then(db => db.File.findAll({
-      where: {path: {[Op.like]: `%${currentPath}%`}},
+      where: {
+        path: {
+          [Op.or]: [
+            { [Op.like]: `${currentPath}`},      // Matches a file / directory.
+            { [Op.like]: `${currentPath}/%`}  // Matches all its children (if any).
+          ]
+        }
+      },
       // attributes: ['id'],
     }))
       .then((files) =>{
         const fileIDs = files.map(file => file.getDataValue('id'));
-        console.log("FileIDs to work on: ", fileIDs);
-
+        // console.log("Files to work on: ", files.map(file => file.get({ plain: true })));
+        // console.log("Files ids to work on: ", fileIDs);
+        
         // Query and prepare chart for package types
         db.sync
-          .then(db => db.Package.findAll({where: { id: fileIDs }}))
+          .then(db => db.Package.findAll({where: { fileId: fileIDs }}))
           .then(packages => {
             // Prepare count of total packages
-            console.log("All packages", packages);
+            // console.log("All packages", packages.map(pkg => pkg.get({ plain: true })));
             setScanData({ totalPackages: packages.length });
             return packages;
           })
@@ -75,6 +76,7 @@ const PackageInfoDash = () => {
             );
             const { chartData: packageLicenseExpChartData } = 
               formatChartData(packageLicenseExp, 'package license exp');
+            
             console.log("Result packages license exp:", packageLicenseExpChartData);
             setPackageLicenseData(packageLicenseExpChartData);
           });

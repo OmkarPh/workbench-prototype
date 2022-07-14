@@ -40,7 +40,6 @@ const FileInfoDash = () => {
       .then(db => db.File.findOne({ where: { path: currentPath }}))
       .then(root => {
         console.log("Root dir", root);
-        console.log("Path query", {where: {path: {[Op.like]: `%${currentPath}%`}}});
 
         // Prepare aggregate data
         const filesCount =
@@ -55,7 +54,14 @@ const FileInfoDash = () => {
         }));
 
         return db.sync.then(db => db.File.findAll({
-          where: {path: {[Op.like]: `%${currentPath}%`}},
+          where: {
+            path: {
+              [Op.or]: [
+                { [Op.like]: `${currentPath}`},      // Matches a file / directory.
+                { [Op.like]: `${currentPath}/%`}  // Matches all its children (if any).
+              ]
+            }
+          },
           // attributes: ['id', 'mime_type', 'programming_language', ],
         }))
       })
@@ -76,11 +82,11 @@ const FileInfoDash = () => {
       })
       .then((files) =>{
         const fileIDs = files.map(file => file.getDataValue('id'));
-        console.log("FileIDs to work on: ", fileIDs);
+        // console.log("FileIDs to work on: ", fileIDs);
 
         // Query and prepare chart for copyright holders
         db.sync
-          .then((db) => db.Copyright.findAll({where: { id: fileIDs }}))
+          .then((db) => db.Copyright.findAll({where: { fileId: fileIDs }}))
           .then(copyrights => copyrights.map(
             copyright => copyright.getDataValue('holders') || 'No Value Detected'
           ))

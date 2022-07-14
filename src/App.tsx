@@ -25,7 +25,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import './app.css';
 import './dashStyles.css';
-import Barchart from './pages/Barchart/Barchart';
+import ChartView from './pages/ChartView/ChartView';
 
 
 const App = () => {
@@ -41,7 +41,7 @@ const App = () => {
               <Route path={ROUTES.FILE_DASHBOARD} element={<FileInfoDash />} />
               <Route path={ROUTES.LICENSE_DASHBOARD} element={<LicenseInfoDash />} />
               <Route path={ROUTES.PACKAGE_DASHBOARD} element={<PackageInfoDash />} />
-              <Route path={ROUTES.CHART_SUMMARY} element={<Barchart />} />
+              <Route path={ROUTES.CHART_SUMMARY} element={<ChartView />} />
               <Route element={<TemporaryPage text='4 0 4 ¯\_(ツ)_/¯' />} />
             </Route>
           </Routes>

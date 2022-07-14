@@ -5,7 +5,6 @@ import { useWorkbenchDB } from '../../contexts/workbenchContext';
 
 import './TableView.css';
 import ReactDataGrid from '@inovua/reactdatagrid-community';
-import { FileAttributes } from '../../services/models/file';
 
 import '@inovua/reactdatagrid-community/index.css'
 import { TypeColumns } from '@inovua/reactdatagrid-community/types/TypeColumn';
@@ -64,11 +63,17 @@ const TableView = () => {
       return;
 
     console.log("Root dir path in tableview", currentPath);
-    console.log("Path query", {where: {path: {[Op.like]: `%${currentPath}%`}}});
 
     db.sync
       .then(db => db.File.findAll({
-        where: {path: {[Op.like]: `${currentPath}%`}},
+        where: {
+          path: {
+            [Op.or]: [
+              { [Op.like]: `${currentPath}`},      // Matches a file / directory.
+              { [Op.like]: `${currentPath}/%`}  // Matches all its children (if any).
+            ]
+          }
+        },
         // attributes: ['id'],
         raw: true,
       }))

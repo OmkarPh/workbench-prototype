@@ -16,7 +16,7 @@ import { DatabaseStructure } from './models/database';
  */
 
 import * as $ from 'jquery'
-import { FindOptions, Model, QueryInterface, Sequelize, Transaction, TransactionOptions } from 'sequelize';
+import { FindOptions, Model, Op, QueryInterface, Sequelize, Transaction, TransactionOptions } from 'sequelize';
 import fs from 'fs';
 import path from 'path';
 import JSONStream from 'JSONStream';
@@ -46,6 +46,20 @@ interface WorkbenchDbConfig {
   dbUser?: string,
   dbPassword?: string,
 }
+
+function sortChildren(node: Model<FileAttributes, FileAttributes>){
+  if(!node.children || !node.children.length)
+    return;
+  node.children.sort((a, b) => {
+    if(a.type === b.type)
+      return 0;
+    if(a.type === 'file')
+      return 1;
+    return -1;
+  });
+  node.children.forEach(sortChildren);
+}
+
 export class WorkbenchDB {
   sequelize: Sequelize;
   db: DatabaseStructure;
@@ -123,42 +137,42 @@ export class WorkbenchDB {
     return this.sync.then((db) => db.File.findAll(query));
   }
 
-  findAllUnique(path, field, subTable) {
+  findAllUnique(path: string, fileId: number, subTable) {
     return this.sync
       .then((db) => {
         if (!subTable) {
           return db.File
             .findAll({
-              attributes: [field],
-              group: [field],
+              attributes: [fileId],
+              group: [fileId],
               where: {
-                path: {$like: `${path}%`},
-                $and: [
-                  {[field]: {$ne: null}},
-                  {[field]: {$ne: ''}}
+                path: {[Op.like]: `${path}%`},
+                [Op.and]: [
+                  {[fileId]: {$ne: null}},
+                  {[fileId]: {$ne: ''}}
                 ]
               }
             })
-            .then((rows) => $.map(rows, (row) => row[field]));
+            .then((uniqueFiles) => $.map(uniqueFiles, (uniqueFile) => uniqueFile.getDataValue('fileId')))
         }
         return db.File
           .findAll({
             attributes: [],
-            group: [`${subTable.name}.${field}`],
+            group: [`${subTable.name}.${fileId}`],
             where: { path: {$like: `${path}%`} },
             include: [{
               model: subTable,
-              attributes: [field],
+              attributes: [fileId],
               where: {
                 $and: [
-                  { [field]: {$ne: null} },
-                  { [field]: {$ne: ''} }
+                  { [fileId]: {$ne: null} },
+                  { [fileId]: {$ne: ''} }
                 ]
               },
             }]
           })
           .then((rows) => $.map(rows, (row) => row[subTable.name]))
-          .then((values) => $.map(values, (value) => value[field]));
+          .then((values) => $.map(values, (value) => value[fileId]));
       });
   }
 
@@ -243,38 +257,13 @@ export class WorkbenchDB {
     return Promise.all([pkgPromise, approvedPromise, prohibitedPromise, recommendedPromise, restrictedPromise]).then((promises) => this.sync
       .then((db) => db.File.findAll(fileQuery))
       .then((files) => {
-        // console.log("pathtest Got files", files);
-        
-        // const result = files.map((file) => {
-        //   let file_name;
-
-        //   const defaultFileName = file.getDataValue('name').toString({});
-        //   const defaultFilePath = file.getDataValue('path');
-
-        //   if (!defaultFileName) {
-        //     file_name = path.basename(defaultFilePath);
-        //   } else {
-        //     file_name = defaultFileName;
-        //   }
-        //   const currentData = {
-        //     // id: defaultFilePath,
-        //     key: defaultFilePath,
-
-        //     // text: file_name,
-        //     title: file_name,
-        //     parent: file.getDataValue('parent').toString({}),
-        //     type: this.determineJSTreeType(file, promises),
-        //     children: file.getDataValue('type').toString({}) === 'directory'
-        //   };
-        // });
-
-
         const result: unknown[] = this.listToTreeData(files);
         console.log("pathtest", result);
         return result;
       }));
   }
   
+
   listToTreeData(fileList: Model<FileAttributes, FileAttributes>[]) {
     const pathToIndexMap = new Map<string, number>();
     const roots: unknown[] = [];
@@ -305,6 +294,8 @@ export class WorkbenchDB {
         roots.push(file);
       }
     });
+
+    roots.forEach(sortChildren);
     
     console.log("pathtest Prepared tree", roots);
     return roots;
@@ -465,7 +456,7 @@ export class WorkbenchDB {
     // Add batched files to the DB
     return this._addFlattenedFiles(files)
       .then(() => {
-        console.log("This.addFiles with params:", files, headerId);
+        // console.log("This.addFiles with params:", files, headerId);
         this._addFiles(files, headerId)
       });
   }
@@ -506,28 +497,28 @@ export class WorkbenchDB {
         .then(() => DebugLogger("file processor", "Processed bulkcreate"))
         
         .then(() => this.db.License.bulkCreate(this._addExtraFields(files, 'licenses'), options))
-        .then(() => DebugLogger("file processor", "Processed licenses"))
+        .then(() => DebugLogger("license processor", "Processed licenses"))
 
         .then(() => this.db.LicenseExpression.bulkCreate(this._addExtraFields(files, 'license_expressions'), options))
-        .then(() => DebugLogger("file processor", "Processed license_exp"))
+        .then(() => DebugLogger("license exp processor", "Processed license_exp"))
 
         .then(() => this.db.LicensePolicy.bulkCreate(this._addExtraFields(files, 'license_policy'), options)) 
-        .then(() => DebugLogger("file processor", "Processed license_policy"))
+        .then(() => DebugLogger("license policy processor", "Processed license_policy"))
 
         .then(() => this.db.Copyright.bulkCreate(this._addExtraFields(files, 'copyrights'), options))
-        .then(() => DebugLogger("file processor", "Processed copyrights"))
+        .then(() => DebugLogger("copyright processor", "Processed copyrights"))
 
         .then(() => this.db.Package.bulkCreate(this._addExtraFields(files, 'packages'), options))
-        .then(() => DebugLogger("file processor", "Processed packages"))
+        .then(() => DebugLogger("package processor", "Processed packages"))
 
         .then(() => this.db.Email.bulkCreate(this._addExtraFields(files, 'emails'), options))
-        .then(() => DebugLogger("file processor", "Processed emails"))
+        .then(() => DebugLogger("email processor", "Processed emails"))
 
         .then(() => this.db.Url.bulkCreate(this._addExtraFields(files, 'urls'), options))
-        .then(() => DebugLogger("file processor", "Processed urls"))
+        .then(() => DebugLogger("URL processor", "Processed urls"))
 
         .then(() => this.db.ScanError.bulkCreate(this._addExtraFields(files, 'scan_errors'), options))
-        .then(() => DebugLogger("file processor", "Processed scan-errors"))
+        .then(() => DebugLogger("scan error processor", "Processed scan-errors"))
 
         .then(() => DebugLogger("file processor", "File processing completed !!!"));
     });

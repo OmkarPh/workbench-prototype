@@ -305,12 +305,16 @@ export const PACKAGE_COLUMNS: Column[] = [
   },
 ];
 
-interface BAR_CHART_GROUP {
-  label: string,
-  key: string,
-  cols: Column[],
-}
-export const BAR_CHART_COLUMNS: { [key: string]: BAR_CHART_GROUP } = {
+// interface BAR_CHART_GROUP {
+//   label: string,
+//   key: string,
+//   cols: Column[],
+// }
+
+// interface BAR_CHART_COLUMNS_STRUCTURE {
+
+// }
+export const BAR_CHART_COLUMNS = {
   Copyright: {
     label: "Copyright columns",
     key: 'copyright_columns',

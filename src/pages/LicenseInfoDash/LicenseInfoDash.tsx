@@ -34,14 +34,17 @@ const LicenseInfoDash = () => {
     
     if(!initialized || !db || !currentPath)
       return;
-
     console.log("DB updated", db, initialized);
 
-    console.log("Path query", {where: {path: {[Op.like]: `%${currentPath}%`}}});
-
     db.sync.then(db => db.File.findAll({
-      where: {path: {[Op.like]: `%${currentPath}%`}},
-      // where: {path: {[Op.like]: `${rootPath}%`}},
+      where: {
+        path: {
+          [Op.or]: [
+            { [Op.like]: `${currentPath}`},      // Matches a file / directory.
+            { [Op.like]: `${currentPath}/%`}  // Matches all its children (if any).
+          ]
+        }
+      },
       // attributes: ['id'],
     }))
       .then((files) =>{
@@ -50,7 +53,7 @@ const LicenseInfoDash = () => {
 
         // Query and prepare chart for license expression
         db.sync
-          .then(db => db.LicenseExpression.findAll({where: { id: fileIDs }}))
+          .then(db => db.LicenseExpression.findAll({where: { fileId: fileIDs }}))
           .then((expressions) => expressions.map(
             expression => expression.getDataValue('license_expression') || 'No Value Detected'
           ))
@@ -63,7 +66,7 @@ const LicenseInfoDash = () => {
 
         // Query and prepare chart for license keys
         db.sync
-          .then((db) => db.License.findAll({where: { id: fileIDs }}))
+          .then((db) => db.License.findAll({where: { fileId: fileIDs }}))
           .then(licenses => {
 
             // Prepare aggregate data
@@ -95,7 +98,7 @@ const LicenseInfoDash = () => {
           
         // Query and prepare chart for license policy
         db.sync
-          .then((db) => db.LicensePolicy.findAll({where: { id: fileIDs }}))
+          .then((db) => db.LicensePolicy.findAll({where: { fileId: fileIDs }}))
           .then((licenses) => licenses.map(val => val.getDataValue('label') || 'No Value Detected'))
           .then(labels => {
             const { chartData } = formatChartData(labels, 'policy');

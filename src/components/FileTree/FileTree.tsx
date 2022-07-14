@@ -1,10 +1,9 @@
 import RcTree from 'rc-tree';
-import { DataNode, EventDataNode } from 'rc-tree/lib/interface';
+import { DataNode } from 'rc-tree/lib/interface';
 
+import React, { LegacyRef, useEffect, useState } from 'react';
 import { Tree, TreeApi } from 'react-arborist';
-import { IdObj } from 'react-arborist/dist/types';
-
-import React, { LegacyRef, StyleHTMLAttributes, useEffect, useState } from 'react';
+// import { IdObj } from 'react-arborist/dist/types';
 import { useWorkbenchDB } from '../../contexts/workbenchContext';
 
 import './FileTree.css';
@@ -99,78 +98,54 @@ function TreeNode(props: { ref: LegacyRef<HTMLDivElement>, styles: any, data: an
 const FileTree = (props: React.HTMLProps<HTMLDivElement>) => {
   
   const workbenchDB = useWorkbenchDB();
+  const { db, initialized, importedFile } = workbenchDB;
 
   const [treeData, setTreeData] = useState<DataNode[]>(defaultTreeData);
-  const [treeData2, setTreeData2] = useState<IdObj & any>({ id: "23", name: "abcd" });
+  // const [treeData2, setTreeData2] = useState<IdObj & any>();
 
   useEffect(() => {
-    const { db, initialized, importedFile } = workbenchDB;
     
     if(!initialized || !db || !importedFile)
       return;
     
-    console.log("pathtest File tree init started", db, initialized);
+    // console.log("pathtest File tree init started", db, initialized);
     
     db.sync
       .then((db) => db.File.findOne({ where: { parent: '#' }}))
       .then(root => {
-        console.log("pathtest", "Root dir", root);
-        console.log("pathtest", "Path query", {
-          where: {
-            parent: root.getDataValue('id'),
-          }
-        });
+        // console.log("pathtest", "Root dir", root);
+        // console.log("pathtest", "Path query", {
+        //   where: {
+        //     parent: root.getDataValue('id'),
+        //   }
+        // });
 
         db.findAllJSTree(root.getDataValue('path'))
           .then((treeData: any[]) => {
-            console.log(`pathtest Tree data for file ${importedFile}: `, treeData);
+            // console.log(`pathtest Tree data for file ${importedFile}: `, treeData);
             setTreeData(treeData);
-            setTreeData2(treeData)
-            console.log("pathtest File tree init completed", db, initialized);
+            // setTreeData2(treeData[0]);
+            // console.log("pathtest File tree init completed", db, initialized);
           })
-        
-        // db.findAllJSTree({
-        //   where: {
-        //     // parent: root.getDataValue('path'),
-        //     // parent: root.getDataValue('id'),
-        //     parent: '#',
-        //   }
-        // })
-        // .then(res => {
-        //   console.log("pathtest File tree debug", res);
-          
-        //   // setTreeData();
-        // })
-      // .then((children) => callback.call(this, children));
     })
-  }, [workbenchDB]);
+  }, [importedFile]);
 
   // function selectPath(node: EventDataNode<DataNode>){
   //   console.log("pathtest selected", node);
   //   console.log("pathtest selected path", );
 
   // }
-  function spth(path: string){
+  function selectPath(path: string){
     if(!workbenchDB.initialized)
       return;
-    console.log("pathtest selected", path);
+    // console.log("pathtest selected", path);
     workbenchDB.updateCurrentPath(path);
-    // workbenchDB.db.sync
-    //   .then(db => {
-    //     db.File.findOne({ where: { id }})
-    //       .then(file => {
-            // console.log("pathtest select path", file.getDataValue('path'));
-            // workbenchDB.updateCurrentPath(file.getDataValue('path'));
-          // })
-
-      // })
-    
   }
 
   return (
     <div className="file-tree-container" {...props}>
       {/* <Tree
-        data={treeData2}
+        data={treeData}
         ref={(tree: TreeApi) => {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
@@ -195,9 +170,9 @@ const FileTree = (props: React.HTMLProps<HTMLDivElement>) => {
         motion={motion}
         treeData={treeData}
         switcherIcon={switcherIcon}
-        onActiveChange={spth}
+        onActiveChange={selectPath}
         // onSelect={(_, info) => selectPath(info.node)}
-        onSelect={keys => spth(keys[0].toString())}
+        onSelect={keys => selectPath(keys[0].toString())}
       />
     </div>
   )
