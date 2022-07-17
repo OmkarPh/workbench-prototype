@@ -14,10 +14,12 @@
  #
  */
 
-import { DataTypeJSONType, Model } from 'sequelize';
+import { Model, ModelAttributeColumnOptions } from 'sequelize';
 import { Sequelize, DataTypes } from 'sequelize';
 import { jsonDataType, parentPath } from './databaseUtils';
 
+
+type CustomJSONType = DataTypes.DataType | ModelAttributeColumnOptions<Model<FlatFileAttributes, FlatFileAttributes>>;
 
 export interface FlatFileAttributes {
   path: string;
@@ -25,30 +27,30 @@ export interface FlatFileAttributes {
   fileId: DataTypes.IntegerDataType,
   parent: DataTypes.StringDataType,
   copyright_statements: DataTypes.AbstractDataType,
-  copyright_holders: DataTypeJSONType,
-  copyright_authors: DataTypeJSONType,
-  copyright_start_line: DataTypeJSONType,
-  copyright_end_line: DataTypeJSONType,
-  license_policy: DataTypeJSONType,
-  license_expressions: DataTypeJSONType,
-  license_key: DataTypeJSONType,
-  license_score: DataTypeJSONType,
-  license_short_name: DataTypeJSONType,
-  license_category: DataTypeJSONType,
-  license_owner: DataTypeJSONType,
-  license_homepage_url: DataTypeJSONType,
-  license_text_url: DataTypeJSONType,
-  license_reference_url: DataTypeJSONType,
-  license_spdx_key: DataTypeJSONType,
-  license_start_line: DataTypeJSONType,
-  license_end_line: DataTypeJSONType,
-  license_matched_rule: DataTypeJSONType,
-  email: DataTypeJSONType,
-  email_start_line: DataTypeJSONType,
-  email_end_line: DataTypeJSONType,
-  url: DataTypeJSONType,
-  url_start_line: DataTypeJSONType,
-  url_end_line: DataTypeJSONType,
+  copyright_holders: CustomJSONType,
+  copyright_authors: CustomJSONType,
+  copyright_start_line: CustomJSONType,
+  copyright_end_line: CustomJSONType,
+  license_policy: CustomJSONType,
+  license_expressions: CustomJSONType,
+  license_key: CustomJSONType,
+  license_score: CustomJSONType,
+  license_short_name: CustomJSONType,
+  license_category: CustomJSONType,
+  license_owner: CustomJSONType,
+  license_homepage_url: CustomJSONType,
+  license_text_url: CustomJSONType,
+  license_reference_url: CustomJSONType,
+  license_spdx_key: CustomJSONType,
+  license_start_line: CustomJSONType,
+  license_end_line: CustomJSONType,
+  license_matched_rule: CustomJSONType,
+  email: CustomJSONType,
+  email_start_line: CustomJSONType,
+  email_end_line: CustomJSONType,
+  url: CustomJSONType,
+  url_start_line: CustomJSONType,
+  url_end_line: CustomJSONType,
   type: DataTypes.StringDataType,
   name: DataTypes.StringDataType,
   extension: DataTypes.StringDataType,
@@ -66,33 +68,33 @@ export interface FlatFileAttributes {
   is_media: boolean,
   is_source: boolean,
   is_script: boolean,
-  scan_errors: DataTypeJSONType,
-  packages_type: DataTypeJSONType,
-  packages_namespace: DataTypeJSONType,
-  packages_name: DataTypeJSONType,
-  packages_version: DataTypeJSONType,
-  packages_qualifiers: DataTypeJSONType,
-  packages_subpath: DataTypeJSONType,
-  packages_purl: DataTypeJSONType,
-  packages_primary_language: DataTypeJSONType,
-  packages_code_type: DataTypeJSONType,
-  packages_description: DataTypeJSONType,
-  packages_size: DataTypeJSONType,
-  packages_release_date: DataTypeJSONType,
-  packages_keywords: DataTypeJSONType,
-  packages_homepage_url: DataTypeJSONType,
-  packages_download_url: DataTypeJSONType,
-  packages_donwload_checksums: DataTypeJSONType,
-  packages_bug_tracking_url: DataTypeJSONType,
-  packages_code_view_url: DataTypeJSONType,
-  packages_vcs_tool: DataTypeJSONType,
-  packages_vcs_repository: DataTypeJSONType,
-  packages_vcs_revision: DataTypeJSONType,
-  packages_declared_licensing: DataTypeJSONType,
-  packages_license_expression: DataTypeJSONType,
-  packages_notice_text: DataTypeJSONType,
-  packages_dependencies: DataTypeJSONType,
-  packages_related_packages: DataTypeJSONType,
+  scan_errors: CustomJSONType,
+  packages_type: CustomJSONType,
+  packages_namespace: CustomJSONType,
+  packages_name: CustomJSONType,
+  packages_version: CustomJSONType,
+  packages_qualifiers: CustomJSONType,
+  packages_subpath: CustomJSONType,
+  packages_purl: CustomJSONType,
+  packages_primary_language: CustomJSONType,
+  packages_code_type: CustomJSONType,
+  packages_description: CustomJSONType,
+  packages_size: CustomJSONType,
+  packages_release_date: CustomJSONType,
+  packages_keywords: CustomJSONType,
+  packages_homepage_url: CustomJSONType,
+  packages_download_url: CustomJSONType,
+  packages_donwload_checksums: CustomJSONType,
+  packages_bug_tracking_url: CustomJSONType,
+  packages_code_view_url: CustomJSONType,
+  packages_vcs_tool: CustomJSONType,
+  packages_vcs_repository: CustomJSONType,
+  packages_vcs_revision: CustomJSONType,
+  packages_declared_licensing: CustomJSONType,
+  packages_license_expression: CustomJSONType,
+  packages_notice_text: CustomJSONType,
+  packages_dependencies: CustomJSONType,
+  packages_related_packages: CustomJSONType,
 }
 
 export default function flatFileModel(sequelize: Sequelize) {
@@ -186,114 +188,115 @@ export default function flatFileModel(sequelize: Sequelize) {
       timestamps: false
     });
 
-  /**
-   * Flatten ScanCode results data to load into database
-   *
-   * @param file
-   * @param file.path
-   * @param file.copyrights
-   * @param file.licenses
-   * @param file.emails
-   * @param file.urls
-   * @param file.packages
-   * @param file.type
-   * @param file.name
-   * @param file.extension
-   * @param file.date
-   * @param file.size
-   * @param file.sha1
-   * @param file.md5
-   * @param file.files_count
-   * @param file.mime_type
-   * @param file.file_type
-   * @param file.programming_language
-   * @param file.is_binary
-   * @param file.is_text
-   * @param file.is_archive
-   * @param file.is_media
-   * @param file.is_source
-   * @param file.is_script
-   */
-  FlatFileModel.flatten = function(file) {
-    return {
-      path: file.path,
-      parent: parentPath(file.path),
-      copyright_statements: getCopyrightValues(file.copyrights),
-      copyright_holders: getCopyrightValues(file.holders),
-      copyright_authors: getCopyrightValues(file.authors),
-      copyright_start_line: getValues(file.holders, 'start_line'),
-      copyright_end_line: getValues(file.holders, 'end_line'),
-      license_policy: getLicensePolicyLabel(file.license_policy),
-      license_expressions: file.license_expressions,
-      license_key: getValues(file.licenses, 'key'),
-      license_score: getValues(file.licenses, 'score'),
-      license_short_name: getValues(file.licenses, 'short_name'),
-      license_category: getValues(file.licenses, 'category'),
-      license_owner: getValues(file.licenses, 'owner'),
-      license_homepage_url: getValues(file.licenses, 'homepage_url'),
-      license_text_url: getValues(file.licenses, 'text_url'),
-      license_reference_url: getValues(file.licenses, 'reference_url'),
-      license_spdx_key: getValues(file.licenses, 'spdx_license_key'),
-      license_start_line: getValues(file.licenses, 'start_line'),
-      license_end_line: getValues(file.licenses, 'end_line'),
-      license_matched_rule: getValues(file.licenses, 'matched_rule'),
-      email: getValues(file.emails, 'email'),
-      email_start_line: getValues(file.emails, 'start_line'),
-      email_end_line: getValues(file.emails, 'end_line'),
-      url: getValues(file.urls, 'url'),
-      url_start_line: getValues(file.urls, 'start_line'),
-      url_end_line: getValues(file.urls, 'end_line'),
-      type: file.type,
-      name: file.name,
-      extension: file.extension,
-      date: file.date,
-      size: file.size,
-      sha1: file.sha1,
-      md5: file.md5,
-      file_count: file.files_count,
-      mime_type: file.mime_type,
-      file_type: file.file_type,
-      programming_language: file.programming_language,
-      is_binary: file.is_binary,
-      is_text: file.is_text,
-      is_archive: file.is_archive,
-      is_media: file.is_media,
-      is_source: file.is_source,
-      is_script: file.is_script,
-      scan_errors: file.scan_errors,
-      packages_type: getValues(file.packages, 'type'),
-      pacages_namespace: getValues(file.packages, 'namespace'),
-      packages_name: getValues(file.packages, 'name'),
-      packages_version: getValues(file.packages, 'version'),
-      packages_qualifiers: getValues(file.packages, 'qualifiers'),
-      packages_subpath: getValues(file.packages, 'subpath'),
-      packages_purl: getValues(file.packages, 'purl'),
-      packages_primary_language: getValues(file.packages, 'primary_language'),
-      packages_code_type: getValues(file.packages, 'code_type'),
-      packages_description: getValues(file.packages, 'description'),
-      packages_size: getValues(file.packages, 'size'),
-      packages_release_date: getValues(file.packages, 'release_date'),
-      packages_keywords: getValues(file.packages, 'keywords'),
-      packages_homepage_url: getValues(file.packages, 'homepage_url'),
-      packages_download_url: getValues(file.packages, 'download_url'),
-      packages_download_checksums: getValues(file.packages, 'download_checksums'),
-      packages_bug_tracking_url: getValues(file.packages, 'bug_tracking_url'),
-      packages_code_view_url: getValues(file.packages, 'code_view_url'),
-      packages_vcs_tool: getValues(file.packages, 'vcs_tool'),
-      packages_vcs_repository: getValues(file.packages, 'vcs_repository'),
-      packages_vcs_revision: getValues(file.packages, 'vcs_revision'),
-      packages_declared_licensing: getValues(file.packages, 'declared_license'),
-      packages_license_expression: getValues(file.packages, 'license_expression'),
-      packages_notice_text: getValues(file.packages, 'notice_text'),
-      packages_dependencies: getValues(file.packages, 'dependencies'),
-      packages_related_packages: getValues(file.packages, 'related_packages'),
-    };
-  };
-
   return FlatFileModel;
-};
+}
 
-function getLicensePolicyLabel(policy) {
+
+/**
+ * Flatten ScanCode results data to load into database
+ *
+ * @param file
+ * @param file.path
+ * @param file.copyrights
+ * @param file.licenses
+ * @param file.emails
+ * @param file.urls
+ * @param file.packages
+ * @param file.type
+ * @param file.name
+ * @param file.extension
+ * @param file.date
+ * @param file.size
+ * @param file.sha1
+ * @param file.md5
+ * @param file.files_count
+ * @param file.mime_type
+ * @param file.file_type
+ * @param file.programming_language
+ * @param file.is_binary
+ * @param file.is_text
+ * @param file.is_archive
+ * @param file.is_media
+ * @param file.is_source
+ * @param file.is_script
+ */
+export function flattenFile(file: any) {
+  return {
+    path: file.path,
+    parent: parentPath(file.path),
+    copyright_statements: getCopyrightValues(file.copyrights),
+    copyright_holders: getCopyrightValues(file.holders),
+    copyright_authors: getCopyrightValues(file.authors),
+    copyright_start_line: getValues(file.holders, 'start_line'),
+    copyright_end_line: getValues(file.holders, 'end_line'),
+    license_policy: getLicensePolicyLabel(file.license_policy),
+    license_expressions: file.license_expressions,
+    license_key: getValues(file.licenses, 'key'),
+    license_score: getValues(file.licenses, 'score'),
+    license_short_name: getValues(file.licenses, 'short_name'),
+    license_category: getValues(file.licenses, 'category'),
+    license_owner: getValues(file.licenses, 'owner'),
+    license_homepage_url: getValues(file.licenses, 'homepage_url'),
+    license_text_url: getValues(file.licenses, 'text_url'),
+    license_reference_url: getValues(file.licenses, 'reference_url'),
+    license_spdx_key: getValues(file.licenses, 'spdx_license_key'),
+    license_start_line: getValues(file.licenses, 'start_line'),
+    license_end_line: getValues(file.licenses, 'end_line'),
+    license_matched_rule: getValues(file.licenses, 'matched_rule'),
+    email: getValues(file.emails, 'email'),
+    email_start_line: getValues(file.emails, 'start_line'),
+    email_end_line: getValues(file.emails, 'end_line'),
+    url: getValues(file.urls, 'url'),
+    url_start_line: getValues(file.urls, 'start_line'),
+    url_end_line: getValues(file.urls, 'end_line'),
+    type: file.type,
+    name: file.name,
+    extension: file.extension,
+    date: file.date,
+    size: file.size,
+    sha1: file.sha1,
+    md5: file.md5,
+    file_count: file.files_count,
+    mime_type: file.mime_type,
+    file_type: file.file_type,
+    programming_language: file.programming_language,
+    is_binary: file.is_binary,
+    is_text: file.is_text,
+    is_archive: file.is_archive,
+    is_media: file.is_media,
+    is_source: file.is_source,
+    is_script: file.is_script,
+    scan_errors: file.scan_errors,
+    packages_type: getValues(file.packages, 'type'),
+    pacages_namespace: getValues(file.packages, 'namespace'),
+    packages_name: getValues(file.packages, 'name'),
+    packages_version: getValues(file.packages, 'version'),
+    packages_qualifiers: getValues(file.packages, 'qualifiers'),
+    packages_subpath: getValues(file.packages, 'subpath'),
+    packages_purl: getValues(file.packages, 'purl'),
+    packages_primary_language: getValues(file.packages, 'primary_language'),
+    packages_code_type: getValues(file.packages, 'code_type'),
+    packages_description: getValues(file.packages, 'description'),
+    packages_size: getValues(file.packages, 'size'),
+    packages_release_date: getValues(file.packages, 'release_date'),
+    packages_keywords: getValues(file.packages, 'keywords'),
+    packages_homepage_url: getValues(file.packages, 'homepage_url'),
+    packages_download_url: getValues(file.packages, 'download_url'),
+    packages_download_checksums: getValues(file.packages, 'download_checksums'),
+    packages_bug_tracking_url: getValues(file.packages, 'bug_tracking_url'),
+    packages_code_view_url: getValues(file.packages, 'code_view_url'),
+    packages_vcs_tool: getValues(file.packages, 'vcs_tool'),
+    packages_vcs_repository: getValues(file.packages, 'vcs_repository'),
+    packages_vcs_revision: getValues(file.packages, 'vcs_revision'),
+    packages_declared_licensing: getValues(file.packages, 'declared_license'),
+    packages_license_expression: getValues(file.packages, 'license_expression'),
+    packages_notice_text: getValues(file.packages, 'notice_text'),
+    packages_dependencies: getValues(file.packages, 'dependencies'),
+    packages_related_packages: getValues(file.packages, 'related_packages'),
+  };
+}
+
+function getLicensePolicyLabel(policy: any) {
   if (!policy) {
     return;
   } else if (!policy['label']) {
@@ -302,23 +305,20 @@ function getLicensePolicyLabel(policy) {
   return [policy['label']];
 }
 
-function getCopyrightValues(array) {
+function getCopyrightValues(array: any) {
   if (!array) {
     array = [];
   }
-  const vals = [];
-  array.forEach((val) => {
-    vals.push(val['value']);
-  });
+  const values = array.map((val: any) => val['value']);
   // must wrap this in a list for datatables display; not sure why
-  return [vals];
+  return [values];
 }
 
 // [{key: val0}, {key: val1}] => [val0, val1]
-function getValues(array, key) {
+function getValues(array: any, key: string) {
   if(!array || !array.length)
     return [];
-  return array.map((elem) => {
+  return array.map((elem: any) => {
     return [elem[key] ? elem[key] : []];
   });
 }

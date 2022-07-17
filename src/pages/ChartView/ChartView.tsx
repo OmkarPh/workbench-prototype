@@ -1,4 +1,4 @@
-import { FindOptions, Op, Sequelize, WhereOptions } from 'sequelize';
+import { FindOptions, literal, fn, Op, Sequelize, WhereOptions } from 'sequelize';
 import React, { useEffect, useState } from 'react'
 import { Bar } from "react-chartjs-2";
 import {
@@ -15,8 +15,7 @@ import { useWorkbenchDB } from '../../contexts/workbenchContext';
 
 import { BAR_CHART_COLUMNS } from '../../constants/columns'
 import { formatBarchartData, getAttributeValues } from '../../utils/bar';
-import { FileAttributes } from '../../services/models/file';
-import BarChartLegacy from '../../components/BarChartLegacy/BarChartLegacy';
+import { FlatFileAttributes } from '../../services/models/flatFile';
 
 ChartJS.register(
   CategoryScale,
@@ -51,7 +50,7 @@ const ChartView = () => {
 
     const directoryAttributes = ['packages_type', 'packages_name', 'packages_primary_language'];
 
-    const where: WhereOptions = {
+    const where: WhereOptions<FlatFileAttributes> = {
       path: {
         [Op.or]: [
           { [Op.like]: `${currentPath}`},      // Matches a file / directory.
@@ -61,14 +60,16 @@ const ChartView = () => {
     };
 
     if(directoryAttributes.includes(selectedAttribute)){
-      where.path.type = {
+      where.type = {
         [Op.ne]: 'directory'
       }
     }
-
-    const query: FindOptions<FileAttributes> = {
-      attributes: [Sequelize.fn('TRIM', Sequelize.col(selectedAttribute)), selectedAttribute],
-      where: where
+    // const attr: [typeof literal | typeof fn, ...string[]] = [Sequelize.fn('TRIM', Sequelize.col(selectedAttribute)), selectedAttribute];
+    const query: FindOptions<FlatFileAttributes> = {
+      // attributes: attr,
+      where: where,
+      attributes: [Sequelize.fn('TRIM', Sequelize.col(selectedAttribute)), selectedAttribute] as any,
+      // attributes: [Sequelize.fn('TRIM', Sequelize.col(selectedAttribute)), selectedAttribute],
     };
     console.log("Query", query);
     

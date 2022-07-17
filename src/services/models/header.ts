@@ -18,6 +18,7 @@ import { Model } from 'sequelize';
 import { Sequelize, DataTypes } from 'sequelize';
 
 export interface HeaderAttributes {
+  id: DataTypes.IntegerDataType,
   workbench_version: DataTypes.StringDataType,
   workbench_notice: DataTypes.StringDataType,
   header_content: DataTypes.StringDataType,
@@ -25,18 +26,17 @@ export interface HeaderAttributes {
 }
 
 export default function headerModel(sequelize: Sequelize) {
-  console.log("Header modal", {
-    workbench_version: DataTypes.STRING,
-    workbench_notice: DataTypes.STRING,
-    header_content: DataTypes.STRING,
-    files_count: DataTypes.INTEGER
-  });
-  
   return sequelize.define<Model<HeaderAttributes>>(
     'headers',
     {
       // TODO: The notices and versions should be in their own table
       // See https://github.com/nexB/aboutcode/issues/7
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: DataTypes.INTEGER,
+      },
       workbench_version: DataTypes.STRING,
       workbench_notice: DataTypes.STRING,
       header_content: DataTypes.STRING,

@@ -120,10 +120,10 @@ const FileTree = (props: React.HTMLProps<HTMLDivElement>) => {
         //   }
         // });
 
-        db.findAllJSTree(root.getDataValue('path'))
-          .then((treeData: any[]) => {
+        db.findAllJSTree()
+          .then((treeData) => {
             // console.log(`pathtest Tree data for file ${importedFile}: `, treeData);
-            setTreeData(treeData);
+            setTreeData(treeData as any);
             // setTreeData2(treeData[0]);
             // console.log("pathtest File tree init completed", db, initialized);
           })

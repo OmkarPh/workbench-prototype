@@ -1,4 +1,3 @@
-import { LicenseAttributes } from './license';
 /*
  #
  # Copyright (c) 2018 nexB Inc. and others. All rights reserved.
@@ -19,14 +18,14 @@ import { Model, ModelStatic, Sequelize } from 'sequelize';
 
 import headerModel, { HeaderAttributes } from './header';
 import fileModel, { FileAttributes } from './file';
-import licenseModel from './license';
+import licenseModel, { LicenseAttributes } from './license';
 import licenseExpressionModel, { LicenseExpressionAttributes, OptionalLicenseExpressionAttributes } from './licenseExpression';
 import licensePolicyModel, { LicensePolicyAttributes } from './licensePolicy';
 import copyrightModel, { CopyrightAttributes } from './copyright';
 import packageModel, { PackageAttributes } from './package';
 import emailModel, { EmailAttributes } from './email';
 import urlModel, { UrlAttributes } from './url';
-import flatFileModel from './flatFile';
+import flatFileModel, { FlatFileAttributes } from './flatFile';
 import scanErrorModel, { ScanErrorAttributes } from './scanError';
 
 
@@ -55,7 +54,7 @@ export interface DatabaseStructure{
   ScanError: ModelStatic<Model<ScanErrorAttributes>>,
 
   // TODO
-  FlatFile: ModelStatic<any>,
+  FlatFile: ModelStatic<Model<FlatFileAttributes>>,
 
   fileIncludes: { model: ModelStatic<Model<unknown>>, separate: boolean }[],
 }

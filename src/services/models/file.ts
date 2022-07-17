@@ -17,8 +17,8 @@
 import { Sequelize, DataTypes, Model } from 'sequelize';
 
 export interface FileAttributes {
-  path: string;
   id: DataTypes.IntegerDataType,
+  path: string;
   fileId: DataTypes.IntegerDataType,
   parent: DataTypes.StringDataType,
   type: DataTypes.StringDataType,

@@ -88,13 +88,38 @@ const Home = () => {
             .then(() => {
                 console.log("add from json resolved");
                 
-                workbenchDB.sync
-                    .then(db => db.File.findAll().then(files => console.log(files)));
+                // workbenchDB.sync
+                //     .then(db => db.File.findAll().then(files => console.log(files)));
+                
 
-                console.log("Find default path");
+                console.log("Finding default path");
                 workbenchDB.sync
                     .then((db) => db.File.findOne({ where: { parent: '#' }}))
                     .then(root => {
+                        if(!root){
+                            console.log("Default path not found, trying after 2s !!");
+                            setTimeout(() => {
+                                // TODO -- There shouldn't be a need to do this timeout, this code 
+                                // should be executed only when importing is completed 
+
+                                // Try after 2s for large imports
+                                workbenchDB.sync
+                                    .then(db => db.File.findOne({ where: { parent: '#' }}))
+                                    .then(root => {
+                                        console.log("Root dir", root);
+                                        const defaultPath = root.getDataValue('path');
+                                        console.log("Root dir / default path", defaultPath);
+                
+                                        console.log("Go to table-view with db:", workbenchDB);
+                                        updateWorkbenchDB(workbenchDB, sqliteFilePath)
+                                        navigate(ROUTES.TABLE_VIEW);
+                
+                                        if(defaultPath)
+                                            updateCurrentPath(defaultPath);
+                                    });
+                            }, 2000)
+                            return;
+                        }
                         console.log("Root dir", root);
                         const defaultPath = root.getDataValue('path');
                         console.log("Root dir / default path", defaultPath);

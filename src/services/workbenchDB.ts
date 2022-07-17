@@ -1,4 +1,3 @@
-import { DatabaseStructure } from './models/database';
 /*
  #
  # Copyright (c) 2017 - 2019 nexB Inc. and others. All rights reserved.
@@ -16,14 +15,16 @@ import { DatabaseStructure } from './models/database';
  */
 
 import * as $ from 'jquery'
-import { FindOptions, Model, Op, QueryInterface, Sequelize, Transaction, TransactionOptions } from 'sequelize';
+import { FindOptions, Model, Sequelize, Transaction, TransactionOptions } from 'sequelize';
 import fs from 'fs';
 import path from 'path';
 import JSONStream from 'JSONStream';
-import { newDatabase } from './models/database';
+import { DatabaseStructure, newDatabase } from './models/database';
 import {parentPath} from './models/databaseUtils';
 import { DebugLogger } from '../utils/logger';
 import { FileAttributes } from './models/file';
+import { DataNode } from 'rc-tree/lib/interface';
+import { flattenFile } from './models/flatFile';
 
 /**
  * Manages the database created from a ScanCode JSON input.
@@ -47,10 +48,12 @@ interface WorkbenchDbConfig {
   dbPassword?: string,
 }
 
-function sortChildren(node: Model<FileAttributes, FileAttributes>){
+// TODO
+// function sortChildren(node: Model<FileAttributes, FileAttributes>){
+function sortChildren(node: any){
   if(!node.children || !node.children.length)
     return;
-  node.children.sort((a, b) => {
+  node.children.sort((a: any, b: any) => {
     if(a.type === b.type)
       return 0;
     if(a.type === 'file')
@@ -121,63 +124,22 @@ export class WorkbenchDB {
   getFileCount() {
     return this.sync
       .then((db) => db.Header.findOne({attributes: ['files_count']}))
-      .then((count) => count ? count.files_count : 0);
+      .then((count) => count ? count.getDataValue('files_count') : 0);
   }
 
 
   // Uses the files table to do a findOne query
-  findOne(query) {
+  findOne(query: FindOptions) {
     query = $.extend(query, { include: this.db.fileIncludes });
     return this.sync.then((db) => db.File.findOne(query));
   }
 
   // Uses the files table to do a findAll query
-  findAll(query) {
+  findAll(query: FindOptions) {
     query = $.extend(query, { include: this.db.fileIncludes });
     return this.sync.then((db) => db.File.findAll(query));
   }
 
-  findAllUnique(path: string, fileId: number, subTable) {
-    return this.sync
-      .then((db) => {
-        if (!subTable) {
-          return db.File
-            .findAll({
-              attributes: [fileId],
-              group: [fileId],
-              where: {
-                path: {[Op.like]: `${path}%`},
-                [Op.and]: [
-                  {[fileId]: {$ne: null}},
-                  {[fileId]: {$ne: ''}}
-                ]
-              }
-            })
-            .then((uniqueFiles) => $.map(uniqueFiles, (uniqueFile) => uniqueFile.getDataValue('fileId')))
-        }
-        return db.File
-          .findAll({
-            attributes: [],
-            group: [`${subTable.name}.${fileId}`],
-            where: { path: {$like: `${path}%`} },
-            include: [{
-              model: subTable,
-              attributes: [fileId],
-              where: {
-                $and: [
-                  { [fileId]: {$ne: null} },
-                  { [fileId]: {$ne: ''} }
-                ]
-              },
-            }]
-          })
-          .then((rows) => $.map(rows, (row) => row[subTable.name]))
-          .then((values) => $.map(values, (value) => value[fileId]));
-      });
-  }
-
-
-  // Uses findAll to return JSTree format from the File Table
   findAllJSTreeLegacy(query: FindOptions) {
     // query.attributes = ['id', 'path', 'parent', 'name', 'type'];
     query = $.extend(query, {
@@ -206,8 +168,8 @@ export class WorkbenchDB {
         const result = files.map((file) => {
           let file_name;
 
-          const defaultFileName = file.getDataValue('name').toString({});
-          const defaultFilePath = file.getDataValue('path').toString({});
+          const defaultFileName = file.getDataValue('name');
+          const defaultFilePath = file.getDataValue('path');
 
           if (!defaultFileName) {
             file_name = path.basename(defaultFilePath);
@@ -229,7 +191,7 @@ export class WorkbenchDB {
   
 
   // Uses findAll to return JSTree format from the File Table
-  findAllJSTree(currentPath: string) {
+  findAllJSTree() {
     const fileQuery: FindOptions<FileAttributes> = {
       // where : {
       //   parent: `%${currentPath}%`,
@@ -254,10 +216,10 @@ export class WorkbenchDB {
     console.log("pathtest promises", [pkgPromise, approvedPromise, prohibitedPromise, recommendedPromise, restrictedPromise]);
 
 
-    return Promise.all([pkgPromise, approvedPromise, prohibitedPromise, recommendedPromise, restrictedPromise]).then((promises) => this.sync
+    return Promise.all([pkgPromise, approvedPromise, prohibitedPromise, recommendedPromise, restrictedPromise]).then(() => this.sync
       .then((db) => db.File.findAll(fileQuery))
       .then((files) => {
-        const result: unknown[] = this.listToTreeData(files);
+        const result = this.listToTreeData(files);
         console.log("pathtest", result);
         return result;
       }));
@@ -266,7 +228,7 @@ export class WorkbenchDB {
 
   listToTreeData(fileList: Model<FileAttributes, FileAttributes>[]) {
     const pathToIndexMap = new Map<string, number>();
-    const roots: unknown[] = [];
+    const roots: Model<FileAttributes, FileAttributes>[] = [];
 
     console.log("pathtest got fileList", fileList);
     
@@ -274,12 +236,15 @@ export class WorkbenchDB {
     fileList.forEach((file, i) => {
       // initialize the map
       pathToIndexMap.set(file.getDataValue('path'), Number(file.getDataValue('id')));
+
+      // TODO
+      const fileNode = file as any as DataNode;
   
       // initialize the children
-      file.key = file.getDataValue('path');
+      fileNode.key = file.getDataValue('path');
       // file.key = file.getDataValue('path');
-      file.children = [];
-      file.title = path.basename(file.getDataValue('path'));
+      fileNode.children = [];
+      fileNode.title = path.basename(file.getDataValue('path'));
     })
     
     fileList.forEach((file, i) => {
@@ -287,8 +252,10 @@ export class WorkbenchDB {
       if (Number(file.getDataValue('id')) !== 0) {
         if(pathToIndexMap.has(parentPath)){
 
+          // TODO
           // if you have dangling branches check that map[node.parentId] exists
-          fileList[pathToIndexMap.get(parentPath)].children.push(file);
+          (fileList[pathToIndexMap.get(parentPath)] as any as DataNode)
+            .children.push(file as unknown as DataNode);
         }
       } else {
         roots.push(file);
@@ -347,20 +314,21 @@ export class WorkbenchDB {
     
     const stream = fs.createReadStream(jsonFileName, {encoding: 'utf8'});
     const version = workbenchVersion;
-    let headerId: string | null = null;
+    let headerId: number | null = null;
     let files_count: number | null = null;
     let dirs_count: number | null = null;
     let index = 0;
     let rootPath: string | null = null;
     let hasRootPath = false;
     const batchSize  = 1000;
-    let files = [];
+    let files: any = [];    // TODO
     let progress = 0;
     let promiseChain: Promise<any> = this.sync;
 
     console.time('Load Database');
     return new Promise((resolve, reject) => {
-      const primaryPromise = this;
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
+      const primaryPromise = this;    // TODO
       stream
         .pipe(JSONStream.parse('files.*'))
         .on('header', (header) => {
@@ -387,7 +355,7 @@ export class WorkbenchDB {
           files_count = header.files_count;
           promiseChain = promiseChain
             .then(() => this.db.Header.create(header))
-            .then((result) => headerId = result.id);
+            .then((header) => headerId = Number(header.getDataValue('id')));
         })
         .on('data', function(file) {
           if (!rootPath) {
@@ -452,27 +420,26 @@ export class WorkbenchDB {
     });
   }
 
-  _batchCreateFiles(files, headerId) {
+  _batchCreateFiles(files: any, headerId: number) {
     // Add batched files to the DB
     return this._addFlattenedFiles(files)
       .then(() => {
-        // console.log("This.addFiles with params:", files, headerId);
         this._addFiles(files, headerId)
       });
   }
 
-  _addFlattenedFiles(files) {
+  _addFlattenedFiles(files: any) {
     // Fix for issue #232
     $.each(files, (i, file) => {
       if (file.type === 'directory' && Object.prototype.hasOwnProperty.call(file, 'size_count')) {
         file.size = file.size_count;
       }
     });
-    files = $.map(files, (file) => this.db.FlatFile.flatten(file));
+    files = $.map(files, (file) => flattenFile(file));
     return this.db.FlatFile.bulkCreate(files, {logging: false});
   }
 
-  _addFiles(files, headerId) {
+  _addFiles(files: any, headerId: number) {
     const transactionOptions: TransactionOptions = {
       // logging: () => console.log("logging in _addFiles"),
       autocommit: false,
@@ -524,7 +491,7 @@ export class WorkbenchDB {
     });
   }
 
-  _addExtraFields(files, attribute) {
+  _addExtraFields(files: any, attribute: string) {
     return $.map(files, (file) => {
       if(!file){
         DebugLogger("add file", "invalid file", file);
@@ -562,7 +529,7 @@ export class WorkbenchDB {
     });
   }
 
-  _getLicensePolicy(file) {
+  _getLicensePolicy(file: any) {
     // if ($.isEmptyObject(file.license_policy)) {
     if (!file.license_policy || !Object.keys(file.license_policy).length) {
     // if ($.isEmptyObject(file.license_policy)) {
@@ -573,13 +540,13 @@ export class WorkbenchDB {
     return license_policy;
   }
 
-  _getNewCopyrights(file) {
+  _getNewCopyrights(file: any) {
     const statements = file.copyrights;
     const holders = file.holders;
     const authors = file.authors;
     
-    const newLines = [];
-    const newStatements = [];
+    const newLines: any[] = [];
+    const newStatements: any[] = [];
     if (Array.isArray(statements)) {
       statements.forEach((statement) => {
         const value = statement['value'];
@@ -588,14 +555,15 @@ export class WorkbenchDB {
         }
         newStatements.push(value);
 
-        const line = {};
-        line.start_line = statement['start_line'];
-        line.end_line = statement['end_line'];
+        const line = {
+          start_line: statement['start_line'],
+          end_line: statement['end_line'],
+        };
         newLines.push(line);
       });
     }
     
-    const newHolders = [];
+    const newHolders: any = [];
     if (Array.isArray(holders)) {
       holders.forEach((holder) => {
         const value = holder['value'];
@@ -603,7 +571,7 @@ export class WorkbenchDB {
       });
     }
 
-    const newAuthors = [];
+    const newAuthors: any = [];
     if (Array.isArray(authors)) {
       authors.forEach((author) => {
         const value = author['value'];
@@ -613,19 +581,15 @@ export class WorkbenchDB {
 
     const newCopyrights = [];
     for (let i = 0; i < newStatements.length; i++) {
-      const newCopyright = {};
-      newCopyright.statements = [newStatements[i]];
-      newCopyright.holders = [newHolders[i]];
-      // FIXME: this probably does not work correctly
-      if (!newAuthors) {
-        newCopyright.authors = [];
-      } else {
-        newCopyright.authors = newAuthors;
-      }
-      newCopyright.start_line = newLines[0].start_line;
-      newCopyright.end_line = newLines[0].end_line;
-
-      newCopyright.fileId = file.id;
+      const newCopyright = {
+        statements: [newStatements[i]],
+        holders: [newHolders[i]],
+        // FIXME: this probably does not work correctly
+        authors: newAuthors || [],
+        start_line: newLines[0].start_line,
+        end_line: newLines[0].end_line,
+        fileId: file.id,
+      };
 
       newCopyrights.push(newCopyright);
     }

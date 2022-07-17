@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op, WhereOptions } from 'sequelize';
 import { Row, Col } from 'react-bootstrap';
 import React, { useEffect, useState } from 'react'
 
@@ -11,6 +11,7 @@ interface ScanData {
 }
 
 import "./PackageInfoDash.css";
+import { FileAttributes } from '../../services/models/file';
 
 const PackageInfoDash = () => {
 
@@ -28,15 +29,17 @@ const PackageInfoDash = () => {
     if(!initialized || !db || !currentPath)
       return;
 
+    const where: WhereOptions<FileAttributes> = {
+      path: {
+        [Op.or]: [
+          { [Op.like]: `${currentPath}`},      // Matches a file / directory.
+          { [Op.like]: `${currentPath}/%`}  // Matches all its children (if any).
+        ]
+      }
+    };
+
     db.sync.then(db => db.File.findAll({
-      where: {
-        path: {
-          [Op.or]: [
-            { [Op.like]: `${currentPath}`},      // Matches a file / directory.
-            { [Op.like]: `${currentPath}/%`}  // Matches all its children (if any).
-          ]
-        }
-      },
+      where,
       // attributes: ['id'],
     }))
       .then((files) =>{

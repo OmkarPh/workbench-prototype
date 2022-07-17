@@ -11,8 +11,10 @@ module.exports = {
     rules,
   },
   target: 'node',
+  // externals: [ 'electron' ],
   externals: {
     electron: 'commonjs2 electron',
+    // 'pg-hstore': 'pg-hstore'
   },
   // externals: [
   //   (function () {
