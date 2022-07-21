@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import * as electronFs from "fs"
 import * as electronOs from "os"
+import sqlite3 from 'sqlite3'
 import remote from '@electron/remote'
 
 import remoteMain from '@electron/remote/main'
@@ -31,6 +32,9 @@ console.log('electron.dialog', electronDialog);
 
 console.log("FS", electronFs);
 console.log("OS", electronOs);
+console.log("Sqlite 3 imported ", sqlite3);
+// const sqlite3Window = window.require('sqlite3');
+// console.log("Sqlite 3 required", sqlite3Window);
 
 
 const Home = () => {

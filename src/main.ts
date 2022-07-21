@@ -1,5 +1,6 @@
-import { ipcMain, dialog, app, BrowserWindow, Menu, MenuItem, shell, contextBridge, ipcRenderer } from 'electron';
-import * as electronFs from "fs"
+import { ipcMain, dialog, app, BrowserWindow, Menu, MenuItem, shell } from 'electron';
+// import sqlite3 from 'sqlite3'
+
 import * as electronOs from "os"
 // import elec from '@electron/remote/main';
 import packageJson from '../package.json';
@@ -8,6 +9,9 @@ import packageJson from '../package.json';
 // plugin that tells the Electron app where to look for the Webpack-bundled app code (depending on
 // whether you're running in development or production).
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
+
+// console.log("Sqlit3:", sqlite3);
+
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {

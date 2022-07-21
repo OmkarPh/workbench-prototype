@@ -1,4 +1,4 @@
-import { FindOptions, literal, fn, Op, Sequelize, WhereOptions } from 'sequelize';
+import { FindOptions, Op, Sequelize, WhereOptions } from 'sequelize';
 import React, { useEffect, useState } from 'react'
 import { Bar } from "react-chartjs-2";
 import {

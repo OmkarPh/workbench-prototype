@@ -1,4 +1,4 @@
-import { Op, Sequelize } from 'sequelize';
+import { Op } from 'sequelize';
 import React, { ChangeEvent, useEffect, useState } from 'react'
 
 import { useWorkbenchDB } from '../../contexts/workbenchContext';
