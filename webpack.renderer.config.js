@@ -31,15 +31,26 @@ module.exports = {
   module: {
     rules,
   },
-  target: 'node',
-  // externals: [ 'electron' ],
+  // target: 'node',
   externals: {
+    assert: 'commonjs2 assert',
+    child_process: 'commonjs2 child_process',
+    crypto: 'commonjs2 crypto',
     electron: 'commonjs2 electron',
-    // sqlite3: "commonjs2 sqlite3",
-    // sqlite3: 'commonjs2 sqlite3',
-    // 'pg-hstore': 'pg-hstore'
+    path: 'commonjs2 path',
+    fs: 'commonjs2 fs',
+    http: 'commonjs2 http',
+    https: 'commonjs2 https',
+    os: 'commonjs2 os',
+    stream: 'commonjs2 stream',
+    timers: 'commonjs2 timers',
+    zlib: 'commonjs2 zlib',
+    constants: 'commonjs2 constants',
   },
+  plugins: plugins,
   // externals: [
+  //   // 'commonjs2 electron',
+  //   // 'commonjs2 sqlite3',
   //   (function () {
   //     const IGNORES = [
   //       'electron'
@@ -53,12 +64,8 @@ module.exports = {
   //   })()
   // ],
   // target: ['node', 'web'],
-  plugins: plugins,
+
   resolve: {
-    fallback: {
-      fs: false,
-      os: false,
-    },
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css'],
   },
 };

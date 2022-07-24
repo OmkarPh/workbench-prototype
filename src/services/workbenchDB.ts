@@ -18,6 +18,7 @@ import * as $ from 'jquery'
 import { FindOptions, Model, Sequelize, Transaction, TransactionOptions } from 'sequelize';
 import fs from 'fs';
 import path from 'path';
+// import sqlite3 from 'sqlite3';
 import JSONStream from 'JSONStream';
 import { DatabaseStructure, newDatabase } from './models/database';
 import {parentPath} from './models/databaseUtils';
@@ -79,9 +80,14 @@ export class WorkbenchDB {
     console.log("DB details", {
       name, user, password, storage,
     });
+    // console.log("Dialect module :", sqlite3);
     
     this.sequelize = new Sequelize(name, user, password, {
       dialect: 'sqlite',
+      // dialectModule: sqlite3,
+      // dialectOptions: {
+      //   sqlite3
+      // },
       storage: storage,
       logging: false
     });

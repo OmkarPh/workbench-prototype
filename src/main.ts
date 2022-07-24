@@ -2,6 +2,7 @@ import { ipcMain, dialog, app, BrowserWindow, Menu, MenuItem, shell } from 'elec
 // import sqlite3 from 'sqlite3'
 
 import * as electronOs from "os"
+// import path from 'path';
 // import elec from '@electron/remote/main';
 import packageJson from '../package.json';
 
@@ -37,6 +38,7 @@ const createWindow = (): void => {
     height: 800,
     icon: 'assets/app-icon/png/scwb_layered_01.png',
     webPreferences: {
+      // preload: path.join(__dirname, 'index.js'),
       nodeIntegration: true,
       nodeIntegrationInWorker: true,
       webSecurity: false,
@@ -45,7 +47,7 @@ const createWindow = (): void => {
       // enable
       // enableRemoteModule: true,
     }
-  });
+  }); 
   // remoteMain.enable(mainWindow.webContents);
   
   // and load the index.html of the app.

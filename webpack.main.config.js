@@ -8,22 +8,8 @@ module.exports = {
   module: {
     rules: require('./webpack.rules'),
   },
-  target: 'electron-renderer',
-  // browser: {
-  //   "fs": false,
-  //    "path": false,
-  //    "os": false
-  // },
-  // node: {
-  //   global: true,
-  //   fs: "empty",
-  //   os: "empty",
-  // },
+  // target: 'electron-renderer',
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
-    // fallback: {
-    //   "fs": false,
-    //   "os": false
-    // },
   },
 };

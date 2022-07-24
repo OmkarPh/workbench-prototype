@@ -69,6 +69,7 @@ const switcherIcon = (obj: any) => {
   if (obj.data.key?.startsWith('0-0-3')) {
     return false;
   }
+
   if (obj.isLeaf) {
     return getSvgIcon(
       arrowPath,
@@ -76,6 +77,7 @@ const switcherIcon = (obj: any) => {
       { transform: 'rotate(270deg)' },
     );
   }
+  
   return getSvgIcon(
     arrowPath,
     { cursor: 'pointer', backgroundColor: 'white' },

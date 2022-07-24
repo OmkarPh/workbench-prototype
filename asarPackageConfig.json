@@ -102,7 +102,8 @@
   "config": {
     "forge": {
       "packagerConfig": {
-        "icon": "src/assets/app-icon/icon"
+        "icon": "src/assets/app-icon/icon",
+        "asar": true
       },
       "makers": [
         {
@@ -127,6 +128,9 @@
         }
       ],
       "plugins": [
+        [
+          "@electron-forge/plugin-auto-unpack-natives"
+        ],
         [
           "@electron-forge/plugin-webpack",
           {
