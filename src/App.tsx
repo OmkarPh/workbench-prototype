@@ -12,7 +12,7 @@ import Layout from './components/Layout/Layout';
 import Navbar2 from './components/Navbar/Navbar2';
 
 import Help from './pages/Help';
-import Home from './pages/Home'
+import Home from './pages/Home/Home'
 import TableView from './pages/TableView/TableView';
 import TemporaryPage from './pages/TemporaryPage';
 import FileInfoDash from './pages/FileInfoDash/FileInfoDash';
@@ -22,6 +22,7 @@ import PackageInfoDash from './pages/PackageInfoDash/PackageInfoDash';
 import 'startbootstrap-simple-sidebar/dist/css/styles.css';
 import 'font-awesome/css/font-awesome.min.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'rc-tree/assets/index.css';
 
 import './app.css';
 import './dashStyles.css';

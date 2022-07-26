@@ -1,4 +1,4 @@
-import { FindOptions, Op, Sequelize, WhereOptions } from 'sequelize';
+import { FindAttributeOptions, FindOptions, Op, Sequelize, WhereOptions } from 'sequelize';
 import React, { useEffect, useState } from 'react'
 import { Bar } from "react-chartjs-2";
 import {
@@ -13,7 +13,7 @@ import {
 
 import { useWorkbenchDB } from '../../contexts/workbenchContext';
 
-import { BAR_CHART_COLUMNS } from '../../constants/columns'
+import { BAR_CHART_COLUMNS } from '../../constants/barChartColumns'
 import { formatBarchartData, getAttributeValues } from '../../utils/bar';
 import { FlatFileAttributes } from '../../services/models/flatFile';
 
@@ -68,7 +68,7 @@ const ChartView = () => {
     const query: FindOptions<FlatFileAttributes> = {
       // attributes: attr,
       where: where,
-      attributes: [Sequelize.fn('TRIM', Sequelize.col(selectedAttribute)), selectedAttribute] as any,
+      attributes: [Sequelize.fn('TRIM', Sequelize.col(selectedAttribute)), selectedAttribute] as FindAttributeOptions,
       // attributes: [Sequelize.fn('TRIM', Sequelize.col(selectedAttribute)), selectedAttribute],
     };
     console.log("Query", query);

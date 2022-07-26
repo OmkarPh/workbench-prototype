@@ -19,6 +19,8 @@ import { FindOptions, Model, Sequelize, Transaction, TransactionOptions } from '
 import fs from 'fs';
 import path from 'path';
 // import sqlite3 from 'sqlite3';
+// import Database from 'better-sqlite3';
+// import { Database, Options, ColumnDefinition } from 'better-sqlite3';
 import JSONStream from 'JSONStream';
 import { DatabaseStructure, newDatabase } from './models/database';
 import {parentPath} from './models/databaseUtils';
@@ -26,6 +28,13 @@ import { DebugLogger } from '../utils/logger';
 import { FileAttributes } from './models/file';
 import { DataNode } from 'rc-tree/lib/interface';
 import { flattenFile } from './models/flatFile';
+import { getTreeNodeIconFromSvgPath } from '../components/FileTree/iconGenerators';
+
+// const b3 = window.require('better-sqlite3');
+// console.log("Sqlite3", sqlite3);
+// console.log("b3 required", b3);
+// console.log("b3 import",BetterSqlite3);
+
 
 /**
  * Manages the database created from a ScanCode JSON input.
@@ -48,7 +57,6 @@ interface WorkbenchDbConfig {
   dbUser?: string,
   dbPassword?: string,
 }
-
 // TODO
 // function sortChildren(node: Model<FileAttributes, FileAttributes>){
 function sortChildren(node: any){
@@ -81,9 +89,17 @@ export class WorkbenchDB {
       name, user, password, storage,
     });
     // console.log("Dialect module :", sqlite3);
-    
+
     this.sequelize = new Sequelize(name, user, password, {
       dialect: 'sqlite',
+      // dialectModule: { Database },
+      // dialectOptions: {
+      //   sqlite3: Database,
+      // },
+      // dialectModule: BetterSqlite3,
+      // dialectOptions: {
+      //   sqlite3: BetterSqlite3,
+      // },
       // dialectModule: sqlite3,
       // dialectOptions: {
       //   sqlite3
@@ -182,11 +198,13 @@ export class WorkbenchDB {
           } else {
             file_name = defaultFileName;
           }
+          const fileType = this.determineJSTreeType(file, promises);
           return {
             id: defaultFilePath,
             text: file_name,
             parent: file.getDataValue('parent').toString({}),
-            type: this.determineJSTreeType(file, promises),
+            icon: getTreeNodeIconFromSvgPath,
+            type: fileType,
             children: file.getDataValue('type').toString({}) === 'directory'
           };
         });
