@@ -355,7 +355,7 @@ export class WorkbenchDB {
       const primaryPromise = this;    // TODO
       stream
         .pipe(JSONStream.parse('files.*'))
-        .on('header', (header) => {
+        .on('header', (header: any) => {
           if ('headers' in header) {
             // FIXME: This should be smarter
             const header_data = header.headers[0];
@@ -381,7 +381,7 @@ export class WorkbenchDB {
             .then(() => this.db.Header.create(header))
             .then((header) => headerId = Number(header.getDataValue('id')));
         })
-        .on('data', function(file) {
+        .on('data', function(file: any) {
           if (!rootPath) {
             rootPath = file.path.split('/')[0];
           }
@@ -417,7 +417,7 @@ export class WorkbenchDB {
                 files = [];
                 this.resume();
               })
-              .catch((e) => reject(e));
+              .catch((e: any) => reject(e));
           }
         })
         .on('end', () => {
@@ -438,9 +438,9 @@ export class WorkbenchDB {
             .then(() => {
               console.timeEnd('Load Database');
               resolve();
-            }).catch((e) => reject(e));
+            }).catch((e: any) => reject(e));
         })
-        .on('error', (e) => reject(e));
+        .on('error', (e: any) => reject(e));
     });
   }
 

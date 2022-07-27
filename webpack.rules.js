@@ -11,28 +11,40 @@ module.exports = [
   //   loader: "native-ext-loader"
   // },
 
-
-  {
-    test: /\.(m?js|node)$/,
-    parser: { amd: true },
-    use: {
-        loader: '@vercel/webpack-asset-relocator-loader',
-        options: {
-          outputAssetBase: 'native_modules',
-          emitDirnameAll: true,
-        },
-    }
-  },
   // {
   //   test: /\.(m?js|node)$/,
   //   parser: { amd: false },
   //   use: {
-  //     loader: '@vercel/webpack-asset-relocator-loader',
+  //     loader: "@timfish/webpack-asset-relocator-loader",
   //     options: {
-  //       outputAssetBase: 'native_modules',
+  //       outputAssetBase: "native_modules",
   //     },
   //   },
   // },
+
+  // {
+  //   test: /\.(m?js|node)$/,
+  //   parser: { amd: false },
+  //   use: {
+  //       loader: '@vercel/webpack-asset-relocator-loader',
+  //       // options: {
+  //       //   outputAssetBase: 'native_modules',
+  //       //   // emitDirnameAll: true,
+  //       // },
+  //   }
+  // },
+
+  {
+    test: /\.(m?js|node)$/,
+    parser: { amd: false },
+    use: {
+      loader: '@vercel/webpack-asset-relocator-loader',
+      options: {
+        outputAssetBase: 'native_modules',
+      },
+    },
+  },
+  
   {
     test: /\.tsx?$/,
     exclude: /(node_modules|\.webpack)/,

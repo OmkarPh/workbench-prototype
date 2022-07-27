@@ -11,10 +11,8 @@
     "package": "electron-forge package",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
-    
     "dependencyBuild": "$(npm bin)/electron-rebuild",
     "dependencyBuild-windows": ".\\node_modules\\.bin\\electron-rebuild.cmd",
-    
     "just trial commands below": "--------------------------------------------------------",
     "rebuild-sqlite3": "electron-rebuild -f -w sqlite3",
     "build": "react-scripts build",
@@ -76,6 +74,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@fortawesome/react-fontawesome": "^0.1.19",
     "@inovua/reactdatagrid-community": "^4.19.8",
+    "@timfish/webpack-asset-relocator-loader": "^0.1.0",
     "allotment": "^1.14.2",
     "apexcharts": "^3.35.3",
     "aws-sdk": "^2.1178.0",
