@@ -3,6 +3,10 @@
   height: 100vh !important;
 }
 
+.pane-container .content-pane {
+  /* padding: 0!important; */
+}
+
 .file-tree-pane {
   border: 0;
   box-shadow: rgb(177 177 177) 1px 0px 18px -3px;
@@ -11,5 +15,4 @@
 .content-container {
   padding: 15px;
   min-height: 100%;
-  overflow: scroll;
 }

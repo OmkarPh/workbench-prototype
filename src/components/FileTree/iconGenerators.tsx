@@ -29,6 +29,21 @@ export const getTreeNodeIconFromSvgPath = (path: string, iStyle = {}, style = {}
   </i>
 );
 
+// export const getTreeNodeIconIclass = (className: string) => {
+//   return (
+//     <i
+//       style={{
+//         width: 16,
+//         height: 16,
+//         fontSize: 14,
+//         cursor: 'pointer',
+//         verticalAlign: '-.125em',
+//         backgroundColor: 'white',
+//       }}
+//       className={className}
+//     />
+//   );
+// }
 
 export const getTreeNodeIconCustomComponent = (Component: React.FunctionComponent<React.SVGAttributes<SVGElement>>) => {
   return <i style={{ cursor: 'pointer', backgroundColor: 'white', fontSize: 14 }}>

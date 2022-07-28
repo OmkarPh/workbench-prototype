@@ -9,24 +9,23 @@ import { ROUTES } from './constants/routes';
 import { WorkbenchDBProvider } from './contexts/workbenchContext';
 
 import Layout from './components/Layout/Layout';
-import Navbar2 from './components/Navbar/Navbar2';
+import TemporaryPage from './pages/TemporaryPage';
 
 import Help from './pages/Help';
 import Home from './pages/Home/Home'
 import TableView from './pages/TableView/TableView';
-import TemporaryPage from './pages/TemporaryPage';
+import ChartView from './pages/ChartView/ChartView';
 import FileInfoDash from './pages/FileInfoDash/FileInfoDash';
 import LicenseInfoDash from './pages/LicenseInfoDash/LicenseInfoDash';
 import PackageInfoDash from './pages/PackageInfoDash/PackageInfoDash';
 
-import 'startbootstrap-simple-sidebar/dist/css/styles.css';
-import 'font-awesome/css/font-awesome.min.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import './fontawesome';
 import 'rc-tree/assets/index.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'startbootstrap-simple-sidebar/dist/css/styles.css';
 
 import './app.css';
 import './dashStyles.css';
-import ChartView from './pages/ChartView/ChartView';
 
 
 const App = () => {

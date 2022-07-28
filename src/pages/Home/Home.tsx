@@ -4,9 +4,8 @@ import * as electronFs from "fs"
 import * as electronOs from "os"
 // import sqlite3 from 'sqlite3'
 import moment from 'moment';
-import remote from '@electron/remote'
-
-import remoteMain from '@electron/remote/main'
+// import remote from '@electron/remote'
+// import remoteMain from '@electron/remote/main'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCogs, faFloppyDisk, faFolder } from '@fortawesome/free-solid-svg-icons'
@@ -19,6 +18,8 @@ import './home.css'
 import { useWorkbenchDB } from '../../contexts/workbenchContext'
 import { ROUTES } from '../../constants/routes'
 import { AddEntry, GetHistory } from '../../services/historyStore'
+import { IMPORT_REPLY, JSON_IMPORT_REPLY_FORMAT, OPEN_DIALOG, SQLITE_IMPORT_REPLY_FORMAT } from '../../constants/IpcConnection';
+import { Button } from 'react-bootstrap';
 
 const { version: workbenchVersion } = packageJson;
 const electron = window.require("electron");
@@ -27,10 +28,10 @@ const { ipcRenderer } = electron;
 // const electronDialog = remote.require('dialog');
 console.log("Electron", electron);
 console.log('ipcrenderer', ipcRenderer);
-console.log('remote', remote);
-console.log('remotemain', remoteMain);
-const electronDialog = electron.dialog;
-console.log('electron.dialog', electronDialog);
+// console.log('remote', remote);
+// console.log('remotemain', remoteMain);
+// const electronDialog = electron.dialog;
+// console.log('electron.dialog', electronDialog);
 
 console.log("FS", electronFs);
 console.log("OS", electronOs);
@@ -51,7 +52,7 @@ const Home = () => {
         console.log("History", GetHistory());
     }, [importedFile]);
 
-    function sqliteParser(sqliteFilePath: string, jsonFilePath: string){
+    function jsonParser(jsonFilePath: string, sqliteFilePath: string, ){
         if (!sqliteFilePath || !jsonFilePath) {
             console.log("Sqlite or json file path isn't valid:", sqliteFilePath);
             return;
@@ -146,89 +147,148 @@ const Home = () => {
                     if(defaultPath)
                         updateCurrentPath(defaultPath);
                 });
-
         });
     }
     useEffect(() => {
-        ipcRenderer.removeAllListeners('import-reply');
-        ipcRenderer.on('import-reply', (_, message) => {
-            console.log("importing file:", message.jsonFilePath, message);
-            sqliteParser(message.sqliteFilePath, message.jsonFilePath);
+        ipcRenderer.removeAllListeners(IMPORT_REPLY.JSON);
+        ipcRenderer.removeAllListeners(IMPORT_REPLY.SQLITE);
+
+        ipcRenderer.on(IMPORT_REPLY.JSON, (_, message: JSON_IMPORT_REPLY_FORMAT) => {
+            console.log("importing json:", message.jsonFilePath, message);
+            jsonParser(message.jsonFilePath, message.sqliteFilePath);
         });
+        ipcRenderer.on(IMPORT_REPLY.SQLITE, (_, message: SQLITE_IMPORT_REPLY_FORMAT) => {
+            console.log("importing sqlite:", message.sqliteFilePath, message);
+        });
+        
+
+        const AUTO_IMPORT_LAST_FILE = false;
+        if(AUTO_IMPORT_LAST_FILE){
+            const lastEntry = history[history.length - 1];
+            jsonParser(lastEntry.json_path, lastEntry.sqlite_path);
+        }
+
         return () => {
-            ipcRenderer.removeAllListeners('import-reply');
+            ipcRenderer.removeAllListeners(IMPORT_REPLY.JSON);
+            ipcRenderer.removeAllListeners(IMPORT_REPLY.SQLITE);
         }
     }, []);
 
     /** Import a ScanCode JSON file and create a SQLite database */
-    function importJson() {
-        ipcRenderer.send('open-file-dialog')
-        console.log("Open file dialog opened");
+    function openJsonFile() {
+        ipcRenderer.send(OPEN_DIALOG.JSON)
+        console.log("Json file dialog opened");
+        return;
+    }
+    function openSqliteFile() {
+        ipcRenderer.send(OPEN_DIALOG.SQLITE)
+        console.log("Sqlite file dialog opened");
         return;
     }
 
     return (
-        <div>
-
-        {/* Welcome Page  */}
+      <div>
         <div className="tab-pane" id="tab-welcomepage">
-            <div id="welcomepage-container">
-                <div id="welcomepage-title">
-                    <h1>Welcome to ScanCode Workbench !!</h1>
-                </div>
-                <div id="welcomepage-view">
-                    <div className="quickActions">
-                        <div id="import-json" onClick={importJson}>
-                            <FontAwesomeIcon icon={faCogs}  className="quickActionIcon" />
-                            <h4>Import ScanCode JSON</h4>
-                        </div>
-                        <div id="open-file">
-                            <FontAwesomeIcon icon={faFolder} className="quickActionIcon"/>
-                            <h4>Open SQLite File</h4>
-                        </div>
-                        <div id="save-file">
-                            <FontAwesomeIcon icon={faFloppyDisk} className="quickActionIcon"/>
-                            <h4>Save SQLite File</h4>
-                        </div>
-                    </div>
-                    <div className="quicklinks">
-                        <h3>Quick Links: </h3>
-                        <div className="btn-group-horizontal" role="group" aria-label="...">
-                            <a href="https://github.com/nexB/scancode-workbench/" className="btn btn-lg btn-default">GitHub Repository</a>
-                            <a href="https://scancode-workbench.readthedocs.io/" className="btn btn-lg btn-default">Getting Started with Scancode Workbench</a>
-                            <a href="https://github.com/nexB/scancode-workbench/issues" className="btn btn-lg btn-default">Report a Bug or Request a Feature</a>
-                        </div>
-                    </div>
-                    <div>
-                        History
-                        <br/>
-                        <ul>
-                        {
-                            history.map(historyItem => (
-                                <li style={{ marginBottom: 10 }}>
-                                    { historyItem.json_path }
-                                    <span  style={{ marginLeft: 20 }}>
-                                        { moment(historyItem.opened_at).fromNow() }
-                                    </span>
-                                    <button
-                                        style={{ marginLeft: 25 }}
-                                        onClick={() => sqliteParser(
-                                            historyItem.sqlite_path,
-                                            historyItem.json_path
-                                        )}
-                                    >
-                                        {' < -- '} Import
-                                    </button>
-                                </li>
-                            ))
-                        }
-                        </ul>
-                    </div>
-                </div>
+          <div id="welcomepage-container">
+            <div id="welcomepage-title">
+              <h1>Welcome to ScanCode Workbench !!</h1>
             </div>
+            <div id="welcomepage-view">
+              <div className="quickActions">
+                <div id="import-json" onClick={openJsonFile}>
+                  <FontAwesomeIcon icon={faCogs} className="quickActionIcon" />
+                  <h5>Import ScanCode JSON</h5>
+                </div>
+                <div id="open-file" onClick={openSqliteFile}>
+                  <FontAwesomeIcon
+                    icon={faFolder}
+                    className="quickActionIcon"
+                  />
+                  <h5>Open SQLite File</h5>
+                </div>
+                <div id="save-file">
+                  <FontAwesomeIcon
+                    icon={faFloppyDisk}
+                    className="quickActionIcon"
+                  />
+                  <h5>Save SQLite File</h5>
+                </div>
+              </div>
+              <div className="history">
+                <h5>Recent files</h5>
+                <ul>
+                    {
+                        history.map((historyItem, idx) => (
+                            <li
+                                style={{ marginBottom: 10 }}
+                                key={historyItem.json_path + idx}
+                            >
+                                { historyItem.json_path }
+                                <span style={{ marginLeft: 20 }}>
+                                    {moment(historyItem.opened_at).fromNow()}
+                                </span>
+
+                                <Button
+                                    variant="light"
+                                    className="mx-4"
+                                    onClick={() =>
+                                        jsonParser(
+                                            historyItem.json_path,
+                                            historyItem.sqlite_path
+                                        )
+                                    }
+                                >
+                                    {" <- "} Import
+                                </Button>
+
+                                {/* <button
+                                    style={{ marginLeft: 25 }}
+                                    onClick={() => jsonParser(
+                                        historyItem.json_path,
+                                        historyItem.sqlite_path,
+                                    )}
+                                >
+                                    {' < -- '} Import
+                                </button>  */}
+                            </li>
+                        ))
+                    }
+                </ul>
+              </div>
+              <div className="quicklinks">
+                <h3>Quick Links: </h3>
+                <div
+                  className="btn-group-horizontal"
+                  role="group"
+                >
+                  <Button
+                    variant='light'
+                    size='lg'
+                    href="https://github.com/nexB/scancode-workbench/"
+                  >
+                    GitHub Repository
+                  </Button>
+                  <Button
+                    variant='light'
+                    size='lg'
+                    href="https://scancode-workbench.readthedocs.io/"
+                  >
+                    Getting Started with Scancode Workbench
+                  </Button>
+                  <Button
+                    variant='light'
+                    size='lg'
+                    href="https://github.com/nexB/scancode-workbench/issues"
+                  >
+                    Report a Bug or Request a Feature
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        </div>
-    )
+      </div>
+    );
 }
 
 export default Home

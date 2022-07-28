@@ -7,43 +7,42 @@ import { faArchive, faBars, faChartColumn, faGavel, faHome, faInfoCircle, faQues
 
 import 'react-pro-sidebar/dist/css/styles.css';
 import './navbar.css';
-import { ROUTES } from '../../constants/routes';
 
 const MENU_ITEMS = [
     {
         title: "Welcome page",
-        route: "",
+        route: "/",
         icon: faHome,
     },
     {
         title: "Table View",
-        route: ROUTES.TABLE_VIEW,
+        route: "/table-view",
         icon: faTable,
     },
     {
         title: "File Info Dashboard",
-        route: ROUTES.FILE_DASHBOARD,
+        route: "/file-dashboard",
         icon: faInfoCircle,
     },
     {
         title: "License Info Dashboard",
-        route: ROUTES.LICENSE_DASHBOARD,
+        route: "/license-dashboard",
         icon: faGavel,
     },
     {
         title: "Package Info Dashboard",
-        route: ROUTES.PACKAGE_DASHBOARD,
+        route: "/package-dashboard",
         icon: faArchive,
     },
     {
         title: "Chart Summary View",
-        route: ROUTES.PACKAGE_DASHBOARD,
+        route: "/chart-summary",
         icon: faChartColumn,
         // icon: faBarChart,
     },
     {
         title: "Help with Application",
-        route: ROUTES.HELP,
+        route: "/help",
         icon: faQuestion,
     },
 ]
@@ -53,8 +52,6 @@ const Navbar = () => {
     const location = useLocation();
     
     const [collapsed, setCollapsed] = useState<boolean>(true);
-
-
     const expandOnHover = true;
 
 
@@ -72,7 +69,7 @@ const Navbar = () => {
                         MENU_ITEMS.map(menuItem => (
                             <MenuItem
                                 key={menuItem.route}
-                                active={menuItem.route === "" + location.pathname}
+                                active={menuItem.route === location.pathname}
                                 icon={<FontAwesomeIcon icon={menuItem.icon} />}
                                 onClick={() => navigate(menuItem.route)}
                             >
@@ -101,9 +98,8 @@ const Navbar = () => {
                 </button> */}
             </SidebarFooter>
         </ProSidebar>
-
         {/* Dummy sidebar to occupy space in dom */}
-        <div style={{ width: 65, minWidth: 65, minHeight: '100vh'}}>
+        <div className='dummy-sidebar'>
         </div>
         </>
     )

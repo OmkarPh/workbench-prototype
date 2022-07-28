@@ -2,6 +2,7 @@ import RcTree from 'rc-tree';
 import { DataNode } from 'rc-tree/lib/interface';
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
 import { faCaretDown, faCaretRight } from '@fortawesome/free-solid-svg-icons';
 
 import { FontAwesomeTreeNodeStyles } from './iconGenerators';
@@ -32,7 +33,13 @@ const switcherIcon = (obj: unknown) => {
     return (
       <FontAwesomeIcon
         icon={faCaretDown}
-        style={FontAwesomeTreeNodeStyles}
+        // icon={["far", "caret-down"]}
+        // fontVariant='regular'
+        // type='regular'
+        style={{
+          ...FontAwesomeTreeNodeStyles,
+          transform: 'rotate(315deg)',
+        }}
       />
     );
     // return getTreeNodeIconCustomComponent(DownArrow);
@@ -46,6 +53,7 @@ const switcherIcon = (obj: unknown) => {
   return (
     <FontAwesomeIcon
       icon={faCaretRight}
+      // icon={["far", "caret-right"]}
       style={FontAwesomeTreeNodeStyles}
     />
   );

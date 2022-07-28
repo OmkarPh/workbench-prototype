@@ -1,3 +1,5 @@
+import moment from "moment";
+
 interface HistoryItem {
 	opened_at: string;
 	json_path: string;
@@ -12,25 +14,29 @@ export const GetHistory = () => {
 }
 
 export const AddEntry = (entry: HistoryItem) => {
-	const prevEntries = GetHistory();
+	const history = GetHistory();
 	// console.log(prevEntries, prevEntries.length);
 
-	const existingEntry: HistoryItem | undefined = prevEntries.find(
+	const existingEntryIndex = history.findIndex(
 		existingEntry => entry.json_path === existingEntry.json_path
-	);
+	)
+	const existingEntry: HistoryItem | undefined = history[existingEntryIndex];
 
 	if(existingEntry){
 		console.log("Updating:", entry);
 		existingEntry.opened_at = entry.opened_at;
 		existingEntry.sqlite_path = entry.sqlite_path;
+		history.sort(function(a, b){
+			return Number(moment(b.opened_at).format('X')) - Number(moment(a.opened_at).format('X'));
+		});
 	} else {
 		console.log("Adding:", entry);
-		prevEntries.unshift(entry);
+		history.unshift(entry);
 	}
 
-	if(prevEntries.length > 5)
-		prevEntries.length = 5;
+	if(history.length > 5)
+		history.length = 5;
 
 	// console.log("Result", prevEntries, prevEntries.length);
-	window.localStorage.setItem(HISTORY_STORE_KEY, JSON.stringify(prevEntries));
+	window.localStorage.setItem(HISTORY_STORE_KEY, JSON.stringify(history));
 }

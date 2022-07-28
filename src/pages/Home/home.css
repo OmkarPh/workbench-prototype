@@ -16,8 +16,18 @@
   justify-content: space-around;
   flex-wrap: wrap;
   /* margin: 3rem 2rem; */
-  margin-bottom: 2rem;
-  padding: 1rem;
+  margin-bottom: 1rem;
+  /* padding: 1rem; */
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.quickActions svg{
+  margin-bottom: 15px;
+}
+
+.quickActions div:hover {
+  background-color: #f9fafb;
 }
 
 #import-json, #open-file, #save-file{
@@ -26,27 +36,40 @@
   width: 25%;
   text-align: center;
   cursor: pointer;
-  min-width: 225px;
+  min-width: 200px;
   padding: 1rem;
-  margin-top: 3rem;
+  margin-top: 2rem;
   margin-left: 20px;
   margin-right: 20px;
 }
 
 .quickActionIcon{
-  font-size: 80px;
-  margin-bottom: 25px;
+  font-size: 60px;
+  /* margin-bottom: 20px; */
 }
 
-.quicklinks h3{
-  padding-left:7rem;
+/* .history h5 {
+  margin-left: 25px;
+} */
+
+.quicklinks, .history {
+  margin-top: 32px;
+  padding-left: 2rem;
 }
 
-.btn-group-horizontal{
-  text-align:center;
+.history button {
+  margin: 0;
+  margin-left: 25px;
+  border: 2px solid rgb(74, 176, 199) !important;
+  background-color: transparent;
 }
+
+/* .btn-group-horizontal{
+
+} */
 
 .btn-group-horizontal a{
   margin: 1rem;
+  background-color: transparent;
   border:2px solid rgb(74, 176, 199) !important;
 }

@@ -1,15 +1,14 @@
-import React, { useEffect } from 'react'
-import SplitPane from 'react-split-pane-v2'
+import React from 'react'
+// import SplitPane from 'react-split-pane-v2'
 import { useLocation } from 'react-router-dom';
-import { ReflexContainer, ReflexElement, ReflexSplitter } from 'react-reflex';
+// import { ReflexContainer, ReflexElement, ReflexSplitter } from 'react-reflex';
 
 // TODO - FIX THIS !!!!
 // eslint-disable-next-line import/namespace
 import { Allotment } from 'allotment';
 
-import Navbar from '../Navbar/Navbar';
 import FileTree from '../FileTree/FileTree'
-import Navbar2 from '../Navbar/Navbar2';
+import Navbar from '../Navbar/Navbar';
 
 import { FILE_TREE_ROUTES } from '../../constants/routes';
 
@@ -24,7 +23,7 @@ const Layout = (props: React.PropsWithChildren) => {
 
   return (
     <div className='d-flex flex-row'>
-      <Navbar2 />
+      <Navbar />
       {/* <Navbar /> */}
 
       <Allotment className='pane-container'>
@@ -37,7 +36,7 @@ const Layout = (props: React.PropsWithChildren) => {
         >
           <FileTree style={{ minHeight: "100vh" }} />
         </Allotment.Pane>
-        <Allotment.Pane className='overflow-scroll'>
+        <Allotment.Pane className='overflow-scroll content-pane'>
           <div className='content-container'>
             { props.children }
           </div>

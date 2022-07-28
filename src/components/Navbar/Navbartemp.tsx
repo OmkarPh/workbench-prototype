@@ -6,52 +6,55 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArchive, faBars, faChartColumn, faGavel, faHome, faInfoCircle, faQuestion, faTable } from '@fortawesome/free-solid-svg-icons';
 
 import 'react-pro-sidebar/dist/css/styles.css';
-import './navbar2.css';
+import './navbarTemp.css';
+import { ROUTES } from '../../constants/routes';
 
 const MENU_ITEMS = [
     {
         title: "Welcome page",
-        route: "/",
+        route: "",
         icon: faHome,
     },
     {
         title: "Table View",
-        route: "/table-view",
+        route: ROUTES.TABLE_VIEW,
         icon: faTable,
     },
     {
         title: "File Info Dashboard",
-        route: "/file-dashboard",
+        route: ROUTES.FILE_DASHBOARD,
         icon: faInfoCircle,
     },
     {
         title: "License Info Dashboard",
-        route: "/license-dashboard",
+        route: ROUTES.LICENSE_DASHBOARD,
         icon: faGavel,
     },
     {
         title: "Package Info Dashboard",
-        route: "/package-dashboard",
+        route: ROUTES.PACKAGE_DASHBOARD,
         icon: faArchive,
     },
     {
         title: "Chart Summary View",
-        route: "/chart-summary",
+        route: ROUTES.PACKAGE_DASHBOARD,
         icon: faChartColumn,
         // icon: faBarChart,
     },
     {
         title: "Help with Application",
-        route: "/help",
+        route: ROUTES.HELP,
         icon: faQuestion,
     },
 ]
 
-const Navbar2 = () => {
+const NavbarTemp = () => {
     const navigate = useNavigate();
     const location = useLocation();
     
     const [collapsed, setCollapsed] = useState<boolean>(true);
+
+
     const expandOnHover = true;
 
 
@@ -69,7 +72,7 @@ const Navbar2 = () => {
                         MENU_ITEMS.map(menuItem => (
                             <MenuItem
                                 key={menuItem.route}
-                                active={menuItem.route === location.pathname}
+                                active={menuItem.route === "" + location.pathname}
                                 icon={<FontAwesomeIcon icon={menuItem.icon} />}
                                 onClick={() => navigate(menuItem.route)}
                             >
@@ -98,11 +101,12 @@ const Navbar2 = () => {
                 </button> */}
             </SidebarFooter>
         </ProSidebar>
+
         {/* Dummy sidebar to occupy space in dom */}
-        <div className='dummy-sidebar'>
+        <div style={{ width: 65, minWidth: 65, minHeight: '100vh'}}>
         </div>
         </>
     )
 }
 
-export default Navbar2
+export default NavbarTemp
