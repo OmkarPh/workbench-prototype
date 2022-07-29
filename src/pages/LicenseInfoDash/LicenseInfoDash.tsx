@@ -28,13 +28,9 @@ const LicenseInfoDash = () => {
   
   useEffect(() => {
     const { db, initialized, currentPath } = workbenchDB;
-    console.log("DB updated", db, initialized);
-    console.log("Initialized", initialized);
-    console.log("Current path", currentPath);
     
     if(!initialized || !db || !currentPath)
       return;
-    console.log("DB updated", db, initialized);
 
     db.sync.then(db => db.File.findAll({
       where: {
@@ -49,7 +45,7 @@ const LicenseInfoDash = () => {
     }))
       .then((files) =>{
         const fileIDs = files.map(file => file.getDataValue('id'));
-        console.log("FileIDs to work on: ", fileIDs);
+        // console.log("FileIDs to work on: ", fileIDs);
 
         // Query and prepare chart for license expression
         db.sync
@@ -60,7 +56,7 @@ const LicenseInfoDash = () => {
           .then((expressions) => {
             // Prepare chart for license expressions
             const { chartData } = formatChartData(expressions, 'expressions');
-            console.log("Result expressions:", chartData);
+            // console.log("Result expressions:", chartData);
             setLicenseExpressionData(chartData);
           });
 
@@ -73,8 +69,8 @@ const LicenseInfoDash = () => {
             const licenseFileIDs = licenses.map((val) => val.getDataValue('fileId'));
             const spdxKeys = licenses.map((val) => val.getDataValue('spdx_license_key'));
             
-            console.log('All licenses', licenses);
-            console.log("LicensefileIds", licenseFileIDs);
+            // console.log('All licenses', licenses);
+            // console.log("LicensefileIds", licenseFileIDs);
 
             setScanData(oldScanData => ({
               ...oldScanData,
@@ -88,8 +84,8 @@ const LicenseInfoDash = () => {
           .then(keys => {
             // Prepare chart for license keys
             const { chartData, untrimmedLength } = formatChartData(keys, 'keys');
-            console.log("License keys:", chartData);
-            console.log("licensekeys untrimmed length: ", untrimmedLength);
+            // console.log("License keys:", chartData);
+            // console.log("licensekeys untrimmed length: ", untrimmedLength);
 
             // Prepare aggregate data
             setScanData(oldScanData => ({...oldScanData, totalLicenses: untrimmedLength}));
@@ -102,7 +98,7 @@ const LicenseInfoDash = () => {
           .then((licenses) => licenses.map(val => val.getDataValue('label') || 'No Value Detected'))
           .then(labels => {
             const { chartData } = formatChartData(labels, 'policy');
-            console.log("Result License policy formatted", chartData);
+            // console.log("Result License policy formatted", chartData);
             setLicensePolicyData(chartData);
           })
       });

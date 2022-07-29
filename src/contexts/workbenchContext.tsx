@@ -1,21 +1,23 @@
 import React, { createContext, useContext, useState } from "react";
 import { WorkbenchDB } from '../services/workbenchDB';
 
-interface WorkbenchContextProperties {
-  initialized: boolean,
-  importedFile: string | null,
+interface BasicValueState {
   db: WorkbenchDB | null,
-  currentPath: string | null,
+  initialized: boolean,
+  importedSqliteFilePath: string | null,
   loadingStatus: number | null,
+}
+interface WorkbenchContextProperties extends BasicValueState {
+  currentPath: string | null,
   startImport: () => void,
   updateCurrentPath: (newPath: string) => void,
-  updateWorkbenchDB: (db: WorkbenchDB, path: string) => void,
+  updateWorkbenchDB: (db: WorkbenchDB, sqliteFilePath: string) => void,
 }
 
 export const defaultWorkbenchContextValue: WorkbenchContextProperties = {
   db: null,
   initialized: false,
-  importedFile: null,
+  importedSqliteFilePath: null,
   loadingStatus: null,
   currentPath: null,
   startImport: () => null,
@@ -25,17 +27,12 @@ export const defaultWorkbenchContextValue: WorkbenchContextProperties = {
 
 const WorkbenchContext = createContext<WorkbenchContextProperties>(defaultWorkbenchContextValue);
 
-interface BasicValueState {
-  db: WorkbenchDB | null,
-  initialized: boolean,
-  importedFile: string | null,
-  loadingStatus: number | null,
-}
+
 export const WorkbenchDBProvider = (props: React.PropsWithChildren<Record<string, unknown>>) => {
   const [value, setValue] = useState<BasicValueState>({
     db: null,
     initialized: false,
-    importedFile: null,
+    importedSqliteFilePath: null,
     loadingStatus: null,
   });
   const [currentPath, updateCurrentPath] = useState<string | null>(null);
@@ -44,17 +41,17 @@ export const WorkbenchDBProvider = (props: React.PropsWithChildren<Record<string
     setValue({
       db: null,
       initialized: false,
-      importedFile: null,
+      importedSqliteFilePath: null,
       loadingStatus: 0,
     })
   }
 
-  const updateWorkbenchDB = (db: WorkbenchDB, path: string) => {
+  const updateWorkbenchDB = (db: WorkbenchDB, sqliteFilePath: string) => {
     setValue({
       db,
       loadingStatus: 100,
       initialized: true,
-      importedFile: path,
+      importedSqliteFilePath: sqliteFilePath,
     });
   }
 

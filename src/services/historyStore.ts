@@ -2,7 +2,7 @@ import moment from "moment";
 
 interface HistoryItem {
 	opened_at: string;
-	json_path: string;
+	json_path?: string;
 	sqlite_path: string;
 }
 

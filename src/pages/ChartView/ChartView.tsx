@@ -29,7 +29,7 @@ ChartJS.register(
 const BAR_HEIGHT = 30;
 
 const ChartView = () => {
-  const { importedFile, db, initialized, currentPath} = useWorkbenchDB();
+  const { importedSqliteFilePath, db, initialized, currentPath} = useWorkbenchDB();
   const [selectedAttribute, setSelectedAttribute] = useState<string>(BAR_CHART_COLUMNS.Copyright.cols[0].key);
   const [formattedBarchartData, setFormattedBarchartData] = useState({
     counts: [40, 1, 2, 20, 540, 580, 690, 1100, 1200, 1380],
@@ -43,11 +43,6 @@ const ChartView = () => {
     if(!initialized || !db || !currentPath)
       return;
     
-    console.log(`Updated db for path - ${currentPath}: `, db, initialized);
-
-    console.log("Root dir path in tableview", currentPath);
-    console.log("Path query", {where: {path: {[Op.like]: `%${currentPath}%`}}});
-
     const directoryAttributes = ['packages_type', 'packages_name', 'packages_primary_language'];
 
     const where: WhereOptions<FlatFileAttributes> = {
@@ -71,26 +66,25 @@ const ChartView = () => {
       attributes: [Sequelize.fn('TRIM', Sequelize.col(selectedAttribute)), selectedAttribute] as FindAttributeOptions,
       // attributes: [Sequelize.fn('TRIM', Sequelize.col(selectedAttribute)), selectedAttribute],
     };
-    console.log("Query", query);
     
     db.sync
       .then((db) => db.FlatFile.findAll(query))
       .then((values) => {
-        console.log('flat file values', values);
+        // console.log('flat file values', values);
         return values;
       })
       .then((values) => getAttributeValues(values, selectedAttribute))
       .then((values) => {
-        console.log('util attr values', values);
+        // console.log('util attr values', values);
         const parsedData = formatBarchartData(values);
-        console.log('Parsed bar chart values', parsedData);
+        // console.log('Parsed bar chart values', parsedData);
         setFormattedBarchartData({
           labels: parsedData.map(entry => entry.label),
           counts: parsedData.map(entry => entry.value),
         });
         return values;
       })
-  }, [importedFile, currentPath, selectedAttribute]);
+  }, [importedSqliteFilePath, currentPath, selectedAttribute]);
   
   
   return (
@@ -107,7 +101,11 @@ const ChartView = () => {
                 <optgroup label={colGroup.label} key={colGroup.key}>
                   {
                     colGroup.cols.map(column => (
-                      <option className={column.bar_chart_class} value={column.key}>
+                      <option
+                        key={column.key}
+                        value={column.key}
+                        className={column.bar_chart_class}
+                      >
                         { column.title }
                       </option>
                     ))

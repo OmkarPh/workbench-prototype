@@ -62,7 +62,7 @@ const PackageInfoDash = () => {
               packageEntry => packageEntry.getDataValue('type') || 'No Value Detected'
             );
             const { chartData: packageTypesChartData } = formatChartData(packageTypes, 'package types');
-            console.log("Result packages types:", packageTypesChartData);
+            // console.log("Result packages types:", packageTypesChartData);
             setPackageTypeData(packageTypesChartData);
 
             // Prepare chart for package languages
@@ -70,7 +70,7 @@ const PackageInfoDash = () => {
               packageEntry => packageEntry.getDataValue('primary_language') || 'No Value Detected'
             );
             const { chartData: packageLangsChartData } = formatChartData(packageLangs, 'package langs');
-            console.log("Result packages languages:", packageLangsChartData);
+            // console.log("Result packages languages:", packageLangsChartData);
             setPackageLangData(packageLangsChartData);
 
             // Prepare chart for package license expression
@@ -80,7 +80,7 @@ const PackageInfoDash = () => {
             const { chartData: packageLicenseExpChartData } = 
               formatChartData(packageLicenseExp, 'package license exp');
             
-            console.log("Result packages license exp:", packageLicenseExpChartData);
+            // console.log("Result packages license exp:", packageLicenseExpChartData);
             setPackageLicenseData(packageLicenseExpChartData);
           });
       });

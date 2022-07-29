@@ -29,9 +29,6 @@ const FileInfoDash = () => {
   
   useEffect(() => {
     const { db, initialized, currentPath } = workbenchDB;
-    console.log("DB updated", db, initialized);
-    console.log("Initialized", initialized);
-    console.log("Current path", currentPath);
     
     if(!initialized || !db || !currentPath)
       return;
@@ -39,7 +36,7 @@ const FileInfoDash = () => {
     db.sync
       .then(db => db.File.findOne({ where: { path: currentPath }}))
       .then(root => {
-        console.log("Root dir", root);
+        // console.log("Root dir", root);
 
         // Prepare aggregate data
         const filesCount =
@@ -66,7 +63,7 @@ const FileInfoDash = () => {
         }))
       })
       .then(files => {
-        console.log("all files", files);
+        // console.log("all files", files);
 
         // Prepare chart for file types
         const fileTypes = files.map(file => file.getDataValue('mime_type') || 'No Value Detected');
@@ -91,7 +88,7 @@ const FileInfoDash = () => {
             copyright => copyright.getDataValue('holders') || 'No Value Detected'
           ))
           .then(copyrightHolders => {
-            console.log("Copyright holders", copyrightHolders);
+            // console.log("Copyright holders", copyrightHolders);
             setScanData(oldScanData => ({
               ...oldScanData,
               totalUniqueCopyrightHolders: new Set(copyrightHolders).size
@@ -99,7 +96,7 @@ const FileInfoDash = () => {
             
             // Prepare chart for copyright holders
             const { chartData: copyrightHoldersChartData } = formatChartData(copyrightHolders, 'policy');
-            console.log("Copyright formatted", copyrightHoldersChartData);
+            // console.log("Copyright formatted", copyrightHoldersChartData);
             setCopyrightHoldersData(copyrightHoldersChartData);
           });
       });

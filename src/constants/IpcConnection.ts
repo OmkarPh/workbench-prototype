@@ -1,9 +1,15 @@
-export const OPEN_DIALOG = {
+export const OPEN_ERROR_DIALOG_CHANNEL = "open-error-dialog";
+export interface ErrorInfo {
+  title: string;
+  message: string;
+}
+
+export const OPEN_DIALOG_CHANNEL = {
   JSON: 'open-json-file',
   SQLITE: 'open-sqlite-file',
 }
 
-export const IMPORT_REPLY = {
+export const IMPORT_REPLY_CHANNEL = {
   JSON: 'import-json-reply',
   SQLITE: 'import-sqlite-reply',
 }

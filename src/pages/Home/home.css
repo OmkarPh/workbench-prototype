@@ -1,8 +1,6 @@
-/*---------------------------------------
-  Welcome Page
------------------------------------------*/
-
-
+.home-page .btn-light:hover {
+  background-color: #f3f9ff;
+}
 #welcomepage-view .icons h4{
   margin-top: 20px;
   font-size: 20px;
@@ -27,6 +25,7 @@
 }
 
 .quickActions div:hover {
+  /* background-color: #f3f9ff; */
   background-color: #f9fafb;
 }
 
