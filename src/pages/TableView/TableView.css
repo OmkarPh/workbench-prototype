@@ -9,7 +9,14 @@
 }
 
 .ag-theme-alpine {
+  font-size: 12px !important;
   --ag-cell-horizontal-border: 1px solid rgb(225 225 225) !important;
+}
+.ag-theme-alpine .ag-cell-wrapper {
+  padding: 10px;
+  font-size: 14px;
+  /* font: 15px Lato, Helvetica, sans-serif; */
+  line-height: 1.5;
 }
 
 .filterComponent {

@@ -15,7 +15,7 @@
  */
 
 import * as $ from 'jquery'
-import { FindOptions, Model, Sequelize, Transaction, TransactionOptions } from 'sequelize';
+import { DataTypes, FindOptions, Model, Sequelize, Transaction, TransactionOptions } from 'sequelize';
 import fs from 'fs';
 import path from 'path';
 // import sqlite3 from 'sqlite3';
@@ -28,7 +28,6 @@ import { DebugLogger } from '../utils/logger';
 import { FileAttributes } from './models/file';
 import { DataNode } from 'rc-tree/lib/interface';
 import { flattenFile } from './models/flatFile';
-import { getTreeNodeIconFromSvgPath } from '../components/FileTree/iconGenerators';
 
 // const b3 = window.require('better-sqlite3');
 // console.log("Sqlite3", sqlite3);
@@ -162,91 +161,54 @@ export class WorkbenchDB {
     return this.sync.then((db) => db.File.findAll(query));
   }
 
-  findAllJSTreeLegacy(query: FindOptions) {
-    // query.attributes = ['id', 'path', 'parent', 'name', 'type'];
-    query = $.extend(query, {
-      attributes: ['id', 'path', 'parent', 'name', 'type']
-    });
-
-    const pkgPromise = this.db.Package.findAll({attributes: ['fileId']})
-      .then((pkgs) => pkgs.map((pkg) => pkg.getDataValue('fileId').toString({})));
-    const approvedPromise = this.db.LicensePolicy.findAll({where: {label: 'Approved License'}, attributes: ['fileId']})
-      .then((policies) => policies.map((policy) => policy.getDataValue('fileId').toString({})));
-    const prohibitedPromise = this.db.LicensePolicy.findAll({where: {label: 'Prohibited License'}, attributes: ['fileId']})
-      .then((policies) => policies.map((policy) => policy.getDataValue('fileId').toString({})));
-    const recommendedPromise = this.db.LicensePolicy.findAll({where: {label: 'Recommended License'}, attributes: ['fileId']})
-      .then((policies) => policies.map((policy) => policy.getDataValue('fileId').toString({})));
-    const restrictedPromise = this.db.LicensePolicy.findAll({where: {label: 'Restricted License'}, attributes: ['fileId']})
-      .then((policies) => policies.map((policy) => policy.getDataValue('fileId').toString({})));
-    
-    console.log([pkgPromise, approvedPromise, prohibitedPromise, recommendedPromise, restrictedPromise]);
-    console.log("udpated query", query);
-
-    return Promise.all([pkgPromise, approvedPromise, prohibitedPromise, recommendedPromise, restrictedPromise]).then((promises) => this.sync
-      .then((db) => db.File.findAll(query))
-      .then((files) => {
-        console.log("Got files", files);
-        
-        const result = files.map((file) => {
-          let file_name;
-
-          const defaultFileName = file.getDataValue('name');
-          const defaultFilePath = file.getDataValue('path');
-
-          if (!defaultFileName) {
-            file_name = path.basename(defaultFilePath);
-          } else {
-            file_name = defaultFileName;
-          }
-          const fileType = this.determineJSTreeType(file, promises);
-          return {
-            id: defaultFilePath,
-            text: file_name,
-            parent: file.getDataValue('parent').toString({}),
-            icon: getTreeNodeIconFromSvgPath,
-            type: fileType,
-            children: file.getDataValue('type').toString({}) === 'directory'
-          };
-        });
-        console.log(result);
-        return result;
-      }));
-  }
-  
 
   // Uses findAll to return JSTree format from the File Table
   findAllJSTree() {
     const fileQuery: FindOptions<FileAttributes> = {
-      // where : {
-      //   parent: `%${currentPath}%`,
-      //   // parent: '#'
-      // },
       attributes: ['id', 'path', 'parent', 'name', 'type']
     };
-
-    const pkgPromise = this.db.Package.findAll({attributes: ['fileId']})
-      .then((pkgs) => pkgs.map((pkg) => Number(pkg.getDataValue('fileId'))));
-    const approvedPromise = this.db.LicensePolicy.findAll({where: {label: 'Approved License'}, attributes: ['fileId']})
-      .then((policies) => policies.map((policy) => Number(policy.getDataValue('fileId'))));
-    const prohibitedPromise = this.db.LicensePolicy.findAll({where: {label: 'Prohibited License'}, attributes: ['fileId']})
-      .then((policies) => policies.map((policy) => Number(policy.getDataValue('fileId'))));
-    const recommendedPromise = this.db.LicensePolicy.findAll({where: {label: 'Recommended License'}, attributes: ['fileId']})
-      .then((policies) => policies.map((policy) => Number(policy.getDataValue('fileId'))));
-    const restrictedPromise = this.db.LicensePolicy.findAll({where: {label: 'Restricted License'}, attributes: ['fileId']})
-      .then((policies) => policies.map((policy) => Number(policy.getDataValue('fileId'))));
-    
-    console.log([pkgPromise, approvedPromise, prohibitedPromise, recommendedPromise, restrictedPromise]);
-    console.log("pathtest udpated query", fileQuery);
-    console.log("pathtest promises", [pkgPromise, approvedPromise, prohibitedPromise, recommendedPromise, restrictedPromise]);
-
-
-    return Promise.all([pkgPromise, approvedPromise, prohibitedPromise, recommendedPromise, restrictedPromise]).then(() => this.sync
+    return this.sync
       .then((db) => db.File.findAll(fileQuery))
       .then((files) => {
         const result = this.listToTreeData(files);
         console.log("pathtest", result);
         return result;
-      }));
+      });
+    
+
+    // When determining type for each file is important
+    // type GenericModelValues = { fileId: DataTypes.IntegerDataType};
+    // function prepareIdSet(values: Model<GenericModelValues, GenericModelValues>[]){
+    //   const resultMapping = new Set<number>();
+    //   values.forEach(value => resultMapping.add(Number(value.getDataValue('fileId'))));
+    //   return resultMapping;
+    // }
+    // const pkgPromise = this.db.Package
+    //   .findAll({attributes: ['fileId']})
+    //   .then(prepareIdSet);
+    // const approvedPromise = this.db.LicensePolicy
+    //   .findAll({where: {label: 'Approved License'}, attributes: ['fileId']})
+    //   .then(prepareIdSet);
+    // const prohibitedPromise = this.db.LicensePolicy
+    //   .findAll({where: {label: 'Prohibited License'}, attributes: ['fileId']})
+    //   .then(prepareIdSet);
+    // const recommendedPromise = this.db.LicensePolicy
+    //   .findAll({where: {label: 'Recommended License'}, attributes: ['fileId']})
+    //   .then(prepareIdSet);
+    // const restrictedPromise = this.db.LicensePolicy
+    //   .findAll({where: {label: 'Restricted License'}, attributes: ['fileId']})
+    //   .then(prepareIdSet);
+
+    // return Promise.all(
+    //   [pkgPromise, approvedPromise, prohibitedPromise, recommendedPromise, restrictedPromise]
+    // )
+    //   .then(() => this.sync
+    //   .then((db) => db.File.findAll(fileQuery))
+    //   .then((files) => {
+    //     const result = this.listToTreeData(files);
+    //     console.log("pathtest", result);
+    //     return result;
+    //   }));
   }
   
 
@@ -292,31 +254,32 @@ export class WorkbenchDB {
     return roots;
   }
 
-  determineJSTreeType(file: Model<FileAttributes, FileAttributes>, promises: string[][]) {
+  // TODO-Residue: Remove this
+  determineJSTreeType(file: Model<FileAttributes, FileAttributes>, promises: Set<number>[]) {
     let type = '';
 
-    const packages = promises[0] || [];
-    const approvedPolicies = promises[1] || [];
-    const prohibitedPolicies = promises[2] || [];
-    const recommendedPolicies = promises[3] || [];
-    const restrictedPolicies = promises[4] || [];
+    const packages = promises[0] || new Set();
+    const approvedPolicies = promises[1] || new Set();
+    const prohibitedPolicies = promises[2] || new Set();
+    const recommendedPolicies = promises[3] || new Set();
+    const restrictedPolicies = promises[4] || new Set();
 
-    const fileID = file.getDataValue('id').toString({});
+    const fileID = Number(file.getDataValue('id').toString({}));
     const fileType = file.getDataValue('type').toString({});
 
-    if (packages.includes(fileID)) {
+    if (packages.has(fileID)) {
       if (fileType === 'file') {
         type = 'packageFile';
       } else if (fileType === 'directory') {
         type = 'packageDir'; 
       }
-    } else if (approvedPolicies.includes(fileID)) {
+    } else if (approvedPolicies.has(fileID)) {
       type = 'approvedLicense';
-    } else if (prohibitedPolicies.includes(fileID)) {
+    } else if (prohibitedPolicies.has(fileID)) {
       type = 'prohibitedLicense';
-    } else if (recommendedPolicies.includes(fileID)) {
+    } else if (recommendedPolicies.has(fileID)) {
       type = 'recommendedLicense';
-    } else if (restrictedPolicies.includes(fileID)) {
+    } else if (restrictedPolicies.has(fileID)) {
       type = 'restrictedLicense';
     } else {
       type = fileType;

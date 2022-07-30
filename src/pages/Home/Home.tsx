@@ -269,7 +269,7 @@ const Home = () => {
       sqliteParser(message.sqliteFilePath);
     });
 
-    const AUTO_IMPORT_LAST_FILE = true;
+    const AUTO_IMPORT_LAST_FILE = false;
     if(AUTO_IMPORT_LAST_FILE){
       const lastEntry = history[history.length - 1];
       historyItemParser(lastEntry);
