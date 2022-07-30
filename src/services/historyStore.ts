@@ -1,6 +1,6 @@
 import moment from "moment";
 
-interface HistoryItem {
+export interface HistoryItem {
 	opened_at: string;
 	json_path?: string;
 	sqlite_path: string;

@@ -1,68 +1,61 @@
 import { Op } from 'sequelize';
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
+import { AgGridReact } from 'ag-grid-react';
+import {
+  ColDef,
+  GridApi,
+  GridReadyEvent,
+} from 'ag-grid-community';
 
+import { DEFAULT_COLUMN_GROUP } from './columnDefs';
 import { useWorkbenchDB } from '../../contexts/workbenchContext';
 
+
 import './TableView.css';
-import ReactDataGrid from '@inovua/reactdatagrid-community';
-
-import '@inovua/reactdatagrid-community/index.css'
-import { TypeColumns } from '@inovua/reactdatagrid-community/types/TypeColumn';
-
-const TABLE_COLUMNS: TypeColumns = [
-  { id: 'path', name: 'path', header: 'Path', minWidth: 50, defaultFlex: 4 },
-  { id: 'type', name: 'type', header: 'Type', minWidth: 50, defaultFlex: 2 },
-  { id: 'name', name: 'name', header: 'Name', minWidth: 50, defaultFlex: 2 },
-  { id: 'extension', name: 'extension', header: 'File extension', minWidth: 50, defaultFlex: 2 },
-  { id: 'size', name: 'size', header: 'Size', minWidth: 50, defaultFlex: 2 },
-  { id: 'programming_language', name: 'programming_language', header: 'Prog Language', minWidth: 50, defaultFlex: 2 },
-  { id: 'mime_type', name: 'mime_type', header: 'Mime Type', minWidth: 50, defaultFlex: 2 },
-  { id: 'file_type', name: 'file_type', header: 'File Type', minWidth: 50, defaultFlex: 2 },
-  { id: 'scan_error', name: 'scan_error', header: 'Scan Error', minWidth: 50, defaultFlex: 2 },
-]
-
-// const allProperties = [
-//   'path',
-//  'id',
-//  'parent',
-//  'type',
-//  'name',
-//  'extension',
-//  'date',
-//  'size',
-//  'sha1',
-//  'md5',
-//  'files_count',
-//  'dirs_count',
-//  'mime_type',
-//  'file_type',
-//  'programming_language',
-//  'is_binary',
-//  'is_text',
-//  'is_archive',
-//  'is_media',
-//  'is_source',
-//  'is_script',
-//  'headerId'
-// ]
+// import '@inovua/reactdatagrid-community/index.css'
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
+import CustomFilterComponent from './CustomFilterComponent';
 
 
-const TableView = () => {
+
+
+const defaultColDef: ColDef = {
+  sortable: true,
+  resizable: true,
+  filter: true,
+  floatingFilterComponent: () => (
+    <CustomFilterComponent
+
+    />
+  ),
+  floatingFilter: true,
+  wrapText: true,
+  autoHeight: true,
+};
+const paginationOptions = [25, 50, 100, 200];
+const defaultPaginationOption = paginationOptions[1];
+
+const TableViewAG = () => {
 
   const workbenchDB = useWorkbenchDB();
-  const [filteredTableData, setFilteredTableData] = useState<unknown[]>([]);
+  // const [filteredTableData, setFilteredTableData] = useState<unknown[]>([]);
+  // const [tableData, setTableData] = useState<unknown[]>([]);
+
+  // Optional - for accessing Grid's API
+  // const gridRef = useRef<AgGridReact<unknown> | null>(null);
+  const [gridApi, setGridApi] = useState<GridApi | null>(null);
   const [tableData, setTableData] = useState<unknown[]>([]);
+
+  const [columnDefs] = useState<ColDef[]>(DEFAULT_COLUMN_GROUP);
 
   useEffect(() => {
     const { db, initialized, currentPath } = workbenchDB;
-    console.log("DB updated", db, initialized);
-    console.log("Initialized", initialized);
-    console.log("Current path", currentPath);
     
     if(!initialized || !db || !currentPath)
       return;
 
-    console.log("Root dir path in tableview", currentPath);
+    console.log("Path to render data in tableview", currentPath);
 
     db.sync
       .then(db => db.File.findAll({
@@ -80,44 +73,96 @@ const TableView = () => {
       .then((files) =>{
         console.log("Files", files);
         setTableData(files);
-        setFilteredTableData(files);
+        // setFilteredTableData(files);
       });
   }, [workbenchDB]);
 
-  function onSearchChange(e: ChangeEvent<HTMLInputElement>){
-    const lowerText = e.target.value.toLowerCase();
-    const newFilteredData = tableData.filter((p: any) => {
-      return TABLE_COLUMNS.reduce((acc, col) => {
-        const v = (p[col.id] + '').toLowerCase(); // get string value
-        return acc || v.indexOf(lowerText) != -1; // make the search case insensitive
-      }, false);
-    });
-    setFilteredTableData(newFilteredData);
-  }
+  useEffect(() => {
+    if (gridApi) {
+      gridApi.paginationSetPageSize(defaultPaginationOption);
+      // gridApi!.sizeColumnsToFit();
+    }
+  }, [tableData, gridApi]);
+  
+  const onGridReady = (params: GridReadyEvent) => setGridApi(params.api);
+
+
+  const onPageSizeChanged = useCallback((newValue: string) => {
+    console.log(gridApi, newValue, Number(newValue));
+    
+    if(gridApi){
+      console.log("Changing pagination");
+      
+      gridApi.paginationSetPageSize(Number(newValue));
+    }
+  }, [gridApi]);
+  
+
+  // function onSearchChange(e: ChangeEvent<HTMLInputElement>){
+  //   const lowerText = e.target.value.toLowerCase();
+  //   const newFilteredData = tableData.filter((p: any) => {
+  //     return TABLE_COLUMNS.reduce((acc, col) => {
+  //       const v = (p[col.id] + '').toLowerCase(); // get string value
+  //       return acc || v.indexOf(lowerText) != -1; // make the search case insensitive
+  //     }, false);
+  //   });
+  //   setFilteredTableData(newFilteredData);
+  // }
 
   return (
-    <div>
-      <div>
+    <div style={{ height: "100%", minHeight: "90vh" }}>
+      {/* <div>
         <label>
           Search text:{' '}
           <input
             type="text"
             style={{ padding: 5 }}
-            onChange={onSearchChange}
+            // onChange={onSearchChange}
           />{' '}
         </label>
+      </div> */}
+      <div style={{ height: 'calc(95vh - 25px)' }} className="ag-theme-alpine">
+        <div
+          style={{
+            height: '100%',
+            width: '100%',
+          }}
+        >
+          <AgGridReact
+            rowData={tableData}
+            columnDefs={columnDefs}
+            onGridReady={onGridReady}
+
+            pagination={true}
+            defaultColDef={defaultColDef}
+
+            // Performance options
+            rowBuffer={200}
+            animateRows={false}
+            suppressColumnMoveAnimation
+            suppressRowVirtualisation
+            suppressColumnVirtualisation
+          />
+
+          <div className="pagination-controls">
+            Page Size:
+            <select
+              defaultValue={defaultPaginationOption}
+              onChange={e => onPageSizeChanged(e.target.value)}
+            >
+              {
+                paginationOptions.map(optionValue => (
+                  <option value={optionValue} selected={true}>
+                    { optionValue }
+                  </option>
+                ))
+              }
+            </select>
+          </div>
+        </div>
       </div>
-      <ReactDataGrid
-        idProperty="id"
-        columns={TABLE_COLUMNS}
-        dataSource={filteredTableData}
-        pagination={true}
-        enableColumnAutosize
-        pageSizes={[10, 25, 50, 100]}
-        style={{ minHeight: "90vh" }}
-      />
     </div>
   )
 }
 
-export default TableView
+export default TableViewAG

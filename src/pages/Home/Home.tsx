@@ -17,7 +17,7 @@ import { WorkbenchDB } from '../../services/workbenchDB'
 import './home.css'
 import { useWorkbenchDB } from '../../contexts/workbenchContext'
 import { ROUTES } from '../../constants/routes'
-import { AddEntry, GetHistory } from '../../services/historyStore'
+import { AddEntry, GetHistory, HistoryItem } from '../../services/historyStore'
 import { IMPORT_REPLY_CHANNEL, JSON_IMPORT_REPLY_FORMAT, OPEN_DIALOG_CHANNEL, OPEN_ERROR_DIALOG_CHANNEL, SQLITE_IMPORT_REPLY_FORMAT } from '../../constants/IpcConnection';
 import { Button } from 'react-bootstrap';
 import { isSchemaChanged } from '../../utils/checks';
@@ -242,6 +242,16 @@ const Home = () => {
       });
   }
 
+  function historyItemParser(historyItem: HistoryItem){
+    if(historyItem.json_path){
+      console.log("Attempting json import", historyItem);
+      jsonParser(historyItem.json_path, historyItem.sqlite_path);
+    } else {
+      console.log("Attempting sqlite import", historyItem);
+      sqliteParser(historyItem.sqlite_path)
+    }
+  }
+
   function removeIpcListeners(){
     ipcRenderer.removeAllListeners(IMPORT_REPLY_CHANNEL.JSON);
     ipcRenderer.removeAllListeners(IMPORT_REPLY_CHANNEL.SQLITE);
@@ -259,10 +269,10 @@ const Home = () => {
       sqliteParser(message.sqliteFilePath);
     });
 
-    const AUTO_IMPORT_LAST_FILE = false;
+    const AUTO_IMPORT_LAST_FILE = true;
     if(AUTO_IMPORT_LAST_FILE){
       const lastEntry = history[history.length - 1];
-      jsonParser(lastEntry.json_path, lastEntry.sqlite_path);
+      historyItemParser(lastEntry);
     }
 
     return () => {
@@ -329,13 +339,7 @@ const Home = () => {
                       <Button
                         variant="light"
                         className="mx-4"
-                        onClick={() => {
-                          if(historyItem.json_path){
-                            jsonParser(historyItem.json_path, historyItem.sqlite_path);
-                          } else {
-                            sqliteParser(historyItem.sqlite_path)
-                          }
-                        }}
+                        onClick={() => historyItemParser(historyItem)}
                       >
                         {" <- "} Import
                       </Button>

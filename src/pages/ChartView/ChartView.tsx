@@ -11,9 +11,9 @@ import {
   Legend,
 } from 'chart.js';
 
-import { useWorkbenchDB } from '../../contexts/workbenchContext';
+import { BAR_CHART_COLUMNS } from '../../constants/barChartColumns';
 
-import { BAR_CHART_COLUMNS } from '../../constants/barChartColumns'
+import { useWorkbenchDB } from '../../contexts/workbenchContext';
 import { formatBarchartData, getAttributeValues } from '../../utils/bar';
 import { FlatFileAttributes } from '../../services/models/flatFile';
 

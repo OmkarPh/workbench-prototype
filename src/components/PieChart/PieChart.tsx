@@ -27,7 +27,7 @@ const PieChart = (props: ChartProps) => {
         pattern: LEGEND_COLORS,
       }
     });
-  }, [chartData])
+  }, [chartData]);
   
   return (
     <div ref={chartRef} />

@@ -13,7 +13,7 @@ import TemporaryPage from './pages/TemporaryPage';
 
 import Help from './pages/Help';
 import Home from './pages/Home/Home'
-import TableView from './pages/TableView/TableView';
+import TableViewAG from './pages/TableView/TableView';
 import ChartView from './pages/ChartView/ChartView';
 import FileInfoDash from './pages/FileInfoDash/FileInfoDash';
 import LicenseInfoDash from './pages/LicenseInfoDash/LicenseInfoDash';
@@ -37,7 +37,7 @@ const App = () => {
             <Route path={ROUTES.HOME}>
               <Route index element={<Home />} />
               <Route path={ROUTES.HELP} element={<Help />} />
-              <Route path={ROUTES.TABLE_VIEW} element={<TableView />} />
+              <Route path={ROUTES.TABLE_VIEW} element={<TableViewAG />} />
               <Route path={ROUTES.FILE_DASHBOARD} element={<FileInfoDash />} />
               <Route path={ROUTES.LICENSE_DASHBOARD} element={<LicenseInfoDash />} />
               <Route path={ROUTES.PACKAGE_DASHBOARD} element={<PackageInfoDash />} />

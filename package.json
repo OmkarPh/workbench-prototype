@@ -76,6 +76,8 @@
     "@fortawesome/react-fontawesome": "^0.1.19",
     "@inovua/reactdatagrid-community": "^4.19.8",
     "@timfish/webpack-asset-relocator-loader": "^0.1.0",
+    "ag-grid-community": "^28.0.2",
+    "ag-grid-react": "^28.0.0",
     "allotment": "^1.14.2",
     "apexcharts": "^3.35.3",
     "aws-sdk": "^2.1178.0",
