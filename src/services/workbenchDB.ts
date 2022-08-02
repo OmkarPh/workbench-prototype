@@ -171,7 +171,6 @@ export class WorkbenchDB {
       .then((db) => db.File.findAll(fileQuery))
       .then((files) => {
         const result = this.listToTreeData(files);
-        console.log("pathtest", result);
         return result;
       });
     
@@ -216,9 +215,6 @@ export class WorkbenchDB {
     const pathToIndexMap = new Map<string, number>();
     const roots: Model<FileAttributes, FileAttributes>[] = [];
 
-    console.log("pathtest got fileList", fileList);
-    
-
     fileList.forEach((file, i) => {
       // initialize the map
       pathToIndexMap.set(file.getDataValue('path'), Number(file.getDataValue('id')));
@@ -250,7 +246,7 @@ export class WorkbenchDB {
 
     roots.forEach(sortChildren);
     
-    console.log("pathtest Prepared tree", roots);
+    // console.log("pathtest Prepared tree", roots);
     return roots;
   }
 
@@ -297,7 +293,7 @@ export class WorkbenchDB {
     if (!jsonFileName) {
       throw new Error('Invalid json file name: ' + jsonFileName);
     }
-    console.log("Adding from json with params", { jsonFileName, workbenchVersion, onProgressUpdate });
+    // console.log("Adding from json with params", { jsonFileName, workbenchVersion, onProgressUpdate });
     
     const stream = fs.createReadStream(jsonFileName, {encoding: 'utf8'});
     const version = workbenchVersion;
@@ -337,7 +333,6 @@ export class WorkbenchDB {
             workbench_version: version,
             workbench_notice: 'Exported from ScanCode Workbench and provided on an "AS IS" BASIS, WITHOUT WARRANTIES\\nOR CONDITIONS OF ANY KIND, either express or implied. No content created from\\nScanCode Workbench should be considered or used as legal advice. Consult an Attorney\\nfor any legal advice.\\nScanCode Workbench is a free software analysis application from nexB Inc. and others.\\nVisit https://github.com/nexB/scancode-workbench/ for support and download."'
           });
-          console.log("Imported header", header);
           
           files_count = header.files_count;
           promiseChain = promiseChain
@@ -361,12 +356,12 @@ export class WorkbenchDB {
           if (files.length >= batchSize) {
             // Need to set a new variable before handing to promise
             this.pause();
-            console.log("Batch create started");
+            // console.log("Batch create started");
             
             promiseChain = promiseChain
               .then(() => primaryPromise._batchCreateFiles(files, headerId))
               .then(() => {
-                console.log("batch create completed");
+                // console.log("batch create completed");
                 
                 const currProgress = Math.round(index / (files_count + dirs_count) * 100);
                 if (currProgress > progress) {
@@ -445,7 +440,6 @@ export class WorkbenchDB {
         file.parent = parentPath(file.path);
         file.headerId = headerId;
       });
-      console.log("Add file options:", options);
       
       return this.db.File.bulkCreate(files, options)
         .then(() => DebugLogger("file processor", "Processed bulkcreate"))

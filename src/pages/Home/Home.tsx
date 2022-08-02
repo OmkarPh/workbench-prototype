@@ -8,7 +8,7 @@ import moment from 'moment';
 // import remoteMain from '@electron/remote/main'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCogs, faFloppyDisk, faFolder } from '@fortawesome/free-solid-svg-icons'
+import { faCogs, faFileImport, faFloppyDisk, faFolder } from '@fortawesome/free-solid-svg-icons'
 
 import packageJson from '../../../package.json';
 
@@ -19,8 +19,9 @@ import { useWorkbenchDB } from '../../contexts/workbenchContext'
 import { ROUTES } from '../../constants/routes'
 import { AddEntry, GetHistory, HistoryItem } from '../../services/historyStore'
 import { IMPORT_REPLY_CHANNEL, JSON_IMPORT_REPLY_FORMAT, OPEN_DIALOG_CHANNEL, OPEN_ERROR_DIALOG_CHANNEL, SQLITE_IMPORT_REPLY_FORMAT } from '../../constants/IpcConnection';
-import { Button } from 'react-bootstrap';
+
 import { isSchemaChanged } from '../../utils/checks';
+import CoreButton from '../../components/CoreButton/CoreButton';
 
 const { version: workbenchVersion } = packageJson;
 const electron = window.require("electron");
@@ -36,6 +37,7 @@ console.log('ipcrenderer', ipcRenderer);
 
 console.log("FS", electronFs);
 console.log("OS", electronOs);
+// console.log(electronOs.platform());
 // console.log("Sqlite 3 imported ", sqlite3);
 
 // const sqlite3Window = window.require('sqlite3');
@@ -44,15 +46,10 @@ console.log("OS", electronOs);
 
 
 const Home = () => {
-  console.log(electronOs.platform());
   const navigate = useNavigate();
   const { updateCurrentPath, updateWorkbenchDB, importedSqliteFilePath } = useWorkbenchDB();
 
-
   const history = useMemo(() => GetHistory(), [importedSqliteFilePath]);
-  useEffect(() => {
-      console.log("History", GetHistory());
-  }, [importedSqliteFilePath]);
 
   function sqliteParser(sqliteFilePath: string){
     // Create a new database when importing a sqlite file
@@ -93,8 +90,6 @@ const Home = () => {
         }
 
         const dbVersion = infoHeader.getDataValue('workbench_version').toString({});
-        console.log(dbVersion, typeof dbVersion);
-        console.log(workbenchVersion, typeof workbenchVersion);
         
         if (!dbVersion || isSchemaChanged(dbVersion, workbenchVersion)) {
           const errTitle = 'Old SQLite schema found';
@@ -121,7 +116,6 @@ const Home = () => {
           return;
         }
 
-        console.log("Storing history");
         AddEntry({
           sqlite_path: sqliteFilePath,
           opened_at: moment().format(),
@@ -132,9 +126,7 @@ const Home = () => {
         .then(root => {
           console.log("Root dir", root);
           const defaultPath = root.getDataValue('path');
-          console.log("Root dir / default path", defaultPath);
 
-          console.log("Go to table-view with db:", newWorkbenchDB);
           updateWorkbenchDB(newWorkbenchDB, sqliteFilePath)
           navigate(ROUTES.TABLE_VIEW);
 
@@ -146,7 +138,7 @@ const Home = () => {
 
   function jsonParser(jsonFilePath: string, sqliteFilePath: string){
     if (!sqliteFilePath || !jsonFilePath) {
-      console.log("Sqlite or json file path isn't valid:", sqliteFilePath);
+      console.error("Sqlite or json file path isn't valid:", sqliteFilePath);
       return;
     }
       
@@ -160,7 +152,6 @@ const Home = () => {
       });
     }
 
-    console.log("SQlitefile path", sqliteFilePath);
 
     // Create a new database when importing a json file
     const newWorkbenchDB = new WorkbenchDB({
@@ -178,29 +169,21 @@ const Home = () => {
       .then(() => newWorkbenchDB.addFromJson(
         jsonFilePath,
         workbenchVersion,
-        (response: number) => { console.log("Import done with progress @", response, newWorkbenchDB)},
+        (response: number) => {
+          console.log("Import done with progress @", response, newWorkbenchDB)
+        },
         // (progress) => progressbar.update(progress / 100)
       ))
-      // .then(() => {
-      //     return new Promise<void>((resolve) => {
-      //         setTimeout(() => {
-      //             console.log("Wait completed");
-      //             resolve();
-      //         }, 2000);
-      //     })
-      // })
       // .then(() => progressbar.hide())
       .then(() => {
-        console.log("add from json resolved");
-
-        console.log("Storing history");
+        // console.log("add from json resolved");
+        
         AddEntry({
           json_path: jsonFilePath,
           sqlite_path: sqliteFilePath,
           opened_at: moment().format(),
         });
 
-        console.log("Finding default path");
         newWorkbenchDB.sync
           .then((db) => db.File.findOne({ where: { parent: '#' }}))
           .then(root => {
@@ -216,9 +199,7 @@ const Home = () => {
                       .then(root => {
                           console.log("Root dir", root);
                           const defaultPath = root.getDataValue('path');
-                          console.log("Root dir / default path", defaultPath);
   
-                          console.log("Go to table-view with db:", newWorkbenchDB);
                           updateWorkbenchDB(newWorkbenchDB, sqliteFilePath)
                           navigate(ROUTES.TABLE_VIEW);
   
@@ -230,9 +211,7 @@ const Home = () => {
             }
             console.log("Root dir", root);
             const defaultPath = root.getDataValue('path');
-            console.log("Root dir / default path", defaultPath);
 
-            console.log("Go to table-view with db:", newWorkbenchDB);
             updateWorkbenchDB(newWorkbenchDB, sqliteFilePath)
             navigate(ROUTES.TABLE_VIEW);
 
@@ -244,10 +223,8 @@ const Home = () => {
 
   function historyItemParser(historyItem: HistoryItem){
     if(historyItem.json_path){
-      console.log("Attempting json import", historyItem);
       jsonParser(historyItem.json_path, historyItem.sqlite_path);
     } else {
-      console.log("Attempting sqlite import", historyItem);
       sqliteParser(historyItem.sqlite_path)
     }
   }
@@ -261,11 +238,9 @@ const Home = () => {
     removeIpcListeners();
 
     ipcRenderer.on(IMPORT_REPLY_CHANNEL.JSON, (_, message: JSON_IMPORT_REPLY_FORMAT) => {
-      console.log("importing json:", message.jsonFilePath, message);
       jsonParser(message.jsonFilePath, message.sqliteFilePath);
     });
     ipcRenderer.on(IMPORT_REPLY_CHANNEL.SQLITE, (_, message: SQLITE_IMPORT_REPLY_FORMAT) => {
-      console.log("importing sqlite:", message.sqliteFilePath, message);
       sqliteParser(message.sqliteFilePath);
     });
 
@@ -283,14 +258,14 @@ const Home = () => {
   // Import a ScanCode JSON file and create a SQLite database
   function openJsonFile() {
     ipcRenderer.send(OPEN_DIALOG_CHANNEL.JSON);
-    console.log("Json file dialog opened");
+    // console.log("Json file dialog opened");
     return;
   }
 
   // Import already created SQLite database
   function openSqliteFile() {
     ipcRenderer.send(OPEN_DIALOG_CHANNEL.SQLITE);
-    console.log("Sqlite file dialog opened");
+    // console.log("Sqlite file dialog opened");
     return;
   }
 
@@ -323,58 +298,51 @@ const Home = () => {
               </div>
             </div>
             <div className="history">
-              <h5>Recent files</h5>
+              <br/>
+              <h3>Recent files </h3>
               <ul>
                 {
                   history.map((historyItem, idx) => (
-                    <li
-                      style={{ marginBottom: 10 }}
-                      key={historyItem.json_path + idx}
-                    >
+                    <li key={historyItem.json_path + idx}>
+                      <CoreButton onClick={() => historyItemParser(historyItem)}>
+                        Import
+                        <FontAwesomeIcon icon={faFileImport} />
+                      </CoreButton>
+
                       { historyItem.json_path || historyItem.sqlite_path }
                       <span style={{ marginLeft: 20 }}>
                         {moment(historyItem.opened_at).fromNow()}
                       </span>
-
-                      <Button
-                        variant="light"
-                        className="mx-4"
-                        onClick={() => historyItemParser(historyItem)}
-                      >
-                        {" <- "} Import
-                      </Button>
                     </li>
                   ))
                 }
               </ul>
             </div>
             <div className="quicklinks">
+              <br/>
               <h3>Quick Links: </h3>
               <div
                 className="btn-group-horizontal"
                 role="group"
               >
-                <Button
-                  variant='light'
-                  size='lg'
+                <CoreButton
+                  large
                   href="https://github.com/nexB/scancode-workbench/"
                 >
                   GitHub Repository
-                </Button>
-                <Button
-                  variant='light'
-                  size='lg'
+                </CoreButton>
+                <CoreButton
+                  large
                   href="https://scancode-workbench.readthedocs.io/"
                 >
                   Getting Started with Scancode Workbench
-                </Button>
-                <Button
-                  variant='light'
-                  size='lg'
+                </CoreButton>
+                <CoreButton
+                  large
                   href="https://github.com/nexB/scancode-workbench/issues"
                 >
                   Report a Bug or Request a Feature
-                </Button>
+                </CoreButton>
               </div>
             </div>
           </div>

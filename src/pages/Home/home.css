@@ -1,6 +1,6 @@
-.home-page .btn-light:hover {
-  background-color: #f3f9ff;
-}
+/* .home-page {
+
+} */
 #welcomepage-view .icons h4{
   margin-top: 20px;
   font-size: 20px;
@@ -56,9 +56,18 @@
   padding-left: 2rem;
 }
 
+.history ul {
+  padding-left: 10px;
+  margin-bottom: 10px;
+}
+.history li {
+  list-style-type: none;
+}
 .history button {
   margin: 0;
-  margin-left: 25px;
+  margin: 5px;
+  margin-left: 10px;
+  margin-right: 20px;
   border: 2px solid rgb(74, 176, 199) !important;
   background-color: transparent;
 }

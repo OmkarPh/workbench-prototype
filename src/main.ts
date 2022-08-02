@@ -48,7 +48,7 @@ const createWindow = (): void => {
       // preload: path.join(__dirname, 'index.js'),
       nodeIntegration: true,
       nodeIntegrationInWorker: true,
-      webSecurity: false,
+      // webSecurity: false,
       // nodeIntegrationInSubFrames: true,
       contextIsolation: false,
       // enable

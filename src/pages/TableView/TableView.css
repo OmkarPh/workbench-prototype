@@ -1,3 +1,16 @@
+.filterButtons {
+  margin-bottom: 10px;
+}
+.filterButtons section{
+  display: inline;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+.filterButtons button{
+  margin: 5px;
+  margin-right: 10px;
+}
+
 .pagination-controls {
   float: right;
   margin: 10px;
@@ -13,7 +26,7 @@
   --ag-cell-horizontal-border: 1px solid rgb(225 225 225) !important;
 }
 .ag-theme-alpine .ag-cell-wrapper {
-  padding: 10px;
+  padding: 7px 0 10px 0;
   font-size: 14px;
   /* font: 15px Lato, Helvetica, sans-serif; */
   line-height: 1.5;

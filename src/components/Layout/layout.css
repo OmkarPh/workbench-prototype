@@ -3,9 +3,9 @@
   height: 100vh !important;
 }
 
-.pane-container .content-pane {
-  /* padding: 0!important; */
-}
+/* .pane-container .content-pane {
+  
+} */
 
 .file-tree-pane {
   border: 0;
@@ -13,6 +13,6 @@
 }
 
 .content-container {
-  padding: 15px;
+  padding: 10px;
   min-height: 100%;
 }

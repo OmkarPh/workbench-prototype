@@ -6,8 +6,6 @@ import {
   GridReadyEvent,
 } from 'ag-grid-community';
 
-import CustomFilterComponent from './CustomFilterComponent';
-
 
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
@@ -22,10 +20,6 @@ const defaultColDef: ColDef = {
   sortable: true,
   resizable: true,
   filter: true,
-  floatingFilterComponent: () => (
-    <CustomFilterComponent />
-  ),
-  floatingFilter: true,
   wrapText: true,
   autoHeight: true,
 };
@@ -95,7 +89,7 @@ const AgDataTable = (props: AgDataTableProps) => {
         >
           {
             paginationOptions.map(optionValue => (
-              <option value={optionValue} selected={true}>
+              <option value={optionValue} key={optionValue}>
                 { optionValue }
               </option>
             ))

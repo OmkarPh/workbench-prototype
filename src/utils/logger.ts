@@ -1,6 +1,6 @@
 const debugClasses = new Set([
   // 'add file',
-  'file processor',
+  // 'file processor',
 ])
 
 export const DebugLogger = (debugClass: string, ...args: unknown[]) => {

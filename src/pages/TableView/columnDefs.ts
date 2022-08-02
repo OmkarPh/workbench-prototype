@@ -1,8 +1,19 @@
 import { ColDef } from 'ag-grid-community';
-import ListCellRenderer from './ListCellRenderer';
+import ListCellRenderer from './CustomCellComponents/ListCellRenderer';
+import UrlListCellRenderer from './CustomCellComponents/UrlListCellRenderer';
+import EmailListCellRenderer from './CustomCellComponents/EmailListCellRenderer';
+import CustomFilterComponent from './CustomFilterComponent';
+
+enum CustomComponentKeys {
+  ListCellRenderer = 'ListCellRenderer',
+  UrlListCellRenderer = 'UrlListCellRenderer',
+  EmailListCellRenderer = 'EmailListCellRenderer',
+}
 
 export const frameworkComponents = {
-  'ListCellRenderer': ListCellRenderer
+  [CustomComponentKeys.ListCellRenderer] : ListCellRenderer,
+  [CustomComponentKeys.UrlListCellRenderer]: UrlListCellRenderer,
+  [CustomComponentKeys.EmailListCellRenderer]: EmailListCellRenderer,
 };
 
 const PATH_COLUMN: ColDef = {
@@ -12,7 +23,6 @@ const PATH_COLUMN: ColDef = {
   minWidth: 100,
   width: 370,
   // wrapText: true,
-  // cellRenderer: ...
 };
 
 const COPYRIGHT_COLUMN_GROUP: ColDef[] = [
@@ -20,28 +30,28 @@ const COPYRIGHT_COLUMN_GROUP: ColDef[] = [
   {
     field: 'copyright_statements',
     headerName: 'Copyright Statements',
-    cellRenderer: 'ListCellRenderer',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
     width: 310,
   },
   {
     field: 'copyright_holders',
     headerName: 'Copyright Holder',
-    cellRenderer: 'ListCellRenderer',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
   {
     field: 'copyright_authors',
     headerName: 'Copyright Author',
-    cellRenderer: 'ListCellRenderer',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
   {
     field: 'copyright_start_line',
     headerName: 'Copyright Start Line',
-    cellRenderer: 'ListCellRenderer',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
   {
     field: 'copyright_end_line',
     headerName: 'Copyright End Line',
-    cellRenderer: 'ListCellRenderer',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
   }
 ];
 
@@ -51,7 +61,7 @@ const FILE_COLUMN_GROUP: ColDef[] = [
     // id: "type",
     field: "type",
     headerName: "Type",
-    width: 100,
+    width: 120,
   },
   {
     // id: "name",
@@ -65,6 +75,9 @@ const FILE_COLUMN_GROUP: ColDef[] = [
     headerName: "File extension",
     wrapHeaderText: true,
     width: 125,
+    floatingFilter: true,
+    filterParams: { options: [".txt", ".c", ".cpp"] },
+    floatingFilterComponent: CustomFilterComponent,
   },
   {
     // id: "size",
@@ -97,37 +110,37 @@ const LICENSE_COLUMN_GROUP: ColDef[] = [
   {
     field: 'license_policy',
     headerName: 'License Policy',
-    cellRenderer: 'ListCellRenderer',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
   {
     field: 'license_expressions',
     headerName: 'License Expression',
-    cellRenderer: 'ListCellRenderer',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
   {
     field: 'license_key',
     headerName: 'License Key',
-    cellRenderer: 'ListCellRenderer',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
   {
     field: 'license_score',
     headerName: 'License Score',
-    cellRenderer: 'ListCellRenderer',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
   {
     field: 'license_short_name',
     headerName: 'License Short Name',
-    cellRenderer: 'ListCellRenderer',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
   {
     field: 'license_category',
     headerName: 'License Category',
-    cellRenderer: 'ListCellRenderer',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
   {
     field: 'license_owner',
     headerName: 'License Owner',
-    cellRenderer: 'ListCellRenderer',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
   // {
   //   field: 'license_homepage_url',
@@ -144,17 +157,17 @@ const LICENSE_COLUMN_GROUP: ColDef[] = [
   {
     field: 'license_spdx_key',
     headerName: 'SPDX License Key',
-    cellRenderer: 'ListCellRenderer',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
   {
     field: 'license_start_line',
     headerName: 'License Start Line',
-    cellRenderer: 'ListCellRenderer',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
   {
     field: 'license_end_line',
     headerName: 'License End Line',
-    cellRenderer: 'ListCellRenderer',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
 ];
 
@@ -163,13 +176,13 @@ const ORIGIN_COLUMN_GROUP: ColDef[] = [
   {
     field: 'copyright_statements',
     headerName: 'Copyright Statement',
-    cellRenderer: 'ListCellRenderer',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
     width: 310,
   },
   {
     field: 'license_short_name',
     headerName: 'License Short Name',
-    cellRenderer: 'ListCellRenderer',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
   {
     field: 'license_policy',
@@ -178,17 +191,17 @@ const ORIGIN_COLUMN_GROUP: ColDef[] = [
   {
     field: 'license_category',
     headerName: 'License Category',
-    cellRenderer: 'ListCellRenderer',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
   {
     field: 'email',
     headerName: 'Email',
-    cellRenderer: 'ListCellRenderer',
+    cellRenderer: CustomComponentKeys.EmailListCellRenderer,
   },
   {
     field: 'url',
     headerName: 'URL',
-    cellRenderer: 'ListCellRenderer',
+    cellRenderer: CustomComponentKeys.UrlListCellRenderer,
   },
   {
     field: "mime_type",
@@ -210,22 +223,27 @@ const PACKAGE_COLUMN_GROUP: ColDef[] = [
   {
     field: 'packages_type',
     headerName: 'Package Type',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
   {
     field: 'packages_name',
     headerName: 'Package Name',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
   {
     field: 'packages_version',
     headerName: 'Package Version',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
   {
     field: 'packages_license_expression',
     headerName: 'Package License Expression',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
   {
     field: 'packages_primary_language',
     headerName: 'Package Primary Language',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
   // {
   //   field: 'packages_homepage_url',
@@ -238,12 +256,9 @@ const PACKAGE_COLUMN_GROUP: ColDef[] = [
   {
     field: 'packages_purl',
     headerName: 'Package URL',
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
 ];
-
-// const _COLUMN_GROUP: ColDef[] = [
-  
-// ];
 
 
 
@@ -257,6 +272,7 @@ const DEFAULT_COLUMN_GROUP: ColDef[] = [
   },
 ];
 
+
 export const COLUMN_GROUPS = {
   DEFAULT: DEFAULT_COLUMN_GROUP,
 
@@ -265,4 +281,16 @@ export const COLUMN_GROUPS = {
   LICENSE: LICENSE_COLUMN_GROUP,
   ORIGIN: ORIGIN_COLUMN_GROUP,
   PACKAGE: PACKAGE_COLUMN_GROUP,
+
+  ALL: [
+    ...COPYRIGHT_COLUMN_GROUP,
+    ...FILE_COLUMN_GROUP,
+    ...LICENSE_COLUMN_GROUP,
+    ...ORIGIN_COLUMN_GROUP,
+    ...PACKAGE_COLUMN_GROUP,
+  ],
+
+  NONE: [
+    PATH_COLUMN,
+  ]
 }
