@@ -10,18 +10,27 @@ import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCogs, faFileImport, faFloppyDisk, faFolder } from '@fortawesome/free-solid-svg-icons'
 
-import packageJson from '../../../package.json';
-
-import { WorkbenchDB } from '../../services/workbenchDB'
-
-import './home.css'
 import { useWorkbenchDB } from '../../contexts/workbenchContext'
+import CoreButton from '../../components/CoreButton/CoreButton';
+
 import { ROUTES } from '../../constants/routes'
 import { AddEntry, GetHistory, HistoryItem } from '../../services/historyStore'
-import { IMPORT_REPLY_CHANNEL, JSON_IMPORT_REPLY_FORMAT, OPEN_DIALOG_CHANNEL, OPEN_ERROR_DIALOG_CHANNEL, SQLITE_IMPORT_REPLY_FORMAT } from '../../constants/IpcConnection';
+import { WorkbenchDB } from '../../services/workbenchDB'
+import packageJson from '../../../package.json';
+
+import {
+  OPEN_DIALOG_CHANNEL,
+  OPEN_ERROR_DIALOG_CHANNEL,
+  IMPORT_REPLY_CHANNEL,
+  SAVE_REPLY_CHANNEL, 
+  JSON_IMPORT_REPLY_FORMAT,
+  SQLITE_IMPORT_REPLY_FORMAT,
+  SQLITE_SAVE_REPLY_FORMAT,
+} from '../../constants/IpcConnection';
 
 import { isSchemaChanged } from '../../utils/checks';
-import CoreButton from '../../components/CoreButton/CoreButton';
+
+import './home.css'
 
 const { version: workbenchVersion } = packageJson;
 const electron = window.require("electron");
@@ -47,11 +56,12 @@ console.log("OS", electronOs);
 
 const Home = () => {
   const navigate = useNavigate();
-  const { updateCurrentPath, updateWorkbenchDB, importedSqliteFilePath } = useWorkbenchDB();
+  const { db, updateCurrentPath, updateWorkbenchDB, importedSqliteFilePath } = useWorkbenchDB();
+  console.log(db);
+  
+  const history = useMemo(() => GetHistory(), [importedSqliteFilePath, db]);
 
-  const history = useMemo(() => GetHistory(), [importedSqliteFilePath]);
-
-  function sqliteParser(sqliteFilePath: string){
+  function sqliteParser(sqliteFilePath: string, preventNavigation?: boolean){
     // Create a new database when importing a sqlite file
     const newWorkbenchDB = new WorkbenchDB({
       dbName: 'workbench_db',
@@ -128,7 +138,9 @@ const Home = () => {
           const defaultPath = root.getDataValue('path');
 
           updateWorkbenchDB(newWorkbenchDB, sqliteFilePath)
-          navigate(ROUTES.TABLE_VIEW);
+          
+          if(!preventNavigation)
+            navigate(ROUTES.TABLE_VIEW);
 
           if(defaultPath)
               updateCurrentPath(defaultPath);
@@ -136,7 +148,7 @@ const Home = () => {
       });
   }
 
-  function jsonParser(jsonFilePath: string, sqliteFilePath: string){
+  function jsonParser(jsonFilePath: string, sqliteFilePath: string, preventNavigation?: boolean){
     if (!sqliteFilePath || !jsonFilePath) {
       console.error("Sqlite or json file path isn't valid:", sqliteFilePath);
       return;
@@ -197,14 +209,16 @@ const Home = () => {
                   newWorkbenchDB.sync
                       .then(db => db.File.findOne({ where: { parent: '#' }}))
                       .then(root => {
-                          console.log("Root dir", root);
-                          const defaultPath = root.getDataValue('path');
-  
-                          updateWorkbenchDB(newWorkbenchDB, sqliteFilePath)
+                        console.log("Root dir", root);
+                        const defaultPath = root.getDataValue('path');
+
+                        updateWorkbenchDB(newWorkbenchDB, sqliteFilePath)
+                        
+                        if(!preventNavigation)
                           navigate(ROUTES.TABLE_VIEW);
-  
-                          if(defaultPath)
-                              updateCurrentPath(defaultPath);
+
+                        if(defaultPath)
+                            updateCurrentPath(defaultPath);
                       });
               }, 2000)
               return;
@@ -213,7 +227,9 @@ const Home = () => {
             const defaultPath = root.getDataValue('path');
 
             updateWorkbenchDB(newWorkbenchDB, sqliteFilePath)
-            navigate(ROUTES.TABLE_VIEW);
+
+            if(!preventNavigation)
+              navigate(ROUTES.TABLE_VIEW);
 
             if(defaultPath)
               updateCurrentPath(defaultPath);
@@ -232,6 +248,7 @@ const Home = () => {
   function removeIpcListeners(){
     ipcRenderer.removeAllListeners(IMPORT_REPLY_CHANNEL.JSON);
     ipcRenderer.removeAllListeners(IMPORT_REPLY_CHANNEL.SQLITE);
+    ipcRenderer.removeAllListeners(SAVE_REPLY_CHANNEL.SQLITE);
   }
 
   useEffect(() => {
@@ -242,6 +259,21 @@ const Home = () => {
     });
     ipcRenderer.on(IMPORT_REPLY_CHANNEL.SQLITE, (_, message: SQLITE_IMPORT_REPLY_FORMAT) => {
       sqliteParser(message.sqliteFilePath);
+    });
+    ipcRenderer.on(SAVE_REPLY_CHANNEL.SQLITE, (_, message: SQLITE_SAVE_REPLY_FORMAT) => {
+      const newFileName = message?.sqliteFilePath;
+      const oldFileName =
+        (db?.sequelize as unknown as { options: { storage: string } }).options.storage;
+      
+      if (newFileName && oldFileName) {
+        const reader = electronFs.createReadStream(oldFileName);
+        const writer = electronFs.createWriteStream(newFileName);
+        reader.pipe(writer);
+        reader.on('end', () => {
+          console.log("Saved", newFileName)
+          sqliteParser(newFileName, true);
+        });
+      }
     });
 
     const AUTO_IMPORT_LAST_FILE = false;
@@ -258,15 +290,17 @@ const Home = () => {
   // Import a ScanCode JSON file and create a SQLite database
   function openJsonFile() {
     ipcRenderer.send(OPEN_DIALOG_CHANNEL.JSON);
-    // console.log("Json file dialog opened");
-    return;
   }
 
   // Import already created SQLite database
   function openSqliteFile() {
     ipcRenderer.send(OPEN_DIALOG_CHANNEL.SQLITE);
-    // console.log("Sqlite file dialog opened");
-    return;
+  }
+
+  // Copy already created/imported sqlite file to new sqlite file, and
+  // update path of workbench DB to new sqlite DB
+  function saveSqliteFile(){
+    ipcRenderer.send(OPEN_DIALOG_CHANNEL.SAVE_SQLITE);
   }
 
   return (
@@ -278,18 +312,18 @@ const Home = () => {
           </div>
           <div id="welcomepage-view">
             <div className="quickActions">
-              <div id="import-json" onClick={openJsonFile}>
+              <div onClick={openJsonFile}>
                 <FontAwesomeIcon icon={faCogs} className="quickActionIcon" />
                 <h5>Import ScanCode JSON</h5>
               </div>
-              <div id="open-file" onClick={openSqliteFile}>
+              <div onClick={openSqliteFile}>
                 <FontAwesomeIcon
                   icon={faFolder}
                   className="quickActionIcon"
                 />
                 <h5>Open SQLite File</h5>
               </div>
-              <div id="save-file">
+              <div onClick={saveSqliteFile}>
                 <FontAwesomeIcon
                   icon={faFloppyDisk}
                   className="quickActionIcon"

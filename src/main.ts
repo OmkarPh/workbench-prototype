@@ -3,13 +3,17 @@ import { ipcMain, dialog, app, BrowserWindow, Menu, MenuItem, shell } from 'elec
 
 import isDev from 'electron-is-dev';
 import * as electronOs from "os"
-// import path from 'path';
-// import elec from '@electron/remote/main';
 import packageJson from '../package.json';
 
 import {
-  JSON_IMPORT_REPLY_FORMAT, SQLITE_IMPORT_REPLY_FORMAT, ErrorInfo,
-  OPEN_DIALOG_CHANNEL, OPEN_ERROR_DIALOG_CHANNEL, IMPORT_REPLY_CHANNEL, 
+  ErrorInfo,
+  OPEN_DIALOG_CHANNEL,
+  OPEN_ERROR_DIALOG_CHANNEL,
+  IMPORT_REPLY_CHANNEL,
+  SAVE_REPLY_CHANNEL, 
+  JSON_IMPORT_REPLY_FORMAT,
+  SQLITE_IMPORT_REPLY_FORMAT,
+  SQLITE_SAVE_REPLY_FORMAT,
 } from './constants/IpcConnection';
 
 
@@ -106,27 +110,6 @@ function sendEventToRenderer(eventKey: string) {
   return (menuItem: MenuItem, currentWindow: BrowserWindow) => currentWindow.webContents.send(eventKey);
 }
 
-ipcMain.on(OPEN_DIALOG_CHANNEL.SQLITE, (event, arg) => {
-  console.log("SQLite file prompt", arg)
-
-  dialog.showOpenDialog({
-    properties: ['openFile'],
-    title: 'Open a SQLite File',
-    filters: [{
-      name: 'SQLite File',
-      extensions: ['sqlite']
-    }]
-  }).then(({ filePaths }) => {
-    if (filePaths && filePaths[0]) {
-      const sqliteFilePath = filePaths[0]
-      const reply: SQLITE_IMPORT_REPLY_FORMAT = { sqliteFilePath };
-      event.sender.send(IMPORT_REPLY_CHANNEL.SQLITE, reply);
-    } else {
-      console.log("Sqlite file path isn't valid:", filePaths);
-      return;
-    }
-  });
-});
 
 ipcMain.on(OPEN_DIALOG_CHANNEL.JSON, (event, arg) => {
   console.log("JSON file prompt", arg)
@@ -176,6 +159,47 @@ ipcMain.on(OPEN_DIALOG_CHANNEL.JSON, (event, arg) => {
             event.sender.send(IMPORT_REPLY_CHANNEL.JSON, reply);
         });
     });
+});
+
+ipcMain.on(OPEN_DIALOG_CHANNEL.SQLITE, (event, arg) => {
+  console.log("SQLite file prompt", arg)
+
+  dialog.showOpenDialog({
+    properties: ['openFile'],
+    title: 'Open a SQLite File',
+    filters: [{
+      name: 'SQLite File',
+      extensions: ['sqlite']
+    }]
+  }).then(({ filePaths }) => {
+    if (filePaths && filePaths[0]) {
+      const sqliteFilePath = filePaths[0]
+      const reply: SQLITE_IMPORT_REPLY_FORMAT = { sqliteFilePath };
+      event.sender.send(IMPORT_REPLY_CHANNEL.SQLITE, reply);
+    } else {
+      console.log("Sqlite file path isn't valid:", filePaths);
+      return;
+    }
+  });
+});
+
+ipcMain.on(OPEN_DIALOG_CHANNEL.SAVE_SQLITE, (event) => {
+  dialog.showSaveDialog({
+    title: 'Save as a Database File',
+    defaultPath: 'fileName.sqlite',
+    filters: [
+      { name: 'SQLite File', extensions: ['sqlite'] }
+    ]
+  }).then((file) => {
+    const sqliteFilePath = file?.filePath;
+    if (sqliteFilePath) {
+      const reply: SQLITE_SAVE_REPLY_FORMAT = { sqliteFilePath };
+      event.sender.send(SAVE_REPLY_CHANNEL.SQLITE, reply);
+    } else {
+      console.log("Sqlite file path isn't valid:", file, sqliteFilePath);
+      return;
+    }
+  });
 });
 
 

@@ -29,7 +29,7 @@
   background-color: #f9fafb;
 }
 
-#import-json, #open-file, #save-file{
+.quickActions div {
   border: 2px dashed skyblue;
   display: inline-block;
   width: 25%;
