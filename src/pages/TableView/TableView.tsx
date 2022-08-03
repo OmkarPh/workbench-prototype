@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { ColDef } from 'ag-grid-community';
 
 import AgDataTable from './AgDataTable';
-import { COLUMN_GROUPS } from './columnDefs';
+import { ALL_COLUMNS, COLUMN_GROUPS } from './columnDefs';
 import { useWorkbenchDB } from '../../contexts/workbenchContext';
 
 
@@ -19,6 +19,13 @@ const TableView = () => {
 
   const [tableData, setTableData] = useState<unknown[]>([]);
   const [columnDefs, setColumnDefs] = useState<ColDef[]>(COLUMN_GROUPS.DEFAULT);
+
+  function changeColumnGroup(newGroup: ColDef[]){
+    setColumnDefs([
+      ALL_COLUMNS.path,
+      ...newGroup,
+    ])
+  }
 
 
   useEffect(() => {
@@ -90,10 +97,10 @@ const TableView = () => {
           <CoreButton small onClick={() => setColumnDefs(COLUMN_GROUPS.DEFAULT)}>
             Default columns
           </CoreButton>
-          <CoreButton small onClick={() => setColumnDefs(COLUMN_GROUPS.ALL)}>
+          <CoreButton small onClick={() => changeColumnGroup(COLUMN_GROUPS.ALL)}>
             Show all
           </CoreButton>
-          <CoreButton small onClick={() => setColumnDefs(COLUMN_GROUPS.NONE)}>
+          <CoreButton small onClick={() => changeColumnGroup(COLUMN_GROUPS.NONE)}>
             Hide all
           </CoreButton>
         </section>
@@ -101,19 +108,19 @@ const TableView = () => {
         |
         </section>
         <section>
-          <CoreButton small onClick={() => setColumnDefs(COLUMN_GROUPS.COPYRIGHT)}>
+          <CoreButton small onClick={() => changeColumnGroup(COLUMN_GROUPS.COPYRIGHT)}>
             Copyright cols
           </CoreButton>
-          <CoreButton small onClick={() => setColumnDefs(COLUMN_GROUPS.LICENSE)}>
+          <CoreButton small onClick={() => changeColumnGroup(COLUMN_GROUPS.LICENSE)}>
             License cols
           </CoreButton>
-          <CoreButton small onClick={() => setColumnDefs(COLUMN_GROUPS.FILE)}>
+          <CoreButton small onClick={() => changeColumnGroup(COLUMN_GROUPS.FILE)}>
             File cols
           </CoreButton>
-          <CoreButton small onClick={() => setColumnDefs(COLUMN_GROUPS.ORIGIN)}>
+          <CoreButton small onClick={() => changeColumnGroup(COLUMN_GROUPS.ORIGIN)}>
             Origin cols
           </CoreButton>
-          <CoreButton small onClick={() => setColumnDefs(COLUMN_GROUPS.PACKAGE)}>
+          <CoreButton small onClick={() => changeColumnGroup(COLUMN_GROUPS.PACKAGE)}>
             Package cols
           </CoreButton>
         </section>

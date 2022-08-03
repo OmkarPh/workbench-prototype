@@ -15,20 +15,20 @@ const CustomFilterComponent = forwardRef((props: CustomParams, ref) => {
 
   const optionValues: string[] = filterParams.colDef.filterParams?.options || [];
 
-  const inputRef = useRef<HTMLSelectElement | null>(null);
+  const selectRef = useRef<HTMLSelectElement | null>(null);
 
   // expose AG Grid Filter Lifecycle callbacks
   useImperativeHandle(ref, () => {
     return {
       onParentModelChanged(parentModel: TextFilterModel){
-        if(!inputRef.current)
+        if(!selectRef.current)
           return;
           
         // When the filter is empty we will receive a null value here
         if (!parentModel) {
-          inputRef.current.value = optionValues[0];
+          selectRef.current.value = optionValues[0];
         } else {
-          inputRef.current.value = parentModel.filter + '';
+          selectRef.current.value = parentModel.filter;
         }
       }
     }
@@ -48,8 +48,9 @@ const CustomFilterComponent = forwardRef((props: CustomParams, ref) => {
 
   return (
     <select
-      defaultValue={optionValues[0]}
+      ref={selectRef}
       className='filterComponent'
+      defaultValue={optionValues[0]}
       onChange={e => selectionChanged(e.target.value)}
     >
       {

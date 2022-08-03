@@ -31,8 +31,6 @@ const AgDataTable = (props: AgDataTableProps) => {
     tableData, columnDefs,
   } = props;
 
-  // const [filteredTableData, setFilteredTableData] = useState<unknown[]>([]);
-
   const [gridApi, setGridApi] = useState<GridApi | null>(null);
   const onGridReady = (params: GridReadyEvent) => setGridApi(params.api);
 
@@ -45,6 +43,12 @@ const AgDataTable = (props: AgDataTableProps) => {
     () => changePaginationSize(defaultPaginationOption),
     [tableData, gridApi]
   );
+
+
+  useEffect(() => {
+    if(gridApi)
+      gridApi.setFilterModel(null);
+  }, [columnDefs])
 
 
   return (
