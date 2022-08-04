@@ -55,18 +55,19 @@
   margin-top: 32px;
   padding-left: 2rem;
 }
-
-.history ul {
-  padding-left: 10px;
-  margin-bottom: 10px;
+.history table{
+  min-width: 80%;
+  max-width: 95%;
 }
-.history li {
-  list-style-type: none;
+.history table tr .file-path{
+  min-width: 400px;
+  max-width: 60vw;
+  word-wrap: break-word;
+  padding-right: 10px;
 }
 .history button {
-  margin: 0;
   margin: 5px;
-  margin-left: 10px;
+  margin-left: 0px;
   margin-right: 20px;
   border: 2px solid rgb(74, 176, 199) !important;
   background-color: transparent;
@@ -77,7 +78,9 @@
 } */
 
 .btn-group-horizontal a{
-  margin: 1rem;
+  margin: 0px;
+  margin-top: .5rem;
+  margin-right: 1rem;
   background-color: transparent;
   border:2px solid rgb(74, 176, 199) !important;
 }

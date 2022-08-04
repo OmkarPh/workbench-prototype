@@ -308,7 +308,7 @@ const Home = () => {
       <div className="tab-pane" id="tab-welcomepage">
         <div id="welcomepage-container">
           <div id="welcomepage-title">
-            <h1>Welcome to ScanCode Workbench !!</h1>
+            <h2>ScanCode Workbench</h2>
           </div>
           <div id="welcomepage-view">
             <div className="quickActions">
@@ -333,28 +333,37 @@ const Home = () => {
             </div>
             <div className="history">
               <br/>
-              <h3>Recent files </h3>
-              <ul>
+              <h4>Recent files </h4>
+              <table>
+                <tbody>
                 {
                   history.map((historyItem, idx) => (
-                    <li key={historyItem.json_path + idx}>
-                      <CoreButton onClick={() => historyItemParser(historyItem)}>
-                        Import
-                        <FontAwesomeIcon icon={faFileImport} />
-                      </CoreButton>
+                    <tr key={historyItem.json_path + idx}>
+                      <td>
+                        <CoreButton onClick={() => historyItemParser(historyItem)}>
+                          Import
+                          <FontAwesomeIcon icon={faFileImport} />
+                        </CoreButton>
+                      </td>
 
-                      { historyItem.json_path || historyItem.sqlite_path }
-                      <span style={{ marginLeft: 20 }}>
-                        {moment(historyItem.opened_at).fromNow()}
-                      </span>
-                    </li>
+                      <td className='file-path'>
+                        { historyItem.json_path || historyItem.sqlite_path }
+                      </td>
+
+                      <td>
+                        <span style={{ marginLeft: 20 }}>
+                          {moment(historyItem.opened_at).fromNow()}
+                        </span>
+                      </td>
+                    </tr>
                   ))
                 }
-              </ul>
+                </tbody>
+              </table>
             </div>
             <div className="quicklinks">
               <br/>
-              <h3>Quick Links: </h3>
+              <h4>Quick Links </h4>
               <div
                 className="btn-group-horizontal"
                 role="group"

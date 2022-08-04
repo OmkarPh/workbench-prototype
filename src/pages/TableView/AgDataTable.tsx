@@ -46,8 +46,10 @@ const AgDataTable = (props: AgDataTableProps) => {
 
 
   useEffect(() => {
-    if(gridApi)
+    if(gridApi){
       gridApi.setFilterModel(null);
+      gridApi.setColumnDefs(columnDefs);
+    }
   }, [columnDefs])
 
 

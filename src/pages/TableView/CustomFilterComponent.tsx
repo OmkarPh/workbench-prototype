@@ -4,10 +4,24 @@ import React, {
   useRef,
 } from 'react';
 import { IFloatingFilterParams, TextFilterModel } from 'ag-grid-community';
+import { DEFAULT_EMPTY_VALUES } from './columnDefs';
 
 export interface CustomParams extends IFloatingFilterParams {
   suppressFilterButton: boolean;
   color: string;
+}
+
+function parseProbableStringifiedArray(str: string){
+  try {
+    const result = JSON.parse(str);
+    if(Array.isArray(result)){
+      const parseableResultArray = result as string[][];
+      return parseableResultArray.map(subEntry => subEntry.join(',')).join(',');
+    }
+    return str;
+  } catch (e) {
+    return str;
+  }
 }
 
 const CustomFilterComponent = forwardRef((props: CustomParams, ref) => {
@@ -54,11 +68,17 @@ const CustomFilterComponent = forwardRef((props: CustomParams, ref) => {
       onChange={e => selectionChanged(e.target.value)}
     >
       {
-        optionValues.map(optionValue => (
-          <option value={optionValue} key={optionValue}>
-            { optionValue }
-          </option>
-        ))
+        optionValues.map(optionValue => {
+          const parsedOptionValue = parseProbableStringifiedArray(optionValue);
+          return (
+            <option value={optionValue} key={optionValue}>
+              {
+                DEFAULT_EMPTY_VALUES.includes(optionValue) ? "All"
+                : parsedOptionValue
+              }
+            </option>
+          )
+        })
       }
     </select>
   )

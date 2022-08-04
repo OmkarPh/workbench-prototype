@@ -5,7 +5,6 @@ import {
   UrlListCellRenderer,
   EmailListCellRenderer,
 } from './CustomCellComponents/';
-import CustomFilterComponent from './CustomFilterComponent';
 
 
 enum CustomComponentKeys {
@@ -97,10 +96,7 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
     field: "extension",
     headerName: "File extension",
     wrapHeaderText: true,
-    width: 125,
-    floatingFilter: true,
-    filterParams: { options: [".txt", ".c", ".cpp"] },
-    floatingFilterComponent: CustomFilterComponent,
+    width: 150,
   },
   size: {
     // id: "size",
@@ -277,6 +273,22 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
     width: 150,
   },
 };
+// NOTE --- 
+export const DEFAULT_EMPTY_VALUES = [
+  '', null, '[]', '[[]]'
+]
+export const SET_FILTERED_COLUMNS = new Set<string>([
+  ALL_COLUMNS.type.field || "",
+  ALL_COLUMNS.extension.field || "",
+  ALL_COLUMNS.programming_language.field || "",
+  ALL_COLUMNS.file_type.field || "",
+
+  ALL_COLUMNS.copyright_holders.field || "",
+  ALL_COLUMNS.copyright_authors.field || "",
+  ALL_COLUMNS.license_score.field || "",
+  // ALL_COLUMNS..field || "",
+  // ALL_COLUMNS..field || "",
+])
 
 const FILE_COLUMN_GROUP: ColDef[] = [
   ALL_COLUMNS.type,

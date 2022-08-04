@@ -1,14 +1,16 @@
-import { Op, Sequelize } from 'sequelize';
+import { Op } from 'sequelize';
 import React, { useEffect, useState } from 'react'
 import { ColDef } from 'ag-grid-community';
 
 import AgDataTable from './AgDataTable';
-import { ALL_COLUMNS, COLUMN_GROUPS } from './columnDefs';
+import { ALL_COLUMNS, COLUMN_GROUPS, DEFAULT_EMPTY_VALUES, SET_FILTERED_COLUMNS } from './columnDefs';
 import { useWorkbenchDB } from '../../contexts/workbenchContext';
 
 
 import './TableView.css';
 import CoreButton from '../../components/CoreButton/CoreButton';
+import { FlatFileAttributes } from '../../services/models/flatFile';
+import CustomFilterComponent from './CustomFilterComponent';
 // import '@inovua/reactdatagrid-community/index.css'
 
 
@@ -18,7 +20,7 @@ const TableView = () => {
   const workbenchDB = useWorkbenchDB();
 
   const [tableData, setTableData] = useState<unknown[]>([]);
-  const [columnDefs, setColumnDefs] = useState<ColDef[]>(COLUMN_GROUPS.DEFAULT);
+  const [columnDefs, setColumnDefs] = useState<ColDef[]>([]);
 
   function changeColumnGroup(newGroup: ColDef[]){
     setColumnDefs([
@@ -39,32 +41,43 @@ const TableView = () => {
     
     db.sync
     .then(db => {
-        
-      // Aggregator
-      db.FlatFile.aggregate('extension', 'DISTINCT', { plain: false })
-        .then((uniqueValues: { DISTINCT: string }[]) => {
-          console.log("Unique values aggregated for single column:", uniqueValues);
-          console.log("Unique values aggregated for single column:", uniqueValues.map((val) => val.DISTINCT));
-        });
 
-      db.FlatFile.findAll({
-        where: {
-          path: {
-            [Op.or]: [
-              { [Op.like]: `${currentPath}`},      // Matches a file / directory.
-              { [Op.like]: `${currentPath}/%`}  // Matches all its children (if any).
-            ]
-          }
-        },
-        attributes: [
-          // Only one column at a time
-          // specify an array where the first element is the SQL function and the second is the alias
-          [Sequelize.fn('DISTINCT', Sequelize.col('extension')), 'extension'],
-        ]
-      })
-        .then(uniqueValues => {
-          console.log("Unique values for single column:", uniqueValues.map(val => val.getDataValue('extension')));
-        });
+      Object.values(ALL_COLUMNS).forEach(columnDef => {
+        const columnKey = columnDef.field || "";
+
+        // Prepare filters only for eligible columns
+        if(!SET_FILTERED_COLUMNS.has(columnKey))
+          return;
+
+        // Aggregator
+        db.FlatFile.aggregate(
+          columnKey as (keyof FlatFileAttributes),
+          'DISTINCT',
+          { plain: false },
+        )
+          .then((uniqueValues: { DISTINCT: string }[]) => {
+            const parsedUniqueValues = uniqueValues.map((val) => val.DISTINCT);
+            if(!parsedUniqueValues[0])
+              parsedUniqueValues[0] = '';
+            
+            if(!DEFAULT_EMPTY_VALUES.includes(parsedUniqueValues[0]))
+              parsedUniqueValues.unshift('');
+            
+            console.log(
+              `Unique values aggregated for col [${columnKey}]:`,
+              // uniqueValues,
+              parsedUniqueValues,
+              // parsedUniqueValues.length,
+            );
+
+            columnDef.floatingFilter = true;
+            columnDef.filterParams = { options: parsedUniqueValues };
+            columnDef.floatingFilterComponent = CustomFilterComponent;
+          });
+      });
+
+      // TODO - Do promise.all instead
+      setTimeout(() => setColumnDefs([...COLUMN_GROUPS.DEFAULT]), 2000);
     });
 
 
@@ -79,13 +92,12 @@ const TableView = () => {
             ]
           }
         },
-        // attributes: ['id'],
         raw: true,
       }))
       .then((files) =>{
         console.log("Files", files);
         setTableData(files);
-        // setFilteredTableData(files);
+        setColumnDefs([...COLUMN_GROUPS.DEFAULT])
       });
   }, [workbenchDB]);
   
