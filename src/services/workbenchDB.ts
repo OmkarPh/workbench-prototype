@@ -175,7 +175,7 @@ export class WorkbenchDB {
       });
     
 
-    // When determining type for each file is important
+    // // When determining type for each file is important
     // type GenericModelValues = { fileId: DataTypes.IntegerDataType};
     // function prepareIdSet(values: Model<GenericModelValues, GenericModelValues>[]){
     //   const resultMapping = new Set<number>();
@@ -227,6 +227,8 @@ export class WorkbenchDB {
       // file.key = file.getDataValue('path');
       fileNode.children = [];
       fileNode.title = path.basename(file.getDataValue('path'));
+      // if(Math.random() < 0.5)
+      //   (fileNode as any).type =  "package";
     })
     
     fileList.forEach((file, i) => {

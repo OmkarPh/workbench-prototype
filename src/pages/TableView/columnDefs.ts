@@ -76,7 +76,7 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
     field: "path",
     headerName: "Path",
     minWidth: 100,
-    width: 370,
+    width: 500,
     // wrapText: true,
   },
   type: {
@@ -102,7 +102,7 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
     // id: "size",
     field: "size",
     headerName: "File Size",
-    width: 125,
+    width: 110,
   },
   programming_language: {
     // id: "programming_language",
@@ -274,9 +274,10 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
   },
 };
 // NOTE --- 
-export const DEFAULT_EMPTY_VALUES = [
+export const DEFAULT_EMPTY_VALUES = new Set<string | null>([
   '', null, '[]', '[[]]'
-]
+]);
+
 export const SET_FILTERED_COLUMNS = new Set<string>([
   ALL_COLUMNS.type.field || "",
   ALL_COLUMNS.extension.field || "",

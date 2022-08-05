@@ -73,7 +73,7 @@ const CustomFilterComponent = forwardRef((props: CustomParams, ref) => {
           return (
             <option value={optionValue} key={optionValue}>
               {
-                DEFAULT_EMPTY_VALUES.includes(optionValue) ? "All"
+                DEFAULT_EMPTY_VALUES.has(optionValue) ? "All"
                 : parsedOptionValue
               }
             </option>

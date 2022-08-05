@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { AgGridReact } from 'ag-grid-react';
 import {
   ColDef,
@@ -6,16 +6,12 @@ import {
   GridReadyEvent,
 } from 'ag-grid-community';
 
-
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { frameworkComponents } from './columnDefs';
 
-interface AgDataTableProps {
-  tableData: unknown[],
-  columnDefs: ColDef[],
-}
 
+// Config for Ag DataTable
 const defaultColDef: ColDef = {
   sortable: true,
   resizable: true,
@@ -26,19 +22,28 @@ const defaultColDef: ColDef = {
 const paginationOptions = [25, 50, 100, 200];
 const defaultPaginationOption = paginationOptions[0];
 
+
+interface AgDataTableProps {
+  tableData: unknown[],
+  columnDefs: ColDef[],
+  gridApi: GridApi | null,
+  updateGridApi: (value: React.SetStateAction<GridApi>) => void,
+}
+
 const AgDataTable = (props: AgDataTableProps) => {
   const {
     tableData, columnDefs,
+    gridApi, updateGridApi,
   } = props;
 
-  const [gridApi, setGridApi] = useState<GridApi | null>(null);
-  const onGridReady = (params: GridReadyEvent) => setGridApi(params.api);
+  const onGridReady = (params: GridReadyEvent) => updateGridApi(params.api);
 
   const changePaginationSize = (newValue: string | number) => {
     if(gridApi){
       gridApi.paginationSetPageSize(Number(newValue));
     }
   }
+
   useEffect(
     () => changePaginationSize(defaultPaginationOption),
     [tableData, gridApi]
@@ -56,25 +61,19 @@ const AgDataTable = (props: AgDataTableProps) => {
   return (
     <div
       style={{
-        height: '100%',
+        height: 'calc(90vh - 50px)',
         width: '100%',
       }}
     >
-      {/* <div>
-        <label>
-          Search text:{' '}
-          <input
-            type="text"
-            style={{ padding: 5 }}
-            // onChange={onSearchChange}
-          />{' '}
-        </label>
-      </div> */}
       <AgGridReact
         rowData={tableData}
         columnDefs={columnDefs}
         onGridReady={onGridReady}
         components={frameworkComponents}
+        className="ag-theme-alpine"
+
+        ensureDomOrder
+        enableCellTextSelection
 
         pagination={true}
         defaultColDef={defaultColDef}

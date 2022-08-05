@@ -1,27 +1,30 @@
 import { Op } from 'sequelize';
 import React, { useEffect, useState } from 'react'
-import { ColDef } from 'ag-grid-community';
+import { ColDef, GridApi } from 'ag-grid-community';
 
 import AgDataTable from './AgDataTable';
+import CoreButton from '../../components/CoreButton/CoreButton';
+import CustomFilterComponent from './CustomFilterComponent';
 import { ALL_COLUMNS, COLUMN_GROUPS, DEFAULT_EMPTY_VALUES, SET_FILTERED_COLUMNS } from './columnDefs';
-import { useWorkbenchDB } from '../../contexts/workbenchContext';
 
+import { useWorkbenchDB } from '../../contexts/workbenchContext';
+import { FlatFileAttributes } from '../../services/models/flatFile';
 
 import './TableView.css';
-import CoreButton from '../../components/CoreButton/CoreButton';
-import { FlatFileAttributes } from '../../services/models/flatFile';
-import CustomFilterComponent from './CustomFilterComponent';
-// import '@inovua/reactdatagrid-community/index.css'
-
-
 
 const TableView = () => {
-
   const workbenchDB = useWorkbenchDB();
-
-  const [tableData, setTableData] = useState<unknown[]>([]);
+  const { db, initialized, currentPath } = workbenchDB;
+  
+  // Necessary to keep coldef as empty array by default, to ensure filter set updates
   const [columnDefs, setColumnDefs] = useState<ColDef[]>([]);
+  const [tableData, setTableData] = useState<unknown[]>([]);
+  const [gridApi, setGridApi] = useState<GridApi | null>(null);
+  
+  const [searchText, setSearchText] = useState('');
 
+  // Destructuring column groups to create a new array object (with same cols), ensuring state updates
+  const setDefaultColumnGroup = () => setColumnDefs([...COLUMN_GROUPS.DEFAULT]);
   function changeColumnGroup(newGroup: ColDef[]){
     setColumnDefs([
       ALL_COLUMNS.path,
@@ -29,58 +32,23 @@ const TableView = () => {
     ])
   }
 
+  function searchTable(e: React.FormEvent<HTMLInputElement>){
+    if(gridApi){
+      gridApi.setQuickFilter((e.target as HTMLInputElement).value);
+    }
+  }
+  function resetAllTableFilters(){
+    if(gridApi){
+      gridApi.setFilterModel(null);
+      gridApi.setQuickFilter('');
+      setSearchText('');
+    }
+  }
 
+  // Update table data whenever new db is loaded or path is changed
   useEffect(() => {
-    const { db, initialized, currentPath } = workbenchDB;
-    
     if(!initialized || !db || !currentPath)
       return;
-
-    console.log("Path to render data in tableview", currentPath);
-
-    
-    db.sync
-    .then(db => {
-
-      Object.values(ALL_COLUMNS).forEach(columnDef => {
-        const columnKey = columnDef.field || "";
-
-        // Prepare filters only for eligible columns
-        if(!SET_FILTERED_COLUMNS.has(columnKey))
-          return;
-
-        // Aggregator
-        db.FlatFile.aggregate(
-          columnKey as (keyof FlatFileAttributes),
-          'DISTINCT',
-          { plain: false },
-        )
-          .then((uniqueValues: { DISTINCT: string }[]) => {
-            const parsedUniqueValues = uniqueValues.map((val) => val.DISTINCT);
-            if(!parsedUniqueValues[0])
-              parsedUniqueValues[0] = '';
-            
-            if(!DEFAULT_EMPTY_VALUES.includes(parsedUniqueValues[0]))
-              parsedUniqueValues.unshift('');
-            
-            console.log(
-              `Unique values aggregated for col [${columnKey}]:`,
-              // uniqueValues,
-              parsedUniqueValues,
-              // parsedUniqueValues.length,
-            );
-
-            columnDef.floatingFilter = true;
-            columnDef.filterParams = { options: parsedUniqueValues };
-            columnDef.floatingFilterComponent = CustomFilterComponent;
-          });
-      });
-
-      // TODO - Do promise.all instead
-      setTimeout(() => setColumnDefs([...COLUMN_GROUPS.DEFAULT]), 2000);
-    });
-
-
 
     db.sync
       .then(db => db.FlatFile.findAll({
@@ -95,18 +63,74 @@ const TableView = () => {
         raw: true,
       }))
       .then((files) =>{
-        console.log("Files", files);
         setTableData(files);
-        setColumnDefs([...COLUMN_GROUPS.DEFAULT])
       });
   }, [workbenchDB]);
   
+  // Update set filters whenever new db is loaded
+  useEffect(() => {
+    if(!initialized || !db || !currentPath)
+      return;
+    
+    db.sync
+    .then(db => {
+      const filterPromises: Promise<ColDef>[] = []
+
+      Object.values(ALL_COLUMNS).forEach(columnDef => {
+        const columnKey = columnDef.field || "";
+
+        // Prepare filters only for eligible columns
+        if(!SET_FILTERED_COLUMNS.has(columnKey))
+          return;
+
+        // Aggregator
+        const filterPromise = db.FlatFile.aggregate(
+          columnKey as (keyof FlatFileAttributes),
+          'DISTINCT',
+          { plain: false },
+        )
+          .then((uniqueValues: { DISTINCT: string }[]) => {
+            const parsedUniqueValues = uniqueValues.map((val) => val.DISTINCT);
+            if(!parsedUniqueValues[0])
+              parsedUniqueValues[0] = '';
+            
+            if(!DEFAULT_EMPTY_VALUES.has(parsedUniqueValues[0]))
+              parsedUniqueValues.unshift('');
+            
+            console.log(
+              `Unique values aggregated for col - ${columnKey}:`,
+              // uniqueValues,
+              // parsedUniqueValues,
+              parsedUniqueValues.length,
+            );
+
+            columnDef.floatingFilter = true;
+            columnDef.filterParams = { options: parsedUniqueValues };
+            columnDef.floatingFilterComponent = CustomFilterComponent;
+
+            return columnDef;
+          });
+        filterPromises.push(filterPromise);
+      });
+
+      Promise.all(filterPromises)
+        .then((generatedColDefs) => {
+          console.log(
+            "Completed generation of unique set filters:",
+            generatedColDefs.map(coldef => coldef.filterParams.options)
+          );
+          setDefaultColumnGroup();
+        });
+    });
+
+
+  }, [db]);
 
   return (
     <div style={{ height: "100%", minHeight: "90vh" }}>
       <div className='filterButtons'>
         <section>
-          <CoreButton small onClick={() => setColumnDefs(COLUMN_GROUPS.DEFAULT)}>
+          <CoreButton small onClick={setDefaultColumnGroup}>
             Default columns
           </CoreButton>
           <CoreButton small onClick={() => changeColumnGroup(COLUMN_GROUPS.ALL)}>
@@ -116,39 +140,52 @@ const TableView = () => {
             Hide all
           </CoreButton>
         </section>
-        <section>
         |
-        </section>
         <section>
-          <CoreButton small onClick={() => changeColumnGroup(COLUMN_GROUPS.COPYRIGHT)}>
-            Copyright cols
+          <CoreButton small onClick={resetAllTableFilters}>
+            Clear Filters
           </CoreButton>
-          <CoreButton small onClick={() => changeColumnGroup(COLUMN_GROUPS.LICENSE)}>
-            License cols
-          </CoreButton>
+        </section>
+          <div className='globalSearch'>
+            <label>
+              Search text:{' '}
+              <input
+                type="text"
+                value={searchText}
+                style={{ padding: 5 }}
+                onInput={searchTable}
+                onChange={e => setSearchText(e.target.value)}
+              />{' '}
+            </label>
+          </div>
+        <br/>
+        <section>
           <CoreButton small onClick={() => changeColumnGroup(COLUMN_GROUPS.FILE)}>
             File cols
           </CoreButton>
           <CoreButton small onClick={() => changeColumnGroup(COLUMN_GROUPS.ORIGIN)}>
             Origin cols
           </CoreButton>
+          <CoreButton small onClick={() => changeColumnGroup(COLUMN_GROUPS.COPYRIGHT)}>
+            Copyright cols
+          </CoreButton>
+          <CoreButton small onClick={() => changeColumnGroup(COLUMN_GROUPS.LICENSE)}>
+            License cols
+          </CoreButton>
           <CoreButton small onClick={() => changeColumnGroup(COLUMN_GROUPS.PACKAGE)}>
             Package cols
           </CoreButton>
-        </section>
-        |
-        <section>
-          <CoreButton small>
-            Reset Filters
+          <CoreButton small onClick={() => null}>
+            [Custom Columns **]
           </CoreButton>
         </section>
       </div>
-      <div style={{ height: 'calc(90vh - 25px)' }} className="ag-theme-alpine">
-        <AgDataTable
-          columnDefs={columnDefs}
-          tableData={tableData}
-        />
-      </div>
+      <AgDataTable
+        gridApi={gridApi}
+        updateGridApi={setGridApi}
+        columnDefs={columnDefs}
+        tableData={tableData}
+      />
     </div>
   )
 }

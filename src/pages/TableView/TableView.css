@@ -1,13 +1,19 @@
+.globalSearch{
+  display: inline-flex;
+  float: right;
+  margin-right: 15px;
+}
+
 .filterButtons {
-  margin-bottom: 10px;
+  margin-bottom: 4px;
 }
 .filterButtons section{
-  display: inline;
+  display: inline-flex;
   margin-left: 10px;
   margin-right: 10px;
 }
 .filterButtons button{
-  margin: 5px;
+  margin: 3px;
   margin-right: 10px;
 }
 
