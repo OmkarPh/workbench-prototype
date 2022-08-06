@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
+import { ToastContainer } from 'react-toastify';
 
 import { ROUTES } from './constants/routes';
 import { WorkbenchDBProvider } from './contexts/workbenchContext';
@@ -21,6 +22,7 @@ import PackageInfoDash from './pages/PackageInfoDash/PackageInfoDash';
 
 import './fontawesome';
 import 'rc-tree/assets/index.css';
+import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'startbootstrap-simple-sidebar/dist/css/styles.css';
 
@@ -47,6 +49,16 @@ const App = () => {
           </Routes>
         </Layout>
       </HashRouter>
+
+      {/* Provider for toasts */}
+      <ToastContainer
+        limit={1}
+        draggable
+        closeOnClick
+        hideProgressBar
+        autoClose={2000}
+        position='bottom-center'
+      />
     </WorkbenchDBProvider>
   )
 }

@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo } from 'react'
+import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useMemo, useState } from 'react'
 import * as electronFs from "fs"
 import * as electronOs from "os"
 // import sqlite3 from 'sqlite3'
@@ -14,7 +15,7 @@ import { useWorkbenchDB } from '../../contexts/workbenchContext'
 import CoreButton from '../../components/CoreButton/CoreButton';
 
 import { ROUTES } from '../../constants/routes'
-import { AddEntry, GetHistory, HistoryItem } from '../../services/historyStore'
+import { AddEntry, GetHistory, HistoryItem, RemoveEntry } from '../../services/historyStore'
 import { WorkbenchDB } from '../../services/workbenchDB'
 import packageJson from '../../../package.json';
 
@@ -37,17 +38,19 @@ const electron = window.require("electron");
 const { ipcRenderer } = electron;
 
 // const electronDialog = remote.require('dialog');
-console.log("Electron", electron);
-console.log('ipcrenderer', ipcRenderer);
-// console.log('remote', remote);
-// console.log('remotemain', remoteMain);
+console.log("Deps:", {
+  electron,
+  electronFs,
+  electronOs,
+  ipcRenderer,
+  // remote,
+  // sqlite3,
+  // remoteMain,
+});
+console.log(electronOs.platform());
+
 // const electronDialog = electron.dialog;
 // console.log('electron.dialog', electronDialog);
-
-console.log("FS", electronFs);
-console.log("OS", electronOs);
-// console.log(electronOs.platform());
-// console.log("Sqlite 3 imported ", sqlite3);
 
 // const sqlite3Window = window.require('sqlite3');
 // console.log("Sqlite 3 required", sqlite3Window);
@@ -57,9 +60,10 @@ console.log("OS", electronOs);
 const Home = () => {
   const navigate = useNavigate();
   const { db, updateCurrentPath, updateWorkbenchDB, importedSqliteFilePath } = useWorkbenchDB();
-  console.log(db);
   
-  const history = useMemo(() => GetHistory(), [importedSqliteFilePath, db]);
+  const [refreshToken, setRefreshToken] = useState(0);
+  const refreshHistory = () => setRefreshToken(Math.random());
+  const history = useMemo(() => GetHistory(), [importedSqliteFilePath, db, refreshToken]);
 
   function sqliteParser(sqliteFilePath: string, preventNavigation?: boolean){
     // Create a new database when importing a sqlite file
@@ -134,16 +138,22 @@ const Home = () => {
         newWorkbenchDB.sync
         .then(db => db.File.findOne({ where: { parent: '#' }}))
         .then(root => {
+          if(!root){
+            console.error("Root directory not found !!!!");
+            console.error("Root:", root);
+            return;
+          }
+
           console.log("Root dir", root);
           const defaultPath = root.getDataValue('path');
 
           updateWorkbenchDB(newWorkbenchDB, sqliteFilePath)
+
+          if(defaultPath)
+            updateCurrentPath(defaultPath);
           
           if(!preventNavigation)
             navigate(ROUTES.TABLE_VIEW);
-
-          if(defaultPath)
-              updateCurrentPath(defaultPath);
         });
       });
   }
@@ -182,13 +192,13 @@ const Home = () => {
         jsonFilePath,
         workbenchVersion,
         (response: number) => {
-          console.log("Import done with progress @", response, newWorkbenchDB)
+          console.log("Import progress @", response)
         },
         // (progress) => progressbar.update(progress / 100)
       ))
       // .then(() => progressbar.hide())
       .then(() => {
-        // console.log("add from json resolved");
+        console.log("JSON parsing completed");
         
         AddEntry({
           json_path: jsonFilePath,
@@ -200,47 +210,39 @@ const Home = () => {
           .then((db) => db.File.findOne({ where: { parent: '#' }}))
           .then(root => {
             if(!root){
-              console.log("Default path not found, trying after 2s !!");
-              setTimeout(() => {
-                  // TODO -- There shouldn't be a need to do this timeout, this code 
-                  // should be executed only when importing is completed 
-
-                  // Try after 2s for large imports
-                  newWorkbenchDB.sync
-                      .then(db => db.File.findOne({ where: { parent: '#' }}))
-                      .then(root => {
-                        console.log("Root dir", root);
-                        const defaultPath = root.getDataValue('path');
-
-                        updateWorkbenchDB(newWorkbenchDB, sqliteFilePath)
-                        
-                        if(!preventNavigation)
-                          navigate(ROUTES.TABLE_VIEW);
-
-                        if(defaultPath)
-                            updateCurrentPath(defaultPath);
-                      });
-              }, 2000)
+              console.error("Root directory not found !!!!");
+              console.error("Root:", root);
               return;
             }
-            console.log("Root dir", root);
             const defaultPath = root.getDataValue('path');
+            console.log("Root dir", defaultPath);
 
             updateWorkbenchDB(newWorkbenchDB, sqliteFilePath)
 
-            if(!preventNavigation)
-              navigate(ROUTES.TABLE_VIEW);
-
             if(defaultPath)
               updateCurrentPath(defaultPath);
-          });
+
+            if(!preventNavigation)
+              navigate(ROUTES.TABLE_VIEW);
+        });
       });
   }
 
+  function ReportInvalidEntry(entry: HistoryItem, entryType: string){
+    toast(`Selected ${entryType} file doesn't exist`, { type: 'error' });
+    RemoveEntry(entry);
+    refreshHistory();
+  }
   function historyItemParser(historyItem: HistoryItem){
     if(historyItem.json_path){
+      if (!electronFs.existsSync(historyItem.json_path)) {
+        return ReportInvalidEntry(historyItem, "JSON");
+      }
       jsonParser(historyItem.json_path, historyItem.sqlite_path);
     } else {
+      if (!electronFs.existsSync(historyItem.sqlite_path)) {
+        return ReportInvalidEntry(historyItem, "SQLite");
+      }
       sqliteParser(historyItem.sqlite_path)
     }
   }

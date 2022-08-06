@@ -41,7 +41,10 @@ const FileTree = (props: React.HTMLProps<HTMLDivElement>) => {
         treeData={treeData}
         switcherIcon={SwitcherIcon}
         onActiveChange={selectPath}
-        onSelect={keys => selectPath(keys[0].toString())}
+        onSelect={keys => {
+          if(keys && keys[0])
+            selectPath(keys[0].toString())
+        }}
 
         // For UI testing with dummy data
         defaultExpandedKeys={['0', '0-0', '0-0-0', '0-0-0-0']}

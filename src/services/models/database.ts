@@ -75,8 +75,6 @@ export function newDatabase(sequelize: Sequelize): DatabaseStructure {
     FlatFile: flatFileModel(sequelize),
   };
 
-  console.log("Result .header done");  
-
   // Define the relations
   result.Header.hasMany(result.File);
   result.File.hasMany(result.License);

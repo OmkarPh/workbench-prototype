@@ -15,7 +15,7 @@
  */
 
 import * as $ from 'jquery'
-import { DataTypes, FindOptions, Model, Sequelize, Transaction, TransactionOptions } from 'sequelize';
+import { BulkCreateOptions, FindOptions, Model, Sequelize, Transaction, TransactionOptions } from 'sequelize';
 import fs from 'fs';
 import path from 'path';
 // import sqlite3 from 'sqlite3';
@@ -84,7 +84,7 @@ export class WorkbenchDB {
     const password = (config && config.dbPassword) ? config.dbPassword : null;
     const storage = (config && config.dbStorage) ? config.dbStorage : ':memory:';
 
-    console.log("DB details", {
+    console.log("Sequelize DB details", {
       name, user, password, storage,
     });
     // console.log("Dialect module :", sqlite3);
@@ -104,26 +104,20 @@ export class WorkbenchDB {
       //   sqlite3
       // },
       storage: storage,
-      logging: false
+      logging: false,
     });
-    console.log("sequelize done", this.sequelize.config);
-    
     this.db = newDatabase(this.sequelize);
-    console.log("db done");
-    
 
     // A promise that will return when the db and tables have been created
-    const temp = this.sequelize.sync().then(() => {
-      console.log("this sync ready",);
+    this.sync = this.sequelize.sync().then(() => {
+      console.log("Workbench DB initialized",);
       return this.db
     });
-
-    this.sync = temp;
   }
 
   // Get ScanCode Workbench app information
   getWorkbenchInfo() {
-    return this.sync.then((db) => db.Header.findOne({
+    return this.sync.then(db => db.Header.findOne({
       attributes: [
         'workbench_notice',
         'workbench_version'
@@ -133,7 +127,7 @@ export class WorkbenchDB {
 
   // Get ScanCode Toolkit information
   getScanCodeInfo() {
-    return this.sync.then((db) => db.Header.findOne({
+    return this.sync.then(db => db.Header.findOne({
       attributes: [
         'scancode_notice',
         'scancode_version',
@@ -144,21 +138,30 @@ export class WorkbenchDB {
 
   getFileCount() {
     return this.sync
-      .then((db) => db.Header.findOne({attributes: ['files_count']}))
+      .then(db => db.Header.findOne({attributes: ['files_count']}))
       .then((count) => count ? count.getDataValue('files_count') : 0);
   }
 
-
   // Uses the files table to do a findOne query
   findOne(query: FindOptions) {
-    query = $.extend(query, { include: this.db.fileIncludes });
-    return this.sync.then((db) => db.File.findOne(query));
+    query = $.extend(
+      query,
+      {
+        include: this.db.fileIncludes
+      }
+    );
+    return this.sync.then(db => db.File.findOne(query));
   }
 
   // Uses the files table to do a findAll query
   findAll(query: FindOptions) {
-    query = $.extend(query, { include: this.db.fileIncludes });
-    return this.sync.then((db) => db.File.findAll(query));
+    query = $.extend(
+      query,
+      {
+        include: this.db.fileIncludes
+      }
+    );
+    return this.sync.then(db => db.File.findAll(query));
   }
 
 
@@ -168,12 +171,14 @@ export class WorkbenchDB {
       attributes: ['id', 'path', 'parent', 'name', 'type']
     };
     return this.sync
-      .then((db) => db.File.findAll(fileQuery))
-      .then((files) => {
+      .then(db => db.File.findAll(fileQuery))
+      .then(files => {
         const result = this.listToTreeData(files);
         return result;
       });
     
+    // TODO-Residue: Remove this
+    // But, maybe needed, if we wan't different file icons for packages licenses etc
 
     // // When determining type for each file is important
     // type GenericModelValues = { fileId: DataTypes.IntegerDataType};
@@ -203,7 +208,7 @@ export class WorkbenchDB {
     // )
     //   .then(() => this.sync
     //   .then((db) => db.File.findAll(fileQuery))
-    //   .then((files) => {
+    //   .then(files => {
     //     const result = this.listToTreeData(files);
     //     console.log("pathtest", result);
     //     return result;
@@ -306,14 +311,17 @@ export class WorkbenchDB {
     let rootPath: string | null = null;
     let hasRootPath = false;
     const batchSize  = 1000;
-    let files: any = [];    // TODO
+    let files: any[] = [];    // TODO
     let progress = 0;
-    let promiseChain: Promise<any> = this.sync;
+    let promiseChain: Promise<void | DatabaseStructure | number> = this.sync;
 
-    console.time('Load Database');
+    console.time('JSON parse started (step 1)');
     return new Promise((resolve, reject) => {
       // eslint-disable-next-line @typescript-eslint/no-this-alias
       const primaryPromise = this;    // TODO
+
+      let batchCount = 0;
+
       stream
         .pipe(JSONStream.parse('files.*'))
         .on('header', (header: any) => {
@@ -339,7 +347,7 @@ export class WorkbenchDB {
           files_count = header.files_count;
           promiseChain = promiseChain
             .then(() => this.db.Header.create(header))
-            .then((header) => headerId = Number(header.getDataValue('id')));
+            .then(header => headerId = Number(header.getDataValue('id')));
         })
         .on('data', function(file: any) {
           if (!rootPath) {
@@ -358,26 +366,23 @@ export class WorkbenchDB {
           if (files.length >= batchSize) {
             // Need to set a new variable before handing to promise
             this.pause();
-            // console.log("Batch create started");
             
             promiseChain = promiseChain
               .then(() => primaryPromise._batchCreateFiles(files, headerId))
               .then(() => {
-                // console.log("batch create completed");
-                
-                const currProgress = Math.round(index / (files_count + dirs_count) * 100);
-                if (currProgress > progress) {
-                  progress = currProgress;
+                const currentProgress = Math.round(index / (files_count + dirs_count) * 100);
+                if (currentProgress > progress) {
+                  progress = currentProgress;
+                  console.log(`Batch-${++batchCount} completed, \n`);
+                  console.log(`Progress: ${progress}%, -- ${index}/${files_count}+${dirs_count}`);
                   onProgressUpdate(progress);
-
-                  console.log('Progress: ' + `${progress}% ` + `(${index}/(${files_count}+${dirs_count}))`);
                 }
               })
               .then(() => {
                 files = [];
                 this.resume();
               })
-              .catch((e: any) => reject(e));
+              .catch((e: unknown) => reject(e));
           }
         })
         .on('end', () => {
@@ -396,20 +401,21 @@ export class WorkbenchDB {
             })
             .then(() => this._batchCreateFiles(files, headerId))
             .then(() => {
-              console.timeEnd('Load Database');
+              console.log(`Batch-${++batchCount} completed, \n`);
+              console.log(`Progress: 100%`);
+              onProgressUpdate(100);
+              console.timeEnd('JSON parse completed (final step)');
               resolve();
-            }).catch((e: any) => reject(e));
+            }).catch((e: unknown) => reject(e));
         })
-        .on('error', (e: any) => reject(e));
+        .on('error', (e: unknown) => reject(e));
     });
   }
 
   _batchCreateFiles(files: any, headerId: number) {
     // Add batched files to the DB
     return this._addFlattenedFiles(files)
-      .then(() => {
-        this._addFiles(files, headerId)
-      });
+      .then(() => this._addFiles(files, headerId));
   }
 
   _addFlattenedFiles(files: any) {
@@ -420,21 +426,21 @@ export class WorkbenchDB {
       }
     });
     files = $.map(files, (file) => flattenFile(file));
-    return this.db.FlatFile.bulkCreate(files, {logging: false});
+    return this.db.FlatFile.bulkCreate(files, { logging: false });
   }
 
   _addFiles(files: any, headerId: number) {
     const transactionOptions: TransactionOptions = {
-      // logging: () => console.log("logging in _addFiles"),
+      // logging: () => console.log("Transaction event in _addFiles"),
       autocommit: false,
       isolationLevel: Transaction.ISOLATION_LEVELS.READ_COMMITTED
     };
     return this.sequelize.transaction(transactionOptions, (t) => {
-      const options = {
-        logging: () => DebugLogger("add file", "AddFiles transaction done !"),
+      const options: BulkCreateOptions = {
+        // logging: () => DebugLogger("add file", "AddFiles transaction done !"),
         transaction: t
       };
-      $.each(files, (i, file) => {
+      $.each(files, (_, file) => {
         // Fix for issue #232
         if (file.type === 'directory' && Object.prototype.hasOwnProperty.call(file, 'size_count')) {
           file.size = file.size_count;

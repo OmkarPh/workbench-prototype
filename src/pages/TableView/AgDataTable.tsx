@@ -44,11 +44,6 @@ const AgDataTable = (props: AgDataTableProps) => {
     }
   }
 
-  useEffect(
-    () => changePaginationSize(defaultPaginationOption),
-    [tableData, gridApi]
-  );
-
 
   useEffect(() => {
     if(gridApi){
@@ -77,6 +72,7 @@ const AgDataTable = (props: AgDataTableProps) => {
 
         pagination={true}
         defaultColDef={defaultColDef}
+        paginationPageSize={defaultPaginationOption}
 
         // Performance options
         rowBuffer={200}

@@ -97,12 +97,12 @@ const TableView = () => {
             if(!DEFAULT_EMPTY_VALUES.has(parsedUniqueValues[0]))
               parsedUniqueValues.unshift('');
             
-            console.log(
-              `Unique values aggregated for col - ${columnKey}:`,
-              // uniqueValues,
-              // parsedUniqueValues,
-              parsedUniqueValues.length,
-            );
+            // console.log(
+            //   `Unique values aggregated for col - ${columnKey}:`,
+            //   // uniqueValues,
+            //   // parsedUniqueValues,
+            //   parsedUniqueValues.length,
+            // );
 
             columnDef.floatingFilter = true;
             columnDef.filterParams = { options: parsedUniqueValues };
