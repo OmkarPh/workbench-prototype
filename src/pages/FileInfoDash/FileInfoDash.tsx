@@ -36,8 +36,6 @@ const FileInfoDash = () => {
     db.sync
       .then(db => db.File.findOne({ where: { path: currentPath }}))
       .then(root => {
-        // console.log("Root dir", root);
-
         // Prepare aggregate data
         const filesCount =
           root.getDataValue('type').toString({}) === 'directory' ? root.getDataValue('files_count') : 1;

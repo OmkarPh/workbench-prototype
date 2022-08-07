@@ -1,4 +1,3 @@
-import { Model } from 'sequelize';
 /*
  #
  # Copyright (c) 2018 nexB Inc. and others. All rights reserved.
@@ -15,14 +14,21 @@ import { Model } from 'sequelize';
  #
  */
 
-import { Sequelize, DataTypes } from 'sequelize';
+import { Sequelize, DataTypes, Model } from 'sequelize';
 
 export interface HeaderAttributes {
   id: DataTypes.IntegerDataType,
   workbench_version: DataTypes.StringDataType,
   workbench_notice: DataTypes.StringDataType,
   header_content: DataTypes.StringDataType,
-  files_count: DataTypes.IntegerDataType
+  files_count: DataTypes.IntegerDataType,
+  output_format_version: DataTypes.StringDataType,
+  spdx_license_list_version: DataTypes.StringDataType,
+  operating_system: DataTypes.StringDataType,
+  cpu_architecture: DataTypes.StringDataType,
+  platform: DataTypes.StringDataType,
+  platform_version: DataTypes.StringDataType,
+  python_version: DataTypes.StringDataType,
 }
 
 export default function headerModel(sequelize: Sequelize) {
@@ -40,6 +46,33 @@ export default function headerModel(sequelize: Sequelize) {
       workbench_version: DataTypes.STRING,
       workbench_notice: DataTypes.STRING,
       header_content: DataTypes.STRING,
-      files_count: DataTypes.INTEGER
+      files_count: DataTypes.INTEGER,
+      output_format_version: DataTypes.STRING,
+      spdx_license_list_version: DataTypes.STRING,
+      operating_system: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null,
+      },
+      cpu_architecture: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null,
+      },
+      platform: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null,
+      },
+      platform_version: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null,
+      },
+      python_version: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null,
+      },
     });
 }

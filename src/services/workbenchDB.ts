@@ -15,7 +15,7 @@
  */
 
 import * as $ from 'jquery'
-import { BulkCreateOptions, FindOptions, Model, Sequelize, Transaction, TransactionOptions } from 'sequelize';
+import { BulkCreateOptions, DataTypes, FindOptions, IntegerDataType, Model, Sequelize, Transaction, TransactionOptions } from 'sequelize';
 import fs from 'fs';
 import path from 'path';
 // import sqlite3 from 'sqlite3';
@@ -134,6 +134,10 @@ export class WorkbenchDB {
         'scancode_options'
       ]
     }));
+  }
+
+  getScanInfo(){
+    return this.sync.then(db => db.Header.findOne());
   }
 
   getFileCount() {
@@ -315,7 +319,9 @@ export class WorkbenchDB {
     let progress = 0;
     let promiseChain: Promise<void | DatabaseStructure | number> = this.sync;
 
-    console.time('JSON parse started (step 1)');
+    console.log('JSON parse started (step 1)');
+    console.time('json-parse-time')
+
     return new Promise((resolve, reject) => {
       // eslint-disable-next-line @typescript-eslint/no-this-alias
       const primaryPromise = this;    // TODO
@@ -324,27 +330,62 @@ export class WorkbenchDB {
 
       stream
         .pipe(JSONStream.parse('files.*'))
-        .on('header', (header: any) => {
-          if ('headers' in header) {
+        .on('header', (obtainedHeader: any) => {
+          interface ParsedJsonHeader {
+            workbench_version?: DataTypes.StringDataType,
+            workbench_notice?: DataTypes.StringDataType,
+            header_content: DataTypes.StringDataType,
+            files_count: IntegerDataType,
+            output_format_version: DataTypes.StringDataType,        // Query -Justify need for this
+            spdx_license_list_version: DataTypes.StringDataType,    // Query - Justify need for this
+            operating_system: DataTypes.StringDataType,
+            cpu_architecture: DataTypes.StringDataType,
+            platform: DataTypes.StringDataType,
+            platform_version: DataTypes.StringDataType,
+            python_version: DataTypes.StringDataType,
+          }
+          let header: ParsedJsonHeader;
+
+          // Query - Why is this 'headers' in header check
+          if ('headers' in obtainedHeader) {
             // FIXME: This should be smarter
-            const header_data = header.headers[0];
+            const header_data = obtainedHeader.headers[0];
+            // console.log(header_data);
+            
             header = {
-              header_content: JSON.stringify(header_data, undefined, 2),
-              files_count: header_data.extra_data.files_count
+              header_content: JSON.stringify(header_data, undefined, 2) as unknown as DataTypes.StringDataType,   // FIXME
+              files_count: header_data.extra_data.files_count,
+              output_format_version: header_data.output_format_version || '0.1',
+              spdx_license_list_version: header_data.extra_data?.spdx_license_list_version || '1.00',
+              operating_system: header_data.extra_data?.system_environment?.operating_system || null,
+              cpu_architecture: header_data.extra_data?.system_environment?.cpu_architecture || null,
+              platform: header_data.extra_data?.system_environment?.platform || null,
+              platform_version: header_data.extra_data?.system_environment?.platform_version || null,
+              python_version: header_data.extra_data?.system_environment?.python_version || null,
             };
           } else {
             header = {
-              header_content: JSON.stringify(header, undefined, 2),
-              files_count: header.files_count
+              header_content: JSON.stringify(obtainedHeader, undefined, 2) as unknown as DataTypes.StringDataType,  // FIXME
+              files_count: obtainedHeader.files_count,
+              output_format_version: obtainedHeader.output_format_version || '0.1',
+              spdx_license_list_version: obtainedHeader.spdx_license_list_version || '1.00',
+              operating_system: obtainedHeader.extra_data?.system_environment?.operating_system || null,
+              cpu_architecture: obtainedHeader.extra_data?.system_environment?.cpu_architecture || null,
+              platform: obtainedHeader.extra_data?.system_environment?.platform || null,
+              platform_version: obtainedHeader.extra_data?.system_environment?.platform_version || null,
+              python_version: obtainedHeader.extra_data?.system_environment?.python_version || null,
             };
           }
+
+          console.log("Scan header info:", header);
+          
 
           $.extend(header, {
             workbench_version: version,
             workbench_notice: 'Exported from ScanCode Workbench and provided on an "AS IS" BASIS, WITHOUT WARRANTIES\\nOR CONDITIONS OF ANY KIND, either express or implied. No content created from\\nScanCode Workbench should be considered or used as legal advice. Consult an Attorney\\nfor any legal advice.\\nScanCode Workbench is a free software analysis application from nexB Inc. and others.\\nVisit https://github.com/nexB/scancode-workbench/ for support and download."'
           });
           
-          files_count = header.files_count;
+          files_count = Number(header.files_count);
           promiseChain = promiseChain
             .then(() => this.db.Header.create(header))
             .then(header => headerId = Number(header.getDataValue('id')));
@@ -404,7 +445,8 @@ export class WorkbenchDB {
               console.log(`Batch-${++batchCount} completed, \n`);
               console.log(`Progress: 100%`);
               onProgressUpdate(100);
-              console.timeEnd('JSON parse completed (final step)');
+              console.log('JSON parse completed (final step)');
+              console.timeEnd('json-parse-time')
               resolve();
             }).catch((e: unknown) => reject(e));
         })
@@ -483,7 +525,7 @@ export class WorkbenchDB {
   _addExtraFields(files: any, attribute: string) {
     return $.map(files, (file) => {
       if(!file){
-        DebugLogger("add file", "invalid file", file);
+        console.log("add file", "invalid file", file);
       }
 
       if (attribute === 'copyrights') {

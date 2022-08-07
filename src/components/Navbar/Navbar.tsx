@@ -7,42 +7,47 @@ import { faArchive, faBars, faChartColumn, faGavel, faHome, faInfoCircle, faQues
 
 import 'react-pro-sidebar/dist/css/styles.css';
 import './navbar.css';
+import { ROUTES } from '../../constants/routes';
 
 const MENU_ITEMS = [
     {
         title: "Welcome page",
-        route: "/",
+        route: ROUTES.HOME,
         icon: faHome,
     },
     {
         title: "Table View",
-        route: "/table-view",
+        route: "/" + ROUTES.TABLE_VIEW,
         icon: faTable,
     },
     {
         title: "File Info Dashboard",
-        route: "/file-dashboard",
+        route: "/" + ROUTES.FILE_DASHBOARD,
         icon: faInfoCircle,
     },
     {
         title: "License Info Dashboard",
-        route: "/license-dashboard",
+        route: "/" + ROUTES.LICENSE_DASHBOARD,
         icon: faGavel,
     },
     {
         title: "Package Info Dashboard",
-        route: "/package-dashboard",
+        route: "/" + ROUTES.PACKAGE_DASHBOARD,
         icon: faArchive,
     },
     {
         title: "Chart Summary View",
-        route: "/chart-summary",
+        route: "/" + ROUTES.CHART_SUMMARY,
         icon: faChartColumn,
-        // icon: faBarChart,
+    },
+    {
+        title: "Scan Info",
+        route: "/" + ROUTES.SCAN_INFO,
+        icon: faInfoCircle,
     },
     {
         title: "Help with Application",
-        route: "/help",
+        route: "/" + ROUTES.HELP,
         icon: faQuestion,
     },
 ]
@@ -53,7 +58,6 @@ const Navbar = () => {
     
     const [collapsed, setCollapsed] = useState<boolean>(true);
     const expandOnHover = true;
-
 
     return (
         <>

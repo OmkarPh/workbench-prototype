@@ -15,8 +15,6 @@ const ListCellRenderer = (props: ListCellRendererProps) => {
       return props.value
     }
   }, [props.value]);
-
-  console.log(parsedValue);
   
 
   if(!parsedValue)

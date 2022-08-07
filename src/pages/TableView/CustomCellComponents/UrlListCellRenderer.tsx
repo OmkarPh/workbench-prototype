@@ -16,8 +16,6 @@ const UrlListCellRenderer = (props: ListCellRendererProps) => {
     }
   }, [props.value]);
 
-  console.log(parsedValue);
-  
 
   if(!parsedValue)
     return props.value;

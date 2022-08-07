@@ -34,6 +34,7 @@ export interface FlatFileAttributes {
   license_policy: CustomJSONType,
   license_expressions: CustomJSONType,
   license_key: CustomJSONType,
+  license_is_unknown: boolean,
   license_score: CustomJSONType,
   license_short_name: CustomJSONType,
   license_category: CustomJSONType,
@@ -122,6 +123,10 @@ export default function flatFileModel(sequelize: Sequelize) {
       license_policy: jsonDataType('license_policy'),
       license_expressions: jsonDataType('license_expressions'),
       license_key: jsonDataType('license_key'),
+      license_is_unknown: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
       license_score: jsonDataType('license_score'),
       license_short_name: jsonDataType('license_short_name'),
       license_category: jsonDataType('license_category'),
@@ -232,6 +237,7 @@ export function flattenFile(file: any) {
     license_policy: getLicensePolicyLabel(file.license_policy),
     license_expressions: file.license_expressions,
     license_key: getValues(file.licenses, 'key'),
+    license_is_unknown: hasValue(file.licenses, 'is_unknown', true),
     license_score: getValues(file.licenses, 'score'),
     license_short_name: getValues(file.licenses, 'short_name'),
     license_category: getValues(file.licenses, 'category'),
@@ -315,10 +321,19 @@ function getCopyrightValues(array: any) {
 }
 
 // [{key: val0}, {key: val1}] => [val0, val1]
-function getValues(array: any, key: string) {
-  if(!array || !array.length)
+function getValues(array: unknown, key: string) {
+  if(!array || !(Array.isArray(array) && array.length))
     return [];
-  return array.map((elem: any) => {
+  return array.map((elem) => {
     return [elem[key] ? elem[key] : []];
   });
+}
+function hasValue(array: unknown, key: string, value: any) {
+  if(!array || !(Array.isArray(array) && array.length))
+    return false;
+  for(const elem of array){
+    if(elem[key] === value)
+      return true;
+  }
+  return false;
 }

@@ -6,6 +6,7 @@ export const ROUTES = {
   LICENSE_DASHBOARD: "license-dashboard",
   PACKAGE_DASHBOARD: "package-dashboard",
   CHART_SUMMARY: "chart-summary",
+  SCAN_INFO: "scan-info",
 };
 
 export const FILE_TREE_ROUTES = [
