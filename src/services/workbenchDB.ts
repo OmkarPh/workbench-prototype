@@ -355,25 +355,25 @@ export class WorkbenchDB {
             header = {
               header_content: JSON.stringify(header_data, undefined, 2) as unknown as DataTypes.StringDataType,   // FIXME
               files_count: header_data.extra_data.files_count,
-              output_format_version: header_data.output_format_version || '0.1',
-              spdx_license_list_version: header_data.extra_data?.spdx_license_list_version || '1.00',
-              operating_system: header_data.extra_data?.system_environment?.operating_system || null,
-              cpu_architecture: header_data.extra_data?.system_environment?.cpu_architecture || null,
-              platform: header_data.extra_data?.system_environment?.platform || null,
-              platform_version: header_data.extra_data?.system_environment?.platform_version || null,
-              python_version: header_data.extra_data?.system_environment?.python_version || null,
+              output_format_version: header_data.output_format_version,
+              spdx_license_list_version: header_data.extra_data?.spdx_license_list_version,
+              operating_system: header_data.extra_data?.system_environment?.operating_system,
+              cpu_architecture: header_data.extra_data?.system_environment?.cpu_architecture,
+              platform: header_data.extra_data?.system_environment?.platform,
+              platform_version: header_data.extra_data?.system_environment?.platform_version,
+              python_version: header_data.extra_data?.system_environment?.python_version,
             };
           } else {
             header = {
               header_content: JSON.stringify(obtainedHeader, undefined, 2) as unknown as DataTypes.StringDataType,  // FIXME
               files_count: obtainedHeader.files_count,
-              output_format_version: obtainedHeader.output_format_version || '0.1',
-              spdx_license_list_version: obtainedHeader.spdx_license_list_version || '1.00',
-              operating_system: obtainedHeader.extra_data?.system_environment?.operating_system || null,
-              cpu_architecture: obtainedHeader.extra_data?.system_environment?.cpu_architecture || null,
-              platform: obtainedHeader.extra_data?.system_environment?.platform || null,
-              platform_version: obtainedHeader.extra_data?.system_environment?.platform_version || null,
-              python_version: obtainedHeader.extra_data?.system_environment?.python_version || null,
+              output_format_version: obtainedHeader.output_format_version,
+              spdx_license_list_version: obtainedHeader.spdx_license_list_version,
+              operating_system: obtainedHeader.extra_data?.system_environment?.operating_system,
+              cpu_architecture: obtainedHeader.extra_data?.system_environment?.cpu_architecture,
+              platform: obtainedHeader.extra_data?.system_environment?.platform,
+              platform_version: obtainedHeader.extra_data?.system_environment?.platform_version,
+              python_version: obtainedHeader.extra_data?.system_environment?.python_version,
             };
           }
 

@@ -1,10 +1,10 @@
-import { toast } from 'react-toastify';
+import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 import React, { useEffect, useMemo, useState } from 'react'
+import moment from 'moment'
 import * as electronFs from "fs"
 import * as electronOs from "os"
 // import sqlite3 from 'sqlite3'
-import moment from 'moment';
 // import remote from '@electron/remote'
 // import remoteMain from '@electron/remote/main'
 
@@ -32,6 +32,7 @@ import {
 import { isSchemaChanged } from '../../utils/checks';
 
 import './home.css'
+import ProgressLoader from '../../components/ProgressLoader/ProgressLoader'
 
 const { version: workbenchVersion } = packageJson;
 const electron = window.require("electron");
@@ -59,13 +60,23 @@ console.log(electronOs.platform());
 
 const Home = () => {
   const navigate = useNavigate();
-  const { db, updateCurrentPath, updateWorkbenchDB, importedSqliteFilePath } = useWorkbenchDB();
+  const {
+    db,
+    updateCurrentPath,
+    loadingStatus,
+    initialized,
+    startImport,
+    updateWorkbenchDB,
+    importedSqliteFilePath,
+  } = useWorkbenchDB();
   
   const [refreshToken, setRefreshToken] = useState(0);
   const refreshHistory = () => setRefreshToken(Math.random());
   const history = useMemo(() => GetHistory(), [importedSqliteFilePath, db, refreshToken]);
 
   function sqliteParser(sqliteFilePath: string, preventNavigation?: boolean){
+    startImport();
+
     // Create a new database when importing a sqlite file
     const newWorkbenchDB = new WorkbenchDB({
       dbName: 'workbench_db',
@@ -163,6 +174,8 @@ const Home = () => {
       console.error("Sqlite or json file path isn't valid:", sqliteFilePath);
       return;
     }
+
+    startImport();
       
     // Overwrite existing sqlite file
     if (electronFs.existsSync(sqliteFilePath)) {
@@ -303,6 +316,10 @@ const Home = () => {
   // update path of workbench DB to new sqlite DB
   function saveSqliteFile(){
     ipcRenderer.send(OPEN_DIALOG_CHANNEL.SAVE_SQLITE);
+  }
+
+  if(!initialized && loadingStatus !== null){
+    return <ProgressLoader progress={loadingStatus} />
   }
 
   return (

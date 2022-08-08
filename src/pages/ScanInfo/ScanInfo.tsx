@@ -62,7 +62,7 @@ const ScanInfo = () => {
               Object.entries(parsedScanInfo).map(([key, value]) => (
                 <tr key={key}>
                   <td> { key } </td>
-                  <td> { value || "Not included in the scan" } </td>
+                  <td> { value || "Not found in this scan" } </td>
                 </tr>
               ))
             }

@@ -11,6 +11,7 @@ interface BasicValueState {
 interface WorkbenchContextProperties extends BasicValueState {
   currentPath: string | null,
   startImport: () => void,
+  abortImport: () => void,
   columnDefs: ColDef[],
   setColumnDefs: React.Dispatch<React.SetStateAction<ColDef[]>>,
   updateCurrentPath: (newPath: string) => void,
@@ -26,6 +27,7 @@ export const defaultWorkbenchContextValue: WorkbenchContextProperties = {
   currentPath: null,
   setColumnDefs: () => null,
   startImport: () => null,
+  abortImport: () => null,
   updateCurrentPath: () => null,
   updateWorkbenchDB: () => null,
 };
@@ -52,6 +54,13 @@ export const WorkbenchDBProvider = (props: React.PropsWithChildren<Record<string
     })
   }
 
+  const abortImport = () => {
+    setValue(prevValue => ({
+      ...prevValue,
+      loadingStatus: null,
+    }));
+  }
+
   const updateWorkbenchDB = (db: WorkbenchDB, sqliteFilePath: string) => {
     setValue({
       db,
@@ -69,6 +78,7 @@ export const WorkbenchDBProvider = (props: React.PropsWithChildren<Record<string
         setColumnDefs,
         currentPath,
         startImport,
+        abortImport,
         updateCurrentPath,
         // updateCurrentPath: (path: string) => setCurrentPath(path),
         updateWorkbenchDB

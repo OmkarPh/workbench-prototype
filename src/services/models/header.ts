@@ -47,32 +47,33 @@ export default function headerModel(sequelize: Sequelize) {
       workbench_notice: DataTypes.STRING,
       header_content: DataTypes.STRING,
       files_count: DataTypes.INTEGER,
-      output_format_version: DataTypes.STRING,
-      spdx_license_list_version: DataTypes.STRING,
+      output_format_version: {
+        type: DataTypes.STRING,
+        defaultValue: '0.1.0',
+      },
+      spdx_license_list_version: {
+        type: DataTypes.STRING,
+        defaultValue: '1.00',
+      },
       operating_system: {
         type: DataTypes.STRING,
-        allowNull: true,
-        defaultValue: null,
+        defaultValue: 'Not included in the scan',
       },
       cpu_architecture: {
         type: DataTypes.STRING,
-        allowNull: true,
-        defaultValue: null,
+        defaultValue: 'Not included in the scan',
       },
       platform: {
         type: DataTypes.STRING,
-        allowNull: true,
-        defaultValue: null,
+        defaultValue: 'Not included in the scan',
       },
       platform_version: {
         type: DataTypes.STRING,
-        allowNull: true,
-        defaultValue: null,
+        defaultValue: 'Not included in the scan',
       },
       python_version: {
         type: DataTypes.STRING,
-        allowNull: true,
-        defaultValue: null,
+        defaultValue: 'Not included in the scan',
       },
     });
 }
