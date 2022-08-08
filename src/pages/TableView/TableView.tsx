@@ -11,17 +11,18 @@ import { useWorkbenchDB } from '../../contexts/workbenchContext';
 import { FlatFileAttributes } from '../../services/models/flatFile';
 
 import './TableView.css';
+import CustomColumnSelector from './CustomColumnSelector';
+import { FormControl } from 'react-bootstrap';
 
 const TableView = () => {
-  const workbenchDB = useWorkbenchDB();
-  const { db, initialized, currentPath } = workbenchDB;
+  const { db, initialized, currentPath, columnDefs, setColumnDefs } = useWorkbenchDB();
   
   // Necessary to keep coldef as empty array by default, to ensure filter set updates
-  const [columnDefs, setColumnDefs] = useState<ColDef[]>([]);
   const [tableData, setTableData] = useState<unknown[]>([]);
   const [gridApi, setGridApi] = useState<GridApi | null>(null);
   
   const [searchText, setSearchText] = useState('');
+  const [showColumnSelector, setShowColumnSelector] = useState(false);
 
   // Destructuring column groups to create a new array object (with same cols), ensuring state updates
   const setDefaultColumnGroup = () => setColumnDefs([...COLUMN_GROUPS.DEFAULT]);
@@ -64,8 +65,13 @@ const TableView = () => {
       }))
       .then((files) =>{
         setTableData(files);
+        setColumnDefs(prevColDefs => {
+          if(prevColDefs.length > 0)
+            return prevColDefs;   // Don't mutate cols, if already set
+          return [...COLUMN_GROUPS.DEFAULT];
+        })
       });
-  }, [workbenchDB]);
+  }, [currentPath]);
   
   // Update set filters whenever new db is loaded
   useEffect(() => {
@@ -119,7 +125,12 @@ const TableView = () => {
             "Completed generation of unique set filters:",
             generatedColDefs.map(coldef => coldef.filterParams.options)
           );
-          setDefaultColumnGroup();
+          setColumnDefs(prevColDefs => {
+            if(prevColDefs.length)
+              return [...prevColDefs];
+            return [...COLUMN_GROUPS.DEFAULT];
+          });
+          // setDefaultColumnGroup();
         });
     });
 
@@ -147,16 +158,13 @@ const TableView = () => {
           </CoreButton>
         </section>
           <div className='globalSearch'>
-            <label>
-              Search text:{' '}
-              <input
-                type="text"
-                value={searchText}
-                style={{ padding: 5 }}
-                onInput={searchTable}
-                onChange={e => setSearchText(e.target.value)}
-              />{' '}
-            </label>
+            <FormControl
+              type='text'
+              placeholder='Search ...'
+              value={searchText}
+              onChange={e => setSearchText(e.target.value)}
+              onInput={searchTable}
+            />
           </div>
         <br/>
         <section>
@@ -175,11 +183,17 @@ const TableView = () => {
           <CoreButton small onClick={() => changeColumnGroup(COLUMN_GROUPS.PACKAGE)}>
             Package cols
           </CoreButton>
-          <CoreButton small onClick={() => null}>
-            [Custom Columns **]
+          <CoreButton small onClick={() => setShowColumnSelector(true)}>
+            Custom Columns
           </CoreButton>
         </section>
       </div>
+      <CustomColumnSelector
+        columnDefs={columnDefs}
+        show={showColumnSelector}
+        hide={() => setShowColumnSelector(false)}
+        setColumnDefs={setColumnDefs}
+      />
       <AgDataTable
         gridApi={gridApi}
         updateGridApi={setGridApi}

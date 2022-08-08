@@ -33,7 +33,18 @@ module.exports = [
   //       // },
   //   }
   // },
-
+  {
+    test: /\.(png|jpg|jpeg|eps|gif)$/i,
+    use: [
+      {
+        loader: 'url-loader',
+        options: {
+          limit: 8192,
+        }
+      },
+    ],
+   type: 'javascript/auto'
+  },
   {
     test: /\.(m?js|node)$/,
     parser: { amd: false },

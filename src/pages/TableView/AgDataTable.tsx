@@ -6,9 +6,10 @@ import {
   GridReadyEvent,
 } from 'ag-grid-community';
 
+import { frameworkComponents } from './columnDefs';
+
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
-import { frameworkComponents } from './columnDefs';
 
 
 // Config for Ag DataTable
@@ -48,6 +49,8 @@ const AgDataTable = (props: AgDataTableProps) => {
   useEffect(() => {
     if(gridApi){
       gridApi.setFilterModel(null);
+
+      // Setting column defs manually to lazily update columns
       gridApi.setColumnDefs(columnDefs);
     }
   }, [columnDefs])
@@ -62,7 +65,6 @@ const AgDataTable = (props: AgDataTableProps) => {
     >
       <AgGridReact
         rowData={tableData}
-        columnDefs={columnDefs}
         onGridReady={onGridReady}
         components={frameworkComponents}
         className="ag-theme-alpine"

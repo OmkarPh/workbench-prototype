@@ -1,3 +1,4 @@
+import { ColDef } from "ag-grid-community";
 import React, { createContext, useContext, useState } from "react";
 import { WorkbenchDB } from '../services/workbenchDB';
 
@@ -10,6 +11,8 @@ interface BasicValueState {
 interface WorkbenchContextProperties extends BasicValueState {
   currentPath: string | null,
   startImport: () => void,
+  columnDefs: ColDef[],
+  setColumnDefs: React.Dispatch<React.SetStateAction<ColDef[]>>,
   updateCurrentPath: (newPath: string) => void,
   updateWorkbenchDB: (db: WorkbenchDB, sqliteFilePath: string) => void,
 }
@@ -17,9 +20,11 @@ interface WorkbenchContextProperties extends BasicValueState {
 export const defaultWorkbenchContextValue: WorkbenchContextProperties = {
   db: null,
   initialized: false,
+  columnDefs: [],
   importedSqliteFilePath: null,
   loadingStatus: null,
   currentPath: null,
+  setColumnDefs: () => null,
   startImport: () => null,
   updateCurrentPath: () => null,
   updateWorkbenchDB: () => null,
@@ -29,6 +34,7 @@ const WorkbenchContext = createContext<WorkbenchContextProperties>(defaultWorkbe
 
 
 export const WorkbenchDBProvider = (props: React.PropsWithChildren<Record<string, unknown>>) => {
+  const [columnDefs, setColumnDefs] = useState<ColDef[]>([]);
   const [value, setValue] = useState<BasicValueState>({
     db: null,
     initialized: false,
@@ -59,6 +65,8 @@ export const WorkbenchDBProvider = (props: React.PropsWithChildren<Record<string
      <WorkbenchContext.Provider
       value={{
         ...value,
+        columnDefs,
+        setColumnDefs,
         currentPath,
         startImport,
         updateCurrentPath,

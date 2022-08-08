@@ -30,7 +30,7 @@
 }
 
 .quickActions div {
-  border: 2px dashed skyblue;
+  border: 2px dashed #0685b9;
   display: inline-block;
   width: 25%;
   text-align: center;
@@ -69,8 +69,6 @@
   margin: 5px;
   margin-left: 0px;
   margin-right: 20px;
-  border: 2px solid rgb(74, 176, 199) !important;
-  background-color: transparent;
 }
 
 /* .btn-group-horizontal{
@@ -81,6 +79,4 @@
   margin: 0px;
   margin-top: .5rem;
   margin-right: 1rem;
-  background-color: transparent;
-  border:2px solid rgb(74, 176, 199) !important;
 }

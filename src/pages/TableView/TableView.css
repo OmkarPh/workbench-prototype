@@ -3,6 +3,9 @@
   float: right;
   margin-right: 15px;
 }
+.globalSearch input {
+  display: inline-block;
+}
 
 .filterButtons {
   margin-bottom: 4px;
@@ -15,6 +18,10 @@
 .filterButtons button{
   margin: 3px;
   margin-right: 10px;
+}
+
+.column-selector{
+  padding: 15px;
 }
 
 .pagination-controls {

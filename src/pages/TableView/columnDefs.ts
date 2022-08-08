@@ -273,6 +273,10 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
     width: 150,
   },
 };
+
+// Set Sorting order index
+Object.values(ALL_COLUMNS).forEach((col, idx) => col.sortIndex = idx);
+
 // NOTE --- 
 export const DEFAULT_EMPTY_VALUES = new Set<string | null>([
   '', null, '[]', '[[]]'
@@ -367,14 +371,7 @@ export const COLUMN_GROUPS = {
   ORIGIN: ORIGIN_COLUMN_GROUP,
   PACKAGE: PACKAGE_COLUMN_GROUP,
 
-  ALL: [
-    ...COPYRIGHT_COLUMN_GROUP,
-    ...FILE_COLUMN_GROUP,
-    ...LICENSE_COLUMN_GROUP,
-    ...ORIGIN_COLUMN_GROUP,
-    ...PACKAGE_COLUMN_GROUP,
-    ALL_COLUMNS.scan_error,
-  ],
+  ALL: Object.values(ALL_COLUMNS),
 
   NONE: [] as ColDef[],
 }
