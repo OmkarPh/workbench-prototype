@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react'
 import { formatChartData } from '../../utils/pie';
 import { useWorkbenchDB } from '../../contexts/workbenchContext';
 import PieChart from '../../components/PieChart/PieChart';
+import EllipticLoader from '../../components/EllipticLoader';
 
 interface ScanData {
   totalFiles: number | null,
@@ -110,13 +111,14 @@ const FileInfoDash = () => {
       <Row className="dash-cards">
         <Col sm={4}>
           <div className='card info-card'>
-            <h4 className='value'>
-              {
-                scanData.totalFiles !== null ?
-                  scanData.totalFiles
-                : "...."
-              }
-            </h4>
+            {
+              scanData.totalFiles === null ?
+                <EllipticLoader />
+              :
+              <h4 className='value'>
+                { scanData.totalFiles }
+              </h4>
+            }
             <h5 className='title'>
               Total Number of Files
             </h5>
@@ -124,13 +126,14 @@ const FileInfoDash = () => {
         </Col>
         <Col sm={4}>
           <div className='card info-card'>
-            <h4 className='value'>
-              {
-                scanData.totalDirectories !== null ?
-                  scanData.totalDirectories
-                : "...."
-              }
-            </h4>
+            {
+              scanData.totalDirectories === null ?
+                <EllipticLoader />
+              :
+              <h4 className='value'>
+                { scanData.totalDirectories }
+              </h4>
+            }
             <h5 className='title'>
               Total Number of Directories
             </h5>
@@ -138,13 +141,14 @@ const FileInfoDash = () => {
         </Col>
         <Col sm={6} md={4}>
           <div className='card info-card'>
-            <h4 className='value'>
-              {
-                scanData.totalUniqueCopyrightHolders !== null ?
-                  scanData.totalUniqueCopyrightHolders
-                : "...."
-              }
-            </h4>
+            {
+              scanData.totalUniqueCopyrightHolders === null ?
+                <EllipticLoader />
+              :
+              <h4 className='value'>
+                { scanData.totalUniqueCopyrightHolders }
+              </h4>
+            }
             <h5 className='title'>
               Unique Copyright Holders Detected
             </h5>

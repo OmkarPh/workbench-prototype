@@ -1,6 +1,6 @@
-import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 import React, { useEffect, useMemo, useState } from 'react'
+import { toast } from 'react-toastify'
 import moment from 'moment'
 import * as electronFs from "fs"
 import * as electronOs from "os"
@@ -62,10 +62,11 @@ const Home = () => {
   const navigate = useNavigate();
   const {
     db,
-    updateCurrentPath,
     loadingStatus,
     initialized,
-    startImport,
+    updateLoadingStatus,
+    updateCurrentPath,
+    startImport, abortImport,
     updateWorkbenchDB,
     importedSqliteFilePath,
   } = useWorkbenchDB();
@@ -83,12 +84,14 @@ const Home = () => {
       dbStorage: sqliteFilePath
     });
 
+    updateLoadingStatus(25);
+
     // Check that that the database schema matches current schema.
     newWorkbenchDB.sync
       .then((db) => db.Header.findAll())
       .then((headers) => {
         const infoHeader = headers[0];
-
+        
         // Check that the database has the correct header information.
         if (!headers || headers.length === 0 || !infoHeader) {
           const errTitle = 'Invalid SQLite file';
@@ -111,8 +114,12 @@ const Home = () => {
               message: errMessage,
             }
           );
+
+          abortImport();
           return;
         }
+
+        updateLoadingStatus(50);
 
         const dbVersion = infoHeader.getDataValue('workbench_version').toString({});
         
@@ -138,6 +145,7 @@ const Home = () => {
               message: errMessage,
             }
           );
+          abortImport();
           return;
         }
 
@@ -145,6 +153,8 @@ const Home = () => {
           sqlite_path: sqliteFilePath,
           opened_at: moment().format(),
         });
+
+        updateLoadingStatus(75);
 
         newWorkbenchDB.sync
         .then(db => db.File.findOne({ where: { parent: '#' }}))
@@ -166,7 +176,12 @@ const Home = () => {
           if(!preventNavigation)
             navigate(ROUTES.TABLE_VIEW);
         });
-      });
+      })
+      .catch(err => {
+        console.error("Err trying to import sqlite:", err);
+        toast(`Unexpected error while importing json \nPlease check console for more info`, { type: 'error' });
+        abortImport();
+      })
   }
 
   function jsonParser(jsonFilePath: string, sqliteFilePath: string, preventNavigation?: boolean){
@@ -194,22 +209,14 @@ const Home = () => {
         dbStorage: sqliteFilePath,
     });
 
-    // const progressbar = new Progress('#content', {
-    //     title: 'Creating Database...',
-    //     size: 100,
-    // });
-
     newWorkbenchDB.sync
-      // .then(() => progressbar.showDeterminate())
       .then(() => newWorkbenchDB.addFromJson(
         jsonFilePath,
         workbenchVersion,
-        (response: number) => {
-          console.log("Import progress @", response)
+        (progress: number) => {
+          updateLoadingStatus(progress);
         },
-        // (progress) => progressbar.update(progress / 100)
       ))
-      // .then(() => progressbar.hide())
       .then(() => {
         console.log("JSON parsing completed");
         
@@ -225,6 +232,7 @@ const Home = () => {
             if(!root){
               console.error("Root directory not found !!!!");
               console.error("Root:", root);
+              abortImport();
               return;
             }
             const defaultPath = root.getDataValue('path');

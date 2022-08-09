@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react'
 import { formatChartData } from '../../utils/pie';
 import { useWorkbenchDB } from '../../contexts/workbenchContext';
 import PieChart from '../../components/PieChart/PieChart';
+import EllipticLoader from '../../components/EllipticLoader';
 
 interface ScanData {
   totalLicenses: number | null,
@@ -114,13 +115,14 @@ const LicenseInfoDash = () => {
       <Row className="dash-cards">
         <Col sm={4}>
           <div className='card info-card'>
-            <h4 className='value'>
-              {
-                scanData.totalLicenses !== null ?
-                  scanData.totalLicenses
-                : "...."
-              }
-            </h4>
+            {
+              scanData.totalLicenses === null ?
+                <EllipticLoader />
+              :
+              <h4 className='value'>
+                { scanData.totalLicenses }
+              </h4>
+            }
             <h5 className='title'>
               Total licenses
             </h5>
@@ -128,13 +130,14 @@ const LicenseInfoDash = () => {
         </Col>
         <Col sm={4}>
           <div className='card info-card'>
-            <h4 className='value'>
-              {
-                scanData.totalLicenseFiles !== null ?
-                  scanData.totalLicenseFiles
-                : "...."
-              }
-            </h4>
+            {
+              scanData.totalLicenseFiles === null ?
+                <EllipticLoader />
+              :
+              <h4 className='value'>
+                { scanData.totalLicenseFiles }
+              </h4>
+            }
             <h5 className='title'>
               Total files with licenses
             </h5>
@@ -142,13 +145,14 @@ const LicenseInfoDash = () => {
         </Col>
         <Col sm={4} >
           <div className='card info-card'>
-            <h4 className='value'>
-              {
-                scanData.totalSPDXLicenses !== null ?
-                  scanData.totalSPDXLicenses
-                : "...."
-              }
-            </h4>
+            {
+              scanData.totalSPDXLicenses === null ?
+                <EllipticLoader />
+              :
+              <h4 className='value'>
+                { scanData.totalSPDXLicenses }
+              </h4>
+            }
             <h5 className='title'>
               Total SPDX licenses
             </h5>

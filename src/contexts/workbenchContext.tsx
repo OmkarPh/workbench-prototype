@@ -6,13 +6,14 @@ interface BasicValueState {
   db: WorkbenchDB | null,
   initialized: boolean,
   importedSqliteFilePath: string | null,
-  loadingStatus: number | null,
 }
 interface WorkbenchContextProperties extends BasicValueState {
   currentPath: string | null,
   startImport: () => void,
   abortImport: () => void,
+  loadingStatus: null | number,
   columnDefs: ColDef[],
+  updateLoadingStatus: React.Dispatch<React.SetStateAction<number | null>>,
   setColumnDefs: React.Dispatch<React.SetStateAction<ColDef[]>>,
   updateCurrentPath: (newPath: string) => void,
   updateWorkbenchDB: (db: WorkbenchDB, sqliteFilePath: string) => void,
@@ -25,6 +26,7 @@ export const defaultWorkbenchContextValue: WorkbenchContextProperties = {
   importedSqliteFilePath: null,
   loadingStatus: null,
   currentPath: null,
+  updateLoadingStatus: () => null,
   setColumnDefs: () => null,
   startImport: () => null,
   abortImport: () => null,
@@ -37,34 +39,29 @@ const WorkbenchContext = createContext<WorkbenchContextProperties>(defaultWorkbe
 
 export const WorkbenchDBProvider = (props: React.PropsWithChildren<Record<string, unknown>>) => {
   const [columnDefs, setColumnDefs] = useState<ColDef[]>([]);
+  const [loadingStatus, updateLoadingStatus] = useState<number | null>(null);
   const [value, setValue] = useState<BasicValueState>({
     db: null,
     initialized: false,
     importedSqliteFilePath: null,
-    loadingStatus: null,
   });
   const [currentPath, updateCurrentPath] = useState<string | null>(null);
 
   const startImport = () => {
+    updateLoadingStatus(0);
     setValue({
       db: null,
       initialized: false,
       importedSqliteFilePath: null,
-      loadingStatus: 0,
     })
   }
 
-  const abortImport = () => {
-    setValue(prevValue => ({
-      ...prevValue,
-      loadingStatus: null,
-    }));
-  }
+  const abortImport = () => updateLoadingStatus(null);
 
   const updateWorkbenchDB = (db: WorkbenchDB, sqliteFilePath: string) => {
+    updateLoadingStatus(100);
     setValue({
       db,
-      loadingStatus: 100,
       initialized: true,
       importedSqliteFilePath: sqliteFilePath,
     });
@@ -75,6 +72,8 @@ export const WorkbenchDBProvider = (props: React.PropsWithChildren<Record<string
       value={{
         ...value,
         columnDefs,
+        loadingStatus,
+        updateLoadingStatus,
         setColumnDefs,
         currentPath,
         startImport,

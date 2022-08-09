@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react'
 import { formatChartData } from '../../utils/pie';
 import { useWorkbenchDB } from '../../contexts/workbenchContext';
 import PieChart from '../../components/PieChart/PieChart';
+import EllipticLoader from '../../components/EllipticLoader';
 
 interface ScanData {
   totalPackages: number | null,
@@ -96,13 +97,14 @@ const PackageInfoDash = () => {
       <Row className="dash-cards">
         <Col sm={4} >
           <div className='card info-card'>
-            <h4 className='value'>
-              {
-                scanData.totalPackages !== null ?
-                  scanData.totalPackages
-                : "...."
-              }
-            </h4>
+            {
+              scanData.totalPackages === null ?
+                <EllipticLoader />
+              :
+              <h4 className='value'>
+                { scanData.totalPackages }
+              </h4>
+            }
             <h5 className='title'>
               Total Number of packages
             </h5>

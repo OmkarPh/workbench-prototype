@@ -386,49 +386,6 @@ div.dataTables_wrapper div.dataTables_processing {
 }
 
 /*---------------------------------------
-  Progress Indicator
------------------------------------------*/
-/* Center the progress indicator */
-.progress {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 50%;
-    transform: translate(0, 25%);
-    z-index: 1;
-    width: auto;
-    height: auto;
-    border: none;
-    background-color: transparent;
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
-    box-shadow: none;
-}
-
-.progress .title {
-  text-align: center;
-}
-
-.progress .progressbar {
-  position: static;
-  width: 100%;
-  height: 100%;
-  margin: auto;
-}
-
-.progress .indeterminate {
-  border: 6px solid #B4DDF8;
-  border-radius: 50%;
-  border-top: 6px solid #3498db;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/*---------------------------------------
   Icons
 -----------------------------------------*/
 .fa_custom {
@@ -647,6 +604,8 @@ div.dataTables_wrapper div.dataTables_processing {
 
 .card .value {
   margin: 0;
+  margin-left: auto;
+  margin-right: auto;
   color: #3898fc;
   font-weight: 500;
   padding-bottom: 15px;

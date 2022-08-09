@@ -1,5 +1,6 @@
 import React from 'react'
-import { Oval } from  'react-loader-spinner'
+import { ProgressBar } from 'react-bootstrap';
+import { BallTriangle } from  'react-loader-spinner'
 
 import './progressLoader.css';
 
@@ -9,24 +10,31 @@ interface ProgressLoaderProps {
 const ProgressLoader = (props: ProgressLoaderProps) => {
   return (
     <div className='progress-loader'>
-      <div className='spinner'>
-        <Oval
+      <BallTriangle
           height={150}
           width={150}
           color="#3D7BFF"
           wrapperStyle={{}}
-          wrapperClass=""
+          wrapperClass="spinner"
+          visible={true}
+          ariaLabel='oval-loading'
+        />
+        {/* <Oval
+          height={150}
+          width={150}
+          color="#3D7BFF"
+          wrapperStyle={{}}
+          wrapperClass="spinner"
           visible={true}
           ariaLabel='oval-loading'
           secondaryColor="#D2E2FD"
           strokeWidth={2}
           strokeWidthSecondary={2}
-        />
-      </div>
-      <br/><br/>
+        /> */}
       <h4>
-        Progress: { props.progress } %
+        { props.progress } %
       </h4>
+      <ProgressBar animated now={props.progress} />
     </div>
   )
 }

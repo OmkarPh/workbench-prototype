@@ -414,8 +414,10 @@ export class WorkbenchDB {
                 const currentProgress = Math.round(index / (files_count + dirs_count) * 100);
                 if (currentProgress > progress) {
                   progress = currentProgress;
-                  console.log(`Batch-${++batchCount} completed, \n`);
-                  console.log(`Progress: ${progress}%, -- ${index}/${files_count}+${dirs_count}`);
+                  console.log(
+                    `Batch-${++batchCount} completed, \n`,
+                    `JSON Import progress @ ${progress} % -- ${index}/${files_count}+${dirs_count}`
+                  );
                   onProgressUpdate(progress);
                 }
               })
@@ -442,8 +444,10 @@ export class WorkbenchDB {
             })
             .then(() => this._batchCreateFiles(files, headerId))
             .then(() => {
-              console.log(`Batch-${++batchCount} completed, \n`);
-              console.log(`Progress: 100%`);
+              console.log(
+                `Batch-${++batchCount} completed, \n`,
+                `JSON Import progress @ ${progress} % -- ${index}/${files_count}+${dirs_count}`
+              );
               onProgressUpdate(100);
               console.log('JSON parse completed (final step)');
               console.timeEnd('json-parse-time')
@@ -473,7 +477,6 @@ export class WorkbenchDB {
 
   _addFiles(files: any, headerId: number) {
     const transactionOptions: TransactionOptions = {
-      // logging: () => console.log("Transaction event in _addFiles"),
       autocommit: false,
       isolationLevel: Transaction.ISOLATION_LEVELS.READ_COMMITTED
     };
@@ -525,7 +528,7 @@ export class WorkbenchDB {
   _addExtraFields(files: any, attribute: string) {
     return $.map(files, (file) => {
       if(!file){
-        console.log("add file", "invalid file", file);
+        console.log("invalid file added", file);
       }
 
       if (attribute === 'copyrights') {
@@ -536,8 +539,6 @@ export class WorkbenchDB {
 
       const fileAttr = file[attribute] || [];
 
-        
-      // console.log("File id", file.id);
       DebugLogger("add file", "Add extra field for attr:", attribute);
       
       return $.map(fileAttr, (value) => {
