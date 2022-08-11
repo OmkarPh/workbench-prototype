@@ -30,7 +30,7 @@ import { LEGEND_LIMIT } from "../constants/data";
 
 //     for (let j = 0; j < attributeValue.length; j++) {
 //       const val = attributeValue[j];
-//       if (!Utils.isValid(val) && attribute === 'packages_type' && fileType === 'directory') {
+//       if (!Utils.isValid(val) && attribute === 'package_data_type' && fileType === 'directory') {
 //         continue;
 //       }
 //       validatedValues.push(

@@ -228,9 +228,9 @@ body {
 /*---------------------------------------
   Componet Dialog
 -----------------------------------------*/
-.modal-backdrop {
+/* .modal-backdrop {
   background: none;
-}
+} */
 
 /*---------------------------------------
   jsTree custom
@@ -363,18 +363,6 @@ div.dataTables_scrollHead th:first-child {
   outline: 0;
 }
 
-/*Add background color to "processing" message*/
-/*The base instance of this setting is here: assets/thirdparty/DataTables/datatables.css*/
-div.dataTables_wrapper div.dataTables_processing {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 400px;
-  margin-left: -200px;
-  background-color: #e6f2ff;
-  border: solid 1px #99ccff;
-  font-size: 16px;
-}
 
 /*---------------------------------------
   Help page
@@ -426,56 +414,6 @@ div.dataTables_wrapper div.dataTables_processing {
 
 .fa_custom_restricted {
   color: #FFcc33;
-}
-/*---------------------------------------
-  Split.js
------------------------------------------*/
-.split {
-  display: flex;
-  flex-direction: row;
-  margin-left: 65px;
-}
-
-.gutter {
-  background-color: #e8e8e8;
-  background-repeat: no-repeat;
-  background-position: 50%;
-}
-
-.gutter.gutter-horizontal {
-  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
-  cursor: col-resize;
-  opacity: 0;
-}
-
-.gutter.gutter-vertical {
-  cursor: ns-resize;
-}
-
-.split.split-flex {
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.gutter.gutter-horizontal {
-  height: 100%;
-  float: left;
-}
-
-.div-hide {
-  display: none;
-  visibility: hidden;
-}
-
-.div-show {
-  display: block;
-  visibility: visible;
-}
-
-.div-invisible {
-  display: block;
-  visibility: hidden;
-  opacity: 0;
 }
 
 /*---------------------------------------
@@ -622,35 +560,9 @@ div.dataTables_wrapper div.dataTables_processing {
 }
 
 /*---------------------------------------
-  Conclusion DataTable
------------------------------------------*/
-.conclusions-table-container {
-  width: 100%;
-  height: 100%;
-}
-
-/*---------------------------------------
   Select2 custom
 -----------------------------------------*/
 
 .select2-container .select2-search__field{
   width: 100% !important;
-}
-
-/*---------------------------------------
-  ScanCode modal custom
------------------------------------------*/
-
-body .modal-scancode {
-  width: 800px;
-}
-#scancode-info {
-  text-align: left;
-}
-#scancode-label {
-  text-align: left;
-  padding: 10px 0px 10px 0px;
-}
-#scancode-display {
-  display: block;
 }

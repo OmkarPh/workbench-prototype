@@ -22,7 +22,7 @@ import licenseModel, { LicenseAttributes } from './license';
 import licenseExpressionModel, { LicenseExpressionAttributes, OptionalLicenseExpressionAttributes } from './licenseExpression';
 import licensePolicyModel, { LicensePolicyAttributes } from './licensePolicy';
 import copyrightModel, { CopyrightAttributes } from './copyright';
-import packageModel, { PackageAttributes } from './package';
+import packageDataModel, { PackageDataAttributes } from './packageData';
 import emailModel, { EmailAttributes } from './email';
 import urlModel, { UrlAttributes } from './url';
 import flatFileModel, { FlatFileAttributes } from './flatFile';
@@ -48,7 +48,7 @@ export interface DatabaseStructure{
   LicenseExpression: ModelStatic<Model<LicenseExpressionAttributes, OptionalLicenseExpressionAttributes>>,
   LicensePolicy: ModelStatic<Model<LicensePolicyAttributes>>,
   Copyright: ModelStatic<Model<CopyrightAttributes>>,
-  Package: ModelStatic<Model<PackageAttributes>>,
+  PackageData: ModelStatic<Model<PackageDataAttributes>>,
   Email: ModelStatic<Model<EmailAttributes>>,
   Url: ModelStatic<Model<UrlAttributes>>,
   ScanError: ModelStatic<Model<ScanErrorAttributes>>,
@@ -68,7 +68,7 @@ export function newDatabase(sequelize: Sequelize): DatabaseStructure {
     LicenseExpression: licenseExpressionModel(sequelize),
     LicensePolicy: licensePolicyModel(sequelize),
     Copyright: copyrightModel(sequelize),
-    Package: packageModel(sequelize),
+    PackageData: packageDataModel(sequelize),
     Email: emailModel(sequelize),
     Url: urlModel(sequelize),
     ScanError: scanErrorModel(sequelize),
@@ -81,7 +81,7 @@ export function newDatabase(sequelize: Sequelize): DatabaseStructure {
   result.File.hasMany(result.LicenseExpression);
   result.File.hasMany(result.LicensePolicy);
   result.File.hasMany(result.Copyright);
-  result.File.hasMany(result.Package);
+  result.File.hasMany(result.PackageData);
   result.File.hasMany(result.Email);
   result.File.hasMany(result.Url);
   result.File.hasMany(result.ScanError);
@@ -92,7 +92,7 @@ export function newDatabase(sequelize: Sequelize): DatabaseStructure {
     { model: result.LicenseExpression, separate: true },
     { model: result.LicensePolicy, separate: true },
     { model: result.Copyright, separate: true },
-    { model: result.Package, separate: true },
+    { model: result.PackageData, separate: true },
     { model: result.Email, separate: true },
     { model: result.Url, separate: true },
     { model: result.ScanError, separate: true },

@@ -167,21 +167,21 @@ export const FILE_COLUMNS: Column[] = [
 
 export const PACKAGE_COLUMNS: Column[] = [
   {
-    data: 'packages_type',
+    data: 'package_data_type',
     title: 'Package Type',
-    key: 'packages_type',
+    key: 'package_data_type',
     bar_chart_class: 'bar-chart-package-infos',
   },
   {
-    data: 'packages_name',
+    data: 'package_data_name',
     title: 'Package Name',
-    key: 'packages_name',
+    key: 'package_data_name',
     bar_chart_class: 'bar-chart-package-infos',
   },
   {
-    data: 'packages_primary_language',
+    data: 'package_data_primary_language',
     title: 'Package Primary Language',
-    key: 'packages_primary_language',
+    key: 'package_data_primary_language',
     bar_chart_class: 'bar-chart-package-infos',
   },
 ];
@@ -265,10 +265,10 @@ export const LICENSE_COLUMN_NAMES =
 
 export const PACKAGE_COLUMN_NAMES = 
 [
-  'packages_type',
-  'packages_name',
-  'packages_version',
-  'packages_license_expression',
-  'packages_primary_language',
-  'packages_purl'
+  'package_data_type',
+  'package_data_name',
+  'package_data_version',
+  'package_data_license_expression',
+  'package_data_primary_language',
+  'package_data_purl'
 ];

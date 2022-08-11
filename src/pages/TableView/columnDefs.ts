@@ -58,14 +58,14 @@ interface COLUMNS_LIST {
   email: ColDef,
   url: ColDef,
 
-  packages_type: ColDef,
-  packages_name: ColDef,
-  packages_version: ColDef,
-  packages_license_expression: ColDef,
-  packages_primary_language: ColDef,
-  // packages_homepage_url: ColDef,
-  // packages_download_url: ColDef,
-  packages_purl: ColDef,
+  package_data_type: ColDef,
+  package_data_name: ColDef,
+  package_data_version: ColDef,
+  package_data_license_expression: ColDef,
+  package_data_primary_language: ColDef,
+  // package_data_homepage_url: ColDef,
+  // package_data_download_url: ColDef,
+  package_data_purl: ColDef,
 
   scan_error: ColDef,
 }
@@ -228,41 +228,41 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
   },
 
 
-  packages_type: {
-    field: 'packages_type',
+  package_data_type: {
+    field: 'package_data_type',
     headerName: 'Package Type',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
-  packages_name: {
-    field: 'packages_name',
+  package_data_name: {
+    field: 'package_data_name',
     headerName: 'Package Name',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
-  packages_version: {
-    field: 'packages_version',
+  package_data_version: {
+    field: 'package_data_version',
     headerName: 'Package Version',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
-  packages_license_expression: {
-    field: 'packages_license_expression',
+  package_data_license_expression: {
+    field: 'package_data_license_expression',
     headerName: 'Package License Expression',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
-  packages_primary_language: {
-    field: 'packages_primary_language',
+  package_data_primary_language: {
+    field: 'package_data_primary_language',
     headerName: 'Package Primary Language',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
-  // packages_homepage_url: {
-  //   field: 'packages_homepage_url',
+  // package_data_homepage_url: {
+  //   field: 'package_data_homepage_url',
   //   headerName: 'Package Homepage URL',
   // },
-  // packages_download_url: {
-  //   field: 'packages_download_url',
+  // package_data_download_url: {
+  //   field: 'package_data_download_url',
   //   headerName: 'Package Download URL',
   // },
-  packages_purl: {
-    field: 'packages_purl',
+  package_data_purl: {
+    field: 'package_data_purl',
     headerName: 'Package URL',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
@@ -343,14 +343,14 @@ const ORIGIN_COLUMN_GROUP: ColDef[] = [
 ];
 
 const PACKAGE_COLUMN_GROUP: ColDef[] = [
-  ALL_COLUMNS.packages_type,
-  ALL_COLUMNS.packages_name,
-  ALL_COLUMNS.packages_version,
-  ALL_COLUMNS.packages_license_expression,
-  ALL_COLUMNS.packages_primary_language,
-  // ALL_COLUMNS.packages_homepage_url,
-  // ALL_COLUMNS.packages_download_url,
-  ALL_COLUMNS.packages_purl,
+  ALL_COLUMNS.package_data_type,
+  ALL_COLUMNS.package_data_name,
+  ALL_COLUMNS.package_data_version,
+  ALL_COLUMNS.package_data_license_expression,
+  ALL_COLUMNS.package_data_primary_language,
+  // ALL_COLUMNS.package_data_homepage_url,
+  // ALL_COLUMNS.package_data_download_url,
+  ALL_COLUMNS.package_data_purl,
 ];
 
 

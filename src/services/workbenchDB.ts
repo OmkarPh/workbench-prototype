@@ -182,7 +182,7 @@ export class WorkbenchDB {
       });
     
     // TODO-Residue: Remove this
-    // But, maybe needed, if we wan't different file icons for packages licenses etc
+    // But, maybe needed, if we want different file icons for packages licenses etc
 
     // // When determining type for each file is important
     // type GenericModelValues = { fileId: DataTypes.IntegerDataType};
@@ -509,8 +509,8 @@ export class WorkbenchDB {
         .then(() => this.db.Copyright.bulkCreate(this._addExtraFields(files, 'copyrights'), options))
         .then(() => DebugLogger("copyright processor", "Processed copyrights"))
 
-        .then(() => this.db.Package.bulkCreate(this._addExtraFields(files, 'packages'), options))
-        .then(() => DebugLogger("package processor", "Processed packages"))
+        .then(() => this.db.PackageData.bulkCreate(this._addExtraFields(files, 'package_data'), options))
+        .then(() => DebugLogger("package processor", "Processed package_data"))
 
         .then(() => this.db.Email.bulkCreate(this._addExtraFields(files, 'emails'), options))
         .then(() => DebugLogger("email processor", "Processed emails"))

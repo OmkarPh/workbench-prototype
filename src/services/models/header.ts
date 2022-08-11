@@ -44,7 +44,10 @@ export default function headerModel(sequelize: Sequelize) {
         type: DataTypes.INTEGER,
       },
       workbench_version: DataTypes.STRING,
-      workbench_notice: DataTypes.STRING,
+      workbench_notice: {
+        type: DataTypes.STRING,
+        defaultValue: 'None',
+      },
       header_content: DataTypes.STRING,
       files_count: DataTypes.INTEGER,
       output_format_version: {

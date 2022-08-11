@@ -25,7 +25,7 @@ export function getAttributeValues(values: any[], attribute: any) {
 
     for (let j = 0; j < attributeValue.length; j++) {
       const val = attributeValue[j];
-      if (!isValid(val) && attribute === 'packages_type' && fileType === 'directory') {
+      if (!isValid(val) && attribute === 'package_data_type' && fileType === 'directory') {
         continue;
       }
       validatedValues.push(

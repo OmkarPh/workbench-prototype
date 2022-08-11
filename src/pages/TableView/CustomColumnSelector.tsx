@@ -60,6 +60,7 @@ const CustomColumnSelector = (props: ColumnSelectorProps) => {
             />
           </Col>
         </Row>
+        <br/>
         <Row>
           <Col>
             {

@@ -50,16 +50,16 @@ const PackageInfoDash = () => {
         
         // Query and prepare chart for package types
         db.sync
-          .then(db => db.Package.findAll({where: { fileId: fileIDs }}))
-          .then(packages => {
+          .then(db => db.PackageData.findAll({where: { fileId: fileIDs }}))
+          .then(packageData => {
             // Prepare count of total packages
             // console.log("All packages", packages.map(pkg => pkg.get({ plain: true })));
-            setScanData({ totalPackages: packages.length });
-            return packages;
+            setScanData({ totalPackages: packageData.length });
+            return packageData;
           })
-          .then((packages) => {
+          .then(packageData => {
             // Prepare chart for package types
-            const packageTypes = packages.map(
+            const packageTypes = packageData.map(
               packageEntry => packageEntry.getDataValue('type') || 'No Value Detected'
             );
             const { chartData: packageTypesChartData } = formatChartData(packageTypes, 'package types');
@@ -67,7 +67,7 @@ const PackageInfoDash = () => {
             setPackageTypeData(packageTypesChartData);
 
             // Prepare chart for package languages
-            const packageLangs = packages.map(
+            const packageLangs = packageData.map(
               packageEntry => packageEntry.getDataValue('primary_language') || 'No Value Detected'
             );
             const { chartData: packageLangsChartData } = formatChartData(packageLangs, 'package langs');
@@ -75,7 +75,7 @@ const PackageInfoDash = () => {
             setPackageLangData(packageLangsChartData);
 
             // Prepare chart for package license expression
-            const packageLicenseExp = packages.map(
+            const packageLicenseExp = packageData.map(
               packageEntry => packageEntry.getDataValue('license_expression') || 'No Value Detected'
             );
             const { chartData: packageLicenseExpChartData } = 

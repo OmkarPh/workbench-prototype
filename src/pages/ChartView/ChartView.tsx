@@ -43,7 +43,7 @@ const ChartView = () => {
     if(!initialized || !db || !currentPath)
       return;
     
-    const directoryAttributes = ['packages_type', 'packages_name', 'packages_primary_language'];
+    const directoryAttributes = ['package_data_type', 'package_data_name', 'package_data_primary_language'];
 
     const where: WhereOptions<FlatFileAttributes> = {
       path: {

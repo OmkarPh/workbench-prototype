@@ -45,8 +45,9 @@ export const RemoveEntry = (entry: HistoryItem) => {
 	const history = GetHistory();
 
 	const existingEntryIndex = history.findIndex(
-		existingEntry => entry.json_path === existingEntry.json_path || entry.sqlite_path === entry.sqlite_path
+		existingEntry => entry.json_path === existingEntry.json_path || entry.sqlite_path === existingEntry.sqlite_path
 	)
+	
 	if(existingEntryIndex > -1){
 		// console.log(`Removing history entry:`, existingEntryIndex);
 		history.splice(existingEntryIndex, 1);
