@@ -294,7 +294,7 @@ def build(clean=True, app_name=APP_NAME,
                 cmd = [
                     'scp'
                 ]
-                # TODO: Upload the archive somewhere we can fetch these
+                # @TODO: Upload the archive somewhere we can fetch these
                 # check scp
                 # print('Checking SCP...')
                 # if on_windows:

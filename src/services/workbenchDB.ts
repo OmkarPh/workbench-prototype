@@ -14,7 +14,7 @@
  #
  */
 
-import * as $ from 'jquery'
+import $ from 'jquery'
 import { BulkCreateOptions, DataTypes, FindOptions, IntegerDataType, Model, Sequelize, Transaction, TransactionOptions } from 'sequelize';
 import fs from 'fs';
 import path from 'path';
@@ -50,7 +50,7 @@ interface WorkbenchDbConfig {
   dbUser?: string,
   dbPassword?: string,
 }
-// TODO
+// @TODO
 // function sortChildren(node: Model<FileAttributes, FileAttributes>){
 function sortChildren(node: any){
   if(!node.children || !node.children.length)
@@ -175,7 +175,7 @@ export class WorkbenchDB {
         return result;
       });
     
-    // TODO-Residue: Remove this
+    // @TODO-Residue: Remove this
     // But, maybe needed, if we want different file icons for packages licenses etc
 
     // // When determining type for each file is important
@@ -222,7 +222,7 @@ export class WorkbenchDB {
       // initialize the map
       pathToIndexMap.set(file.getDataValue('path'), Number(file.getDataValue('id')));
 
-      // TODO
+      // @TODO
       const fileNode = file as any as DataNode;
   
       // initialize the children
@@ -239,7 +239,7 @@ export class WorkbenchDB {
       if (Number(file.getDataValue('id')) !== 0) {
         if(pathToIndexMap.has(parentPath)){
 
-          // TODO
+          // @TODO
           // if you have dangling branches check that map[node.parentId] exists
           (fileList[pathToIndexMap.get(parentPath)] as any as DataNode)
             .children.push(file as unknown as DataNode);
@@ -255,7 +255,7 @@ export class WorkbenchDB {
     return roots;
   }
 
-  // TODO-Residue: Remove this
+  // @TODO-Residue: Remove this
   determineJSTreeType(file: Model<FileAttributes, FileAttributes>, promises: Set<number>[]) {
     let type = '';
 
@@ -309,7 +309,7 @@ export class WorkbenchDB {
     let rootPath: string | null = null;
     let hasRootPath = false;
     const batchSize  = 1000;
-    let files: any[] = [];    // TODO
+    let files: any[] = [];    // @TODO
     let progress = 0;
     let promiseChain: Promise<void | DatabaseStructure | number> = this.sync;
 
@@ -318,7 +318,7 @@ export class WorkbenchDB {
 
     return new Promise((resolve, reject) => {
       // eslint-disable-next-line @typescript-eslint/no-this-alias
-      const primaryPromise = this;    // TODO
+      const primaryPromise = this;    // @TODO
 
       let batchCount = 0;
 
@@ -391,7 +391,7 @@ export class WorkbenchDB {
           if (rootPath === file.path) {
             hasRootPath = true;
           }
-          // TODO: When/if scancode reports directories in its header, this needs
+          // @TODO: When/if scancode reports directories in its header, this needs
           //       to be replaced.
           if (index === 0) {
             dirs_count = file.dirs_count;

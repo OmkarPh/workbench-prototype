@@ -52,7 +52,7 @@ const CustomColumnSelector = (props: ColumnSelectorProps) => {
         <Row>
           <Col>
             <Form.Check
-              id='select-all'
+              id='select-all'     // ID necessary for labels in bootstrap
               type='checkbox'
               checked={columnDefs.length === COLUMN_GROUPS.ALL.length}
               onChange={e => selectAllChanged(e.target.checked)}
@@ -68,7 +68,7 @@ const CustomColumnSelector = (props: ColumnSelectorProps) => {
                 <Form.Check 
                   type='checkbox'
                   key={column.field}
-                  id={column.field}
+                  id={column.field}     // ID necessary for labels in bootstrap
                   label={column.field}
                   checked={columnDefs.includes(column)}
                   onChange={e => onSelectionChanged(column, e.target.checked)}
@@ -82,7 +82,7 @@ const CustomColumnSelector = (props: ColumnSelectorProps) => {
                 <Form.Check 
                   type='checkbox'
                   key={column.field}
-                  id={column.field}
+                  id={column.field}     // ID necessary for labels in bootstrap
                   label={column.headerName}
                   checked={columnDefs.includes(column)}
                   onChange={e => onSelectionChanged(column, e.target.checked)}

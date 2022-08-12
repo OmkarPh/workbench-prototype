@@ -35,7 +35,7 @@ export default function headerModel(sequelize: Sequelize) {
   return sequelize.define<Model<HeaderAttributes>>(
     'headers',
     {
-      // TODO: The notices and versions should be in their own table
+      // @TODO: The notices and versions should be in their own table
       // See https://github.com/nexB/aboutcode/issues/7
       id: {
         allowNull: false,

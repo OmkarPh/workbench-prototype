@@ -1,4 +1,4 @@
-import { ColDef } from 'ag-grid-community';
+import { ColDef, ValueFormatterParams } from 'ag-grid-community';
 
 import {
   ListCellRenderer,
@@ -19,6 +19,7 @@ export const frameworkComponents = {
   [CustomComponentKeys.EmailListCellRenderer]: EmailListCellRenderer,
 };
 
+const BooleanValueFormatter = (cell: ValueFormatterParams) => cell.value ? "Yes" : "No";
 
 interface COLUMNS_LIST {
   // Required to update select options by field string
@@ -34,6 +35,12 @@ interface COLUMNS_LIST {
   programming_language: ColDef,
   mime_type: ColDef,
   file_type: ColDef,
+  is_binary: ColDef,
+  is_text: ColDef,
+  is_archive: ColDef,
+  is_media: ColDef,
+  is_source: ColDef,
+  is_script: ColDef,
   
   copyright_statements: ColDef,
   copyright_holders: ColDef,
@@ -122,7 +129,36 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
     field: "file_type",
     headerName: "File Type",
   },
-
+  is_binary: {
+    field: 'is_binary',
+    headerName: 'Binary',
+    valueFormatter: BooleanValueFormatter,
+  },
+  is_text: {
+    field: 'is_text',
+    headerName: 'Text File',
+    valueFormatter: BooleanValueFormatter,
+  },
+  is_archive: {
+    field: 'is_archive',
+    headerName: 'Archive File',
+    valueFormatter: BooleanValueFormatter,
+  },
+  is_media: {
+    field: 'is_media',
+    headerName: 'Media File',
+    valueFormatter: BooleanValueFormatter,
+  },
+  is_source: {
+    field: 'is_source',
+    headerName: 'Source File',
+    valueFormatter: BooleanValueFormatter,
+  },
+  is_script: {
+    field: 'is_script',
+    headerName: 'Script File',
+    valueFormatter: BooleanValueFormatter,
+  },
 
   copyright_statements: {
     field: 'copyright_statements',
@@ -266,6 +302,7 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
     headerName: 'Package URL',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
+  
   scan_error: {
     // id: "scan_error",
     field: "scan_error",
@@ -303,6 +340,12 @@ const FILE_COLUMN_GROUP: ColDef[] = [
   ALL_COLUMNS.programming_language,
   ALL_COLUMNS.mime_type,
   ALL_COLUMNS.file_type,
+  ALL_COLUMNS.is_binary,
+  ALL_COLUMNS.is_text,
+  ALL_COLUMNS.is_archive,
+  ALL_COLUMNS.is_media,
+  ALL_COLUMNS.is_source,
+  ALL_COLUMNS.is_script,
 ];
 
 const COPYRIGHT_COLUMN_GROUP: ColDef[] = [

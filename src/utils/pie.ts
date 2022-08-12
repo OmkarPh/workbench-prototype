@@ -60,8 +60,6 @@ function limitChartData(data: FormattedEntry[], limit: number) {
   if(data.length <= limit)
     return data.sort(ascendingComparatorFunction);
 
-  // TODO: Use partitioning (like in quicksort) to find top "limit" more efficiently.
-
   // Bring larger entries to the top
   const limitedData = data.sort(descendingComparatorFunction);
   

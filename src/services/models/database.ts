@@ -53,7 +53,6 @@ export interface DatabaseStructure{
   Url: ModelStatic<Model<UrlAttributes>>,
   ScanError: ModelStatic<Model<ScanErrorAttributes>>,
 
-  // TODO
   FlatFile: ModelStatic<Model<FlatFileAttributes>>,
 
   fileIncludes: { model: ModelStatic<Model<unknown>>, separate: boolean }[],

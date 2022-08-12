@@ -89,17 +89,9 @@ const Navbar = () => {
                         icon={<FontAwesomeIcon icon={faBars} />}
                         onClick={() => setCollapsed(prev => !prev)}
                     >
-                        {/* <FontAwesomeIcon icon={faArrowLeft} className="mx-2" /> */}
                         Collapse 
                     </MenuItem>
                 </Menu>
-                {/* <button
-                    id="toggle-btn"
-                    className="btn btn-sidebar"
-                    onClick={() => setCollapsed(prev => !prev)}
-                >
-                    <FontAwesomeIcon icon={faBars} />
-                </button> */}
             </SidebarFooter>
         </ProSidebar>
         {/* Dummy sidebar to occupy space in dom */}

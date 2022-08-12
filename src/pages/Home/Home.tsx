@@ -333,7 +333,7 @@ const Home = () => {
   return (
     <div className="home-page">
       <div className="tab-pane" id="tab-welcomepage">
-        <div id="welcomepage-container">
+        <div>
           <div id="welcomepage-title">
             <h2>ScanCode Workbench</h2>
           </div>

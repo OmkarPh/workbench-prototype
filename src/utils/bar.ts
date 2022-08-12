@@ -36,11 +36,13 @@ export function getAttributeValues(values: any[], attribute: any) {
   return validatedValues;
 }
 
-export function formatBarchartData(data: any[]){
+export function formatBarchartData(data: unknown[]){
+  // console.log("Formatting barchart data", data);
+  
   const counterMapping = new Map<string, number>();
   let existingCount = 0;
   data.forEach((entry: string | string[]) => {
-    const entryString = typeof entry === 'string' ? entry : entry.join(',');
+    const entryString = typeof entry === 'string' ? entry : Array.isArray(entry) ? entry.join(',') : String(entry);
     existingCount = counterMapping.get(entryString);
     if(existingCount)
       counterMapping.set(entryString, existingCount + 1);

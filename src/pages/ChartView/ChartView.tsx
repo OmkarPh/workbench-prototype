@@ -11,7 +11,7 @@ import {
   Legend,
 } from 'chart.js';
 
-import { BAR_CHART_COLUMNS } from '../../constants/barChartColumns';
+import { BAR_CHART_COLUMN_GROUPS } from '../../constants/barChartColumns';
 
 import { useWorkbenchDB } from '../../contexts/workbenchContext';
 import { formatBarchartData, getAttributeValues } from '../../utils/bar';
@@ -26,25 +26,23 @@ ChartJS.register(
   Legend
 );
 
+import './chartView.css';
+
 const BAR_HEIGHT = 30;
+const directoryAttributes = ['package_data_type', 'package_data_name', 'package_data_primary_language'];
 
 const ChartView = () => {
   const { importedSqliteFilePath, db, initialized, currentPath} = useWorkbenchDB();
-  const [selectedAttribute, setSelectedAttribute] = useState<string>(BAR_CHART_COLUMNS.Copyright.cols[0].key);
+  const [selectedAttribute, setSelectedAttribute] = useState<string>(BAR_CHART_COLUMN_GROUPS.Copyright.cols[0].field);
   const [formattedBarchartData, setFormattedBarchartData] = useState({
-    counts: [40, 1, 2, 20, 540, 580, 690, 1100, 1200, 1380],
-    labels: [
-      'South Korea', 'Canada', 'United Kingdom', 'Netherlands', 'Italy', 'France', 'Japan',
-      'United States', 'China', 'Germany'
-    ],
+    counts: [10],
+    labels: ['No Data'],
   });
 
   useEffect(() => {
     if(!initialized || !db || !currentPath)
       return;
     
-    const directoryAttributes = ['package_data_type', 'package_data_name', 'package_data_primary_language'];
-
     const where: WhereOptions<FlatFileAttributes> = {
       path: {
         [Op.or]: [
@@ -61,21 +59,19 @@ const ChartView = () => {
     }
     // const attr: [typeof literal | typeof fn, ...string[]] = [Sequelize.fn('TRIM', Sequelize.col(selectedAttribute)), selectedAttribute];
     const query: FindOptions<FlatFileAttributes> = {
-      // attributes: attr,
       where: where,
       attributes: [Sequelize.fn('TRIM', Sequelize.col(selectedAttribute)), selectedAttribute] as FindAttributeOptions,
       // attributes: [Sequelize.fn('TRIM', Sequelize.col(selectedAttribute)), selectedAttribute],
     };
     
     db.sync
-      .then((db) => db.FlatFile.findAll(query))
-      .then((values) => {
-        // console.log('flat file values', values);
-        return values;
-      })
-      .then((values) => getAttributeValues(values, selectedAttribute))
-      .then((values) => {
-        // console.log('util attr values', values);
+      .then(db => db.FlatFile.findAll(query))
+      // .then((values) => {
+      //   console.log('flat file values', values);
+      //   return values;
+      // })
+      .then(values => getAttributeValues(values, selectedAttribute))
+      .then(values => {
         const parsedData = formatBarchartData(values);
         // console.log('Parsed bar chart values', parsedData);
         setFormattedBarchartData({
@@ -83,13 +79,13 @@ const ChartView = () => {
           counts: parsedData.map(entry => entry.value),
         });
         return values;
-      })
+      });
   }, [importedSqliteFilePath, currentPath, selectedAttribute]);
   
   
   return (
-    <div id="barchart-container">
-      <div id="barchart-options">
+    <div className="barchartContainer">
+      <div>
           <h5>Total Files Scanned: <span className="total-files"></span></h5>
           <select
             value={selectedAttribute}
@@ -97,16 +93,15 @@ const ChartView = () => {
             className="form-control select-chart-attribute"
           >
             {
-              Object.values(BAR_CHART_COLUMNS).map(colGroup => (
+              Object.values(BAR_CHART_COLUMN_GROUPS).map(colGroup => (
                 <optgroup label={colGroup.label} key={colGroup.key}>
                   {
                     colGroup.cols.map(column => (
                       <option
-                        key={column.key}
-                        value={column.key}
-                        className={column.bar_chart_class}
+                        key={column.field}
+                        value={column.field}
                       >
-                        { column.title }
+                        { column.headerName }
                       </option>
                     ))
                   }
@@ -120,7 +115,7 @@ const ChartView = () => {
           minHeight: BAR_HEIGHT + 70,
           height: BAR_HEIGHT * formattedBarchartData.counts.length + 70
         }}
-      >        
+      >
         <Bar
           style={{ overflow: 'scroll' }}
           options={{
