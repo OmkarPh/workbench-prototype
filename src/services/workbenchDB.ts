@@ -19,8 +19,6 @@ import { BulkCreateOptions, DataTypes, FindOptions, IntegerDataType, Model, Sequ
 import fs from 'fs';
 import path from 'path';
 // import sqlite3 from 'sqlite3';
-// import Database from 'better-sqlite3';
-// import { Database, Options, ColumnDefinition } from 'better-sqlite3';
 import JSONStream from 'JSONStream';
 import { DatabaseStructure, newDatabase } from './models/database';
 import {parentPath} from './models/databaseUtils';
@@ -29,11 +27,7 @@ import { FileAttributes } from './models/file';
 import { DataNode } from 'rc-tree/lib/interface';
 import { flattenFile } from './models/flatFile';
 
-// const b3 = window.require('better-sqlite3');
 // console.log("Sqlite3", sqlite3);
-// console.log("b3 required", b3);
-// console.log("b3 import",BetterSqlite3);
-
 
 /**
  * Manages the database created from a ScanCode JSON input.
