@@ -1,10 +1,10 @@
-import { useNavigate } from 'react-router-dom'
-import React, { useEffect, useMemo, useState } from 'react'
-import { toast } from 'react-toastify'
+// import sqlite3 from 'sqlite3'
 import moment from 'moment'
+import electron from 'electron'
 import * as electronFs from "fs"
 import * as electronOs from "os"
-// import sqlite3 from 'sqlite3'
+import { toast } from 'react-toastify'
+import React, { useMemo, useState } from 'react'
 // import remote from '@electron/remote'
 // import remoteMain from '@electron/remote/main'
 
@@ -14,41 +14,25 @@ import { faCogs, faFileImport, faFloppyDisk, faFolder } from '@fortawesome/free-
 import { useWorkbenchDB } from '../../contexts/workbenchContext'
 import CoreButton from '../../components/CoreButton/CoreButton';
 
-import { ROUTES } from '../../constants/routes'
-import { AddEntry, GetHistory, HistoryItem, RemoveEntry } from '../../services/historyStore'
-import { WorkbenchDB } from '../../services/workbenchDB'
-import packageJson from '../../../package.json';
+import { GetHistory, HistoryItem, RemoveEntry } from '../../services/historyStore'
 
-import {
-  OPEN_DIALOG_CHANNEL,
-  OPEN_ERROR_DIALOG_CHANNEL,
-  IMPORT_REPLY_CHANNEL,
-  SAVE_REPLY_CHANNEL, 
-  JSON_IMPORT_REPLY_FORMAT,
-  SQLITE_IMPORT_REPLY_FORMAT,
-  SQLITE_SAVE_REPLY_FORMAT,
-} from '../../constants/IpcConnection';
-
-import { isSchemaChanged } from '../../utils/checks';
+import { OPEN_DIALOG_CHANNEL } from '../../constants/IpcConnection';
 
 import './home.css'
 import ProgressLoader from '../../components/ProgressLoader/ProgressLoader'
 
-const { version: workbenchVersion } = packageJson;
-const electron = window.require("electron");
 const { ipcRenderer } = electron;
 
-// const electronDialog = remote.require('dialog');
 console.log("Deps:", {
   electron,
   electronFs,
   electronOs,
   ipcRenderer,
+  platform: electronOs.platform(),
   // remote,
   // sqlite3,
   // remoteMain,
 });
-console.log(electronOs.platform());
 
 // const electronDialog = electron.dialog;
 // console.log('electron.dialog', electronDialog);
@@ -59,201 +43,25 @@ console.log(electronOs.platform());
 
 
 const Home = () => {
-  const navigate = useNavigate();
   const {
     db,
     loadingStatus,
     initialized,
-    updateLoadingStatus,
-    updateCurrentPath,
-    startImport, abortImport,
-    updateWorkbenchDB,
+    jsonParser,
+    sqliteParser,
     importedSqliteFilePath,
   } = useWorkbenchDB();
   
-  const [refreshToken, setRefreshToken] = useState(0);
+  const [historyRefreshToken, setRefreshToken] = useState(0);
   const refreshHistory = () => setRefreshToken(Math.random());
-  const history = useMemo(() => GetHistory(), [importedSqliteFilePath, db, refreshToken]);
-
-  function sqliteParser(sqliteFilePath: string, preventNavigation?: boolean){
-    startImport();
-
-    // Create a new database when importing a sqlite file
-    const newWorkbenchDB = new WorkbenchDB({
-      dbName: 'workbench_db',
-      dbStorage: sqliteFilePath
-    });
-
-    updateLoadingStatus(25);
-
-    // Check that that the database schema matches current schema.
-    newWorkbenchDB.sync
-      .then((db) => db.Header.findAll())
-      .then((headers) => {
-        const infoHeader = headers[0];
-        
-        // Check that the database has the correct header information.
-        if (!headers || headers.length === 0 || !infoHeader) {
-          const errTitle = 'Invalid SQLite file';
-          const errMessage = 'Invalid SQLite file: ' + sqliteFilePath + "\n" +
-            'The SQLite file is invalid. Try re-importing the ScanCode JSON ' +
-            'file and creating a new SQLite file.';
-
-          console.error(
-            "Handled invalid sqlite import",
-            {
-              title: errTitle,
-              message: errMessage,
-            }
-          );
-
-          ipcRenderer.send(
-            OPEN_ERROR_DIALOG_CHANNEL,
-            {
-              title: errTitle,
-              message: errMessage,
-            }
-          );
-
-          abortImport();
-          return;
-        }
-
-        updateLoadingStatus(50);
-
-        const dbVersion = infoHeader.getDataValue('workbench_version').toString({});
-        
-        if (!dbVersion || isSchemaChanged(dbVersion, workbenchVersion)) {
-          const errTitle = 'Old SQLite schema found';
-          const errMessage = 'Old SQLite schema found at file: ' + sqliteFilePath + "\n" +
-          'The SQLite schema has been updated since the last time you loaded this file. \n\n' +
-          'Some features may not work correctly until you re-import the original' +
-          'ScanCode JSON file to create an updated SQLite database.';
-
-          console.error(
-            "Handled schema mismatch error when importing sqlite file ",
-            {
-              title: errTitle,
-              message: errMessage,
-            }
-          );
-
-          ipcRenderer.send(
-            OPEN_ERROR_DIALOG_CHANNEL,
-            {
-              title: errTitle,
-              message: errMessage,
-            }
-          );
-          abortImport();
-          return;
-        }
-
-        AddEntry({
-          sqlite_path: sqliteFilePath,
-          opened_at: moment().format(),
-        });
-
-        updateLoadingStatus(75);
-
-        newWorkbenchDB.sync
-        .then(db => db.File.findOne({ where: { parent: '#' }}))
-        .then(root => {
-          if(!root){
-            console.error("Root directory not found !!!!");
-            console.error("Root:", root);
-            return;
-          }
-
-          console.log("Root dir", root);
-          const defaultPath = root.getDataValue('path');
-
-          updateWorkbenchDB(newWorkbenchDB, sqliteFilePath)
-
-          if(defaultPath)
-            updateCurrentPath(defaultPath);
-          
-          if(!preventNavigation)
-            navigate(ROUTES.TABLE_VIEW);
-        });
-      })
-      .catch(err => {
-        console.error("Err trying to import sqlite:", err);
-        toast(`Unexpected error while importing json \nPlease check console for more info`, { type: 'error' });
-        abortImport();
-      })
-  }
-
-  function jsonParser(jsonFilePath: string, sqliteFilePath: string, preventNavigation?: boolean){
-    if (!sqliteFilePath || !jsonFilePath) {
-      console.error("Sqlite or json file path isn't valid:", sqliteFilePath);
-      return;
-    }
-
-    startImport();
-      
-    // Overwrite existing sqlite file
-    if (electronFs.existsSync(sqliteFilePath)) {
-      electronFs.unlink(sqliteFilePath, (err: Error) => {
-        if (err) {
-          throw err;
-        }
-        console.info(`Deleted ${sqliteFilePath}`);
-      });
-    }
-
-
-    // Create a new database when importing a json file
-    const newWorkbenchDB = new WorkbenchDB({
-        dbName: 'demo_schema',
-        dbStorage: sqliteFilePath,
-    });
-
-    newWorkbenchDB.sync
-      .then(() => newWorkbenchDB.addFromJson(
-        jsonFilePath,
-        workbenchVersion,
-        (progress: number) => {
-          updateLoadingStatus(progress);
-        },
-      ))
-      .then(() => {
-        console.log("JSON parsing completed");
-        
-        AddEntry({
-          json_path: jsonFilePath,
-          sqlite_path: sqliteFilePath,
-          opened_at: moment().format(),
-        });
-
-        newWorkbenchDB.sync
-          .then((db) => db.File.findOne({ where: { parent: '#' }}))
-          .then(root => {
-            if(!root){
-              console.error("Root directory not found !!!!");
-              console.error("Root:", root);
-              abortImport();
-              return;
-            }
-            const defaultPath = root.getDataValue('path');
-            console.log("Root dir", defaultPath);
-
-            updateWorkbenchDB(newWorkbenchDB, sqliteFilePath)
-
-            if(defaultPath)
-              updateCurrentPath(defaultPath);
-
-            if(!preventNavigation)
-              navigate(ROUTES.TABLE_VIEW);
-        });
-      });
-  }
+  const history = useMemo(GetHistory, [importedSqliteFilePath, db, historyRefreshToken]);
 
   function ReportInvalidEntry(entry: HistoryItem, entryType: string){
     toast(`Selected ${entryType} file doesn't exist`, { type: 'error' });
     RemoveEntry(entry);
     refreshHistory();
   }
+
   function historyItemParser(historyItem: HistoryItem){
     if(historyItem.json_path){
       if (!electronFs.existsSync(historyItem.json_path)) {
@@ -268,63 +76,15 @@ const Home = () => {
     }
   }
 
-  function removeIpcListeners(){
-    ipcRenderer.removeAllListeners(IMPORT_REPLY_CHANNEL.JSON);
-    ipcRenderer.removeAllListeners(IMPORT_REPLY_CHANNEL.SQLITE);
-    ipcRenderer.removeAllListeners(SAVE_REPLY_CHANNEL.SQLITE);
-  }
-
-  useEffect(() => {
-    removeIpcListeners();
-
-    ipcRenderer.on(IMPORT_REPLY_CHANNEL.JSON, (_, message: JSON_IMPORT_REPLY_FORMAT) => {
-      jsonParser(message.jsonFilePath, message.sqliteFilePath);
-    });
-    ipcRenderer.on(IMPORT_REPLY_CHANNEL.SQLITE, (_, message: SQLITE_IMPORT_REPLY_FORMAT) => {
-      sqliteParser(message.sqliteFilePath);
-    });
-    ipcRenderer.on(SAVE_REPLY_CHANNEL.SQLITE, (_, message: SQLITE_SAVE_REPLY_FORMAT) => {
-      const newFileName = message?.sqliteFilePath;
-      const oldFileName =
-        (db?.sequelize as unknown as { options: { storage: string } }).options.storage;
-      
-      if (newFileName && oldFileName) {
-        const reader = electronFs.createReadStream(oldFileName);
-        const writer = electronFs.createWriteStream(newFileName);
-        reader.pipe(writer);
-        reader.on('end', () => {
-          console.log("Saved", newFileName)
-          sqliteParser(newFileName, true);
-        });
-      }
-    });
-
-    const AUTO_IMPORT_LAST_FILE = false;
-    if(AUTO_IMPORT_LAST_FILE){
-      const lastEntry = history[history.length - 1];
-      historyItemParser(lastEntry);
-    }
-
-    return () => {
-      removeIpcListeners();
-    }
-  }, []);
-
   // Import a ScanCode JSON file and create a SQLite database
-  function openJsonFile() {
-    ipcRenderer.send(OPEN_DIALOG_CHANNEL.JSON);
-  }
+  const openJsonFile = () => ipcRenderer.send(OPEN_DIALOG_CHANNEL.JSON);
 
   // Import already created SQLite database
-  function openSqliteFile() {
-    ipcRenderer.send(OPEN_DIALOG_CHANNEL.SQLITE);
-  }
+  const openSqliteFile = () => ipcRenderer.send(OPEN_DIALOG_CHANNEL.SQLITE);
 
   // Copy already created/imported sqlite file to new sqlite file, and
   // update path of workbench DB to new sqlite DB
-  function saveSqliteFile(){
-    ipcRenderer.send(OPEN_DIALOG_CHANNEL.SAVE_SQLITE);
-  }
+  const saveSqliteFile = () => ipcRenderer.send(OPEN_DIALOG_CHANNEL.SAVE_SQLITE);
 
   if(!initialized && loadingStatus !== null){
     return <ProgressLoader progress={loadingStatus} />

@@ -50,9 +50,12 @@ interface WorkbenchDbConfig {
   dbUser?: string,
   dbPassword?: string,
 }
+type FileDataNode = Model<FileAttributes, FileAttributes> & DataNode;
+
+
 // @TODO
 // function sortChildren(node: Model<FileAttributes, FileAttributes>){
-function sortChildren(node: any){
+function sortChildren(node: FileDataNode){
   if(!node.children || !node.children.length)
     return;
   node.children.sort((a: any, b: any) => {
@@ -171,7 +174,7 @@ export class WorkbenchDB {
     return this.sync
       .then(db => db.File.findAll(fileQuery))
       .then(files => {
-        const result = this.listToTreeData(files);
+        const result = this.listToTreeData(files as FileDataNode[]);
         return result;
       });
     
@@ -214,35 +217,27 @@ export class WorkbenchDB {
   }
   
 
-  listToTreeData(fileList: Model<FileAttributes, FileAttributes>[]) {
+  listToTreeData(fileList: FileDataNode[]) {
     const pathToIndexMap = new Map<string, number>();
-    const roots: Model<FileAttributes, FileAttributes>[] = [];
+    const roots: FileDataNode[] = [];
 
-    fileList.forEach((file, i) => {
-      // initialize the map
+    fileList.forEach(file => {
+      // Maintain path mapping for each file
       pathToIndexMap.set(file.getDataValue('path'), Number(file.getDataValue('id')));
 
-      // @TODO
-      const fileNode = file as any as DataNode;
-  
-      // initialize the children
-      fileNode.key = file.getDataValue('path');
-      // file.key = file.getDataValue('path');
-      fileNode.children = [];
-      fileNode.title = path.basename(file.getDataValue('path'));
-      // if(Math.random() < 0.5)
-      //   (fileNode as any).type =  "package";
-    })
+      // Setup DataNode properties
+      file.key = file.getDataValue('path');
+      file.children = [];
+      file.title = path.basename(file.getDataValue('path'));
+    });
     
-    fileList.forEach((file, i) => {
-      const parentPath = file.getDataValue('parent').toString({});
+    fileList.forEach(file => {
+      const fileParentPath = file.getDataValue('parent').toString({});
       if (Number(file.getDataValue('id')) !== 0) {
-        if(pathToIndexMap.has(parentPath)){
-
+        if(pathToIndexMap.has(fileParentPath)){
           // @TODO
           // if you have dangling branches check that map[node.parentId] exists
-          (fileList[pathToIndexMap.get(parentPath)] as any as DataNode)
-            .children.push(file as unknown as DataNode);
+          fileList[pathToIndexMap.get(fileParentPath)].children.push(file);
         }
       } else {
         roots.push(file);
@@ -250,8 +245,6 @@ export class WorkbenchDB {
     });
 
     roots.forEach(sortChildren);
-    
-    // console.log("pathtest Prepared tree", roots);
     return roots;
   }
 

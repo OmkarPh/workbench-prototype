@@ -3,53 +3,6 @@ import { DataTypes } from "sequelize";
 import { LEGEND_LIMIT } from "../constants/data";
 
 
-/**
- * Map each row to the given attribute value, and sanitize invalid values.
- *
- * This method is needed for two reasons:
- * 1) It converts null data (this includes empty arrays) to 'No Value Detected'
- * 2) It grabs the particular attribute from the value which represents a row
- *    in the database
- */
-// export function getAttributeValues(values, attribute) {
-//   const validatedValues = [];
-//   let attributeValue = null;
-    
-//   for (let i = 0; i < values.length; i++) {
-//     attributeValue = values[i][attribute];
-//     const fileType = values[i].type;
-    
-//     // dedupe entries to prevent overcounting files. See https://github.com/nexB/scancode-workbench/issues/285
-//     if (Array.isArray(attributeValue)) {
-//       attributeValue = Array.from(new Set(attributeValue));
-//     }  
-
-//     if (!Array.isArray(attributeValue) || attributeValue.length === 0) {
-//       attributeValue = [attributeValue];
-//     }
-
-//     for (let j = 0; j < attributeValue.length; j++) {
-//       const val = attributeValue[j];
-//       if (!Utils.isValid(val) && attribute === 'package_data_type' && fileType === 'directory') {
-//         continue;
-//       }
-//       validatedValues.push(
-//         Utils.isValid(val) ?
-//           val : 'No Value Detected');
-//     }
-//   }
-//   return validatedValues;
-// }
-
-// export function isValid(value) {
-//   if (Array.isArray(value)) {
-//     return value.length > 0 &&
-//               value.every((element) => Utils.isValid(element));
-//   } else {
-//     return value !== null;
-//   }
-// }
-
 export type FormattedEntry = [string, number];
 
 const ascendingComparatorFunction = (a: FormattedEntry, b: FormattedEntry) => (a[1] > b[1]) ? 1 : -1;

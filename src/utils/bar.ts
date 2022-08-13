@@ -1,4 +1,4 @@
-export function isValid(value: any): boolean {
+export function isValid(value: unknown): boolean {
   if (Array.isArray(value)) {
     return value.length > 0 && value.every((element) => isValid(element));
   } else {

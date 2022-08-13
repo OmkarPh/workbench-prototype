@@ -33,8 +33,8 @@ import './dashStyles.css';
 
 const App = () => {
   return (
-    <WorkbenchDBProvider>
-      <HashRouter>
+    <HashRouter>
+      <WorkbenchDBProvider>
         <Layout>
           <Routes>
             <Route path={ROUTES.HOME}>
@@ -50,18 +50,18 @@ const App = () => {
             </Route>
           </Routes>
         </Layout>
-      </HashRouter>
 
-      {/* Provider for toasts */}
-      <ToastContainer
-        limit={1}
-        draggable
-        closeOnClick
-        hideProgressBar
-        autoClose={2000}
-        position='bottom-center'
-      />
-    </WorkbenchDBProvider>
+        {/* Provider for toasts */}
+        <ToastContainer
+          limit={1}
+          draggable
+          closeOnClick
+          hideProgressBar={false}
+          autoClose={2000}
+          position='bottom-center'
+        />
+      </WorkbenchDBProvider>
+    </HashRouter>
   )
 }
 

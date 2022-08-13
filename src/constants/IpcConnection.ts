@@ -19,6 +19,15 @@ export const SAVE_REPLY_CHANNEL = {
   SQLITE: 'save-sqlite-reply',
 }
 
+export const NAVIGATION_CHANNEL = 'NAVIGATE_TO';
+export type NAVIGATION_CHANNEL_MESSAGE = string;
+
+export const GENERAL_ACTIONS = {
+  ZOOM_IN: 'zoom_in',
+  ZOOM_OUT: 'zoom_out',
+  ZOOM_RESET: 'zoom_reset',
+}
+
 export interface JSON_IMPORT_REPLY_FORMAT {
   jsonFilePath: string;
   sqliteFilePath: string;

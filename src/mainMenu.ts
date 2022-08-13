@@ -1,9 +1,17 @@
+import { GENERAL_ACTIONS, NAVIGATION_CHANNEL } from './constants/IpcConnection';
 import packageJson from '../package.json';
 import { app, BrowserWindow, MenuItem, shell } from 'electron';
+import { importJsonFile, openSqliteFile, saveSqliteFile, showErrorDialog } from './mainActions';
+import { ROUTES } from './constants/routes';
 
 /** Returns a 'lambda' that sends the event to the renderer process. */
-export function sendEventToRenderer(eventKey: string) {
-  return (_: MenuItem, currentWindow: BrowserWindow) => currentWindow.webContents.send(eventKey);
+export function sendNavEventToRenderer(route: string) {
+  return (_: MenuItem, currentWindow: BrowserWindow) => 
+    currentWindow.webContents.send(NAVIGATION_CHANNEL, route);
+}
+export function sendEventToRenderer(eventKey: string, ...args: unknown[]) {
+  return (_: MenuItem, currentWindow: BrowserWindow) => 
+    currentWindow.webContents.send(eventKey, args);
 }
 
 /** Returns a template for building the main electron menu */
@@ -17,78 +25,37 @@ function getTemplate() {
         {
           label: 'Open SQLite File',
           accelerator: 'CmdOrCtrl+O',
-          click: sendEventToRenderer('open-SQLite')
+          click: (_: MenuItem, currentWindow: BrowserWindow) => openSqliteFile(currentWindow),
         },
         {
           label: 'Save As New SQLite File',
           accelerator: 'CmdOrCtrl+S',
-          click: sendEventToRenderer('save-SQLite')
+          click: (_: MenuItem, currentWindow: BrowserWindow) => saveSqliteFile(currentWindow),
         },
         {
           label: 'Import JSON File',
           accelerator: 'CmdOrCtrl+I',
-          click: sendEventToRenderer('import-JSON')
+          click: (_: MenuItem, currentWindow: BrowserWindow) => importJsonFile(currentWindow),
         },
         {
           label: 'Export JSON File',
           accelerator: 'CmdOrCtrl+E',
-          click: sendEventToRenderer('export-JSON')
+          // @TODO
+          click: () => showErrorDialog({
+            title: "Not implemented",
+            message: "This feature is yet to be discussed"
+          })
         },
-        {
-          label: 'Export Conclusions JSON File',
-          accelerator: 'CmdOrCtrl+J',
-          click: sendEventToRenderer('export-JSON-conclusions-only')
-        },
-        ...(
-          isMac ? [
-            {
-              label: 'Quit',
-              accelerator: 'CmdOrCtrl+Q',
-              click: () => app.quit()
-            }
-          ] : []
-        )
-      ]
-    },
-    {
-      label: '&Edit',
-      submenu: [
-        {
-          label: 'Undo',
-          accelerator: 'CmdOrCtrl+Z',
-          role: 'undo'
-        },
-        {
-          label: 'Redo',
-          accelerator: 'Shift+CmdOrCtrl+Z',
-          role: 'redo'
-        },
-        {
-          type: 'separator'
-        },
-        {
-          label: 'Cut',
-          accelerator: 'CmdOrCtrl+X',
-          role: 'cut'
-        },
-        {
-          label: 'Copy',
-          accelerator: 'CmdOrCtrl+C',
-          role: 'copy'
-        },
-        {
-          label: 'Paste',
-          accelerator: 'CmdOrCtrl+V',
-          role: 'paste'
-        },
-        {
-          label: 'Select All',
-          accelerator: 'CmdOrCtrl+A',
-          role: 'selectAll'
-        },
-
-
-
+        // @TODO-discuss This is duplicated in App's menu tab, is it necessary under file tab also ??
+        // ...(
+        //   isMac ? [
+        //     {
+        //       label: 'Quit',
+        //       accelerator: 'CmdOrCtrl+Q',
+        //       click: () => app.quit()
+        //     }
+        //   ] : []
+        // )
       ]
     },
     {
@@ -98,19 +65,13 @@ function getTemplate() {
           label: 'Table View',
           accelerator: process.platform === 'darwin' ?
             'Cmd+Shift+T' : 'Ctrl+Shift+T',
-          click: sendEventToRenderer('table-view')
+          click: sendNavEventToRenderer(ROUTES.TABLE_VIEW),
         },
         {
           label: 'Chart Summary View',
           accelerator: process.platform === 'darwin' ?
             'Cmd+Shift+D' : 'Ctrl+Shift+D',
-          click: sendEventToRenderer('chart-summary-view')
-        },
-        {
-          label: 'Conclusion Summary View',
-          accelerator: process.platform === 'darwin' ?
-            'Cmd+Shift+C' : 'Ctrl+Shift+C',
-          click: sendEventToRenderer('conclusion-summary-view')
+          click: sendNavEventToRenderer(ROUTES.CHART_SUMMARY),
         },
         {
           type: 'separator'
@@ -152,17 +113,17 @@ function getTemplate() {
         {
           label: 'Reset Zoom',
           accelerator: 'CmdOrCtrl+0',
-          click: sendEventToRenderer('zoom-reset')
+          click: sendEventToRenderer(GENERAL_ACTIONS.ZOOM_RESET)
         },
         {
           label: 'Zoom In',
           accelerator: 'CmdOrCtrl+=',
-          click: sendEventToRenderer('zoom-in')
+          click: sendEventToRenderer(GENERAL_ACTIONS.ZOOM_IN)
         },
         {
           label: 'Zoom Out',
           accelerator: 'CmdOrCtrl+-',
-          click: sendEventToRenderer('zoom-out')
+          click: sendEventToRenderer(GENERAL_ACTIONS.ZOOM_OUT)
         },
       ]
     },
@@ -242,6 +203,7 @@ function getTemplate() {
     },
   ];
 
+  // Mac OS specific menu items
   if (process.platform === 'darwin') {
     template.unshift({
       label: 'ScanCode Workbench',
@@ -258,9 +220,6 @@ function getTemplate() {
             win.loadURL('file://' + __dirname + '/about.html');
             win.show();
           }
-        },
-        {
-          type: 'separator'
         },
         {
           label: `Version ${packageJson.version}`,

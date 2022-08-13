@@ -26,16 +26,23 @@
  * ```
  */
 
-import { ipcRenderer } from 'electron';
+import { ipcRenderer, webFrame } from 'electron';
 import { renderReactApp } from './reactApp';
 
 import './index.css';
 import './colors.css';
+import { GENERAL_ACTIONS } from './constants/IpcConnection';
 
-
-ipcRenderer.on('import-reply', (event, message) => {
-  console.log("import reply in renderer.ts", message, event);
-})
+// Setup general actions
+ipcRenderer.on(GENERAL_ACTIONS.ZOOM_IN, () => {
+  webFrame.setZoomLevel(webFrame.getZoomLevel() + 0.5);
+});
+ipcRenderer.on(GENERAL_ACTIONS.ZOOM_OUT, () => {
+  webFrame.setZoomLevel(webFrame.getZoomLevel() - 0.5);
+});
+ipcRenderer.on(GENERAL_ACTIONS.ZOOM_RESET, () => {
+  webFrame.setZoomLevel(0);
+});
 
 
 renderReactApp();

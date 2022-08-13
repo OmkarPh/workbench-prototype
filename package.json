@@ -7,11 +7,12 @@
   "scripts": {
     "start": "ELECTRON_IS_DEV=1 electron-forge start",
     "postinstall": "electron-builder install-app-deps",
-    "make": "electron-forge make",
-    "package": "electron-forge package && electron-packager . --overwrite --icon=src/assets/app-icon/icon --prune=true --out=out --ignore=\"(src*|dist*|samples*)\"",
+    "package": "electron-forge package && electron-packager . --overwrite --icon=src/assets/app-icon/icon --prune=true --out=out --ignore=\"(src*|dist*|samples*)\" && npm run package-tar",
     "package-asar": "electron-forge package && electron-packager . --overwrite --asar --icon=src/assets/app-icon/icon --prune=true --out=out --ignore=\"(src*|dist*|samples*)\"",
     "note": "^^if we change out dir above, change electron-forge out directory too",
     "package-tar": "mkdir -p dist && tar -czf dist/scancode_workbench.tar.gz -C out .",
+
+    "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
     "dependencyBuild": "$(npm bin)/electron-rebuild",
