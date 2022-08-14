@@ -11,7 +11,6 @@
     "package-asar": "electron-forge package && electron-packager . --overwrite --asar --icon=src/assets/app-icon/icon --prune=true --out=out --ignore=\"(src*|dist*|samples*)\"",
     "note": "^^if we change out dir above, change electron-forge out directory too",
     "package-tar": "mkdir -p dist && tar -czf dist/scancode_workbench.tar.gz -C out .",
-
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
@@ -82,6 +81,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@fortawesome/react-fontawesome": "^0.1.19",
     "@inovua/reactdatagrid-community": "^4.19.8",
+    "@microlink/react-json-view": "^1.22.2",
     "@timfish/webpack-asset-relocator-loader": "^0.1.0",
     "ag-grid-community": "^28.0.2",
     "ag-grid-react": "^28.0.0",

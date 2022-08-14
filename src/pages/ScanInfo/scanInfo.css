@@ -11,3 +11,7 @@
   border-collapse: collapse;
   padding: 15px;
 }
+.react-json-view {
+  max-height: 400px;
+  overflow: scroll;
+}

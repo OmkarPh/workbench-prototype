@@ -96,6 +96,10 @@ const Home = () => {
         <div>
           <div id="welcomepage-title">
             <h2>ScanCode Workbench</h2>
+            {/* <h2 className="logo">
+              <span className="strong-logo">Scan</span>
+              Code Workbench
+            </h2> */}
           </div>
           <div id="welcomepage-view">
             <div className="quickActions">

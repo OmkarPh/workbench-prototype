@@ -36,26 +36,25 @@ const createWindow = (): void => {
     height: 800,
     icon: 'assets/app-icon/png/scwb_layered_01.png',
     webPreferences: {
-      // preload: path.join(__dirname, 'index.js'),
       nodeIntegration: true,
       nodeIntegrationInWorker: true,
-      // webSecurity: false,
-      // nodeIntegrationInSubFrames: true,
+      webSecurity: false,
       contextIsolation: false,
-      // enable
+      // nodeIntegrationInSubFrames: true,
+      // preload: path.join(__dirname, 'index.js'),
       // enableRemoteModule: true,
     }
   }); 
   Menu.setApplicationMenu(Menu.buildFromTemplate(getTemplate()));
 
+  console.log();
+  console.log( isDev ? "In Dev mode" : "");
+  console.log("Loading html:", MAIN_WINDOW_WEBPACK_ENTRY);
+  
+
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
-  
-  console.log("Dev mode: ", isDev);
-  
   // open all URLs in default browser window
   // We do this only in production, to prevent hot reloads getting opened in browser
   if(!isDev){

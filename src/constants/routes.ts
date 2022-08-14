@@ -1,6 +1,6 @@
 export const ROUTES = {
   HOME: "/",
-  HELP: "help",
+  ABOUT: "about",
   TABLE_VIEW: "table-view",
   FILE_DASHBOARD: "file-dashboard",
   LICENSE_DASHBOARD: "license-dashboard",

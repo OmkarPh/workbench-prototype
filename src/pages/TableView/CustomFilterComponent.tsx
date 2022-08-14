@@ -4,7 +4,7 @@ import React, {
   useRef,
 } from 'react';
 import { IFloatingFilterParams, TextFilterModel } from 'ag-grid-community';
-import { DEFAULT_EMPTY_VALUES } from './columnDefs';
+import { DEFAULT_EMPTY_VALUES } from './columnGroups';
 
 export interface CustomParams extends IFloatingFilterParams {
   suppressFilterButton: boolean;

@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { ProSidebar, Menu, MenuItem, SidebarFooter, SidebarContent } from 'react-pro-sidebar';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArchive, faBars, faChartColumn, faGavel, faHome, faInfoCircle, faQuestion, faTable } from '@fortawesome/free-solid-svg-icons';
+import { faArchive, faBars, faChartColumn, faGavel, faHome, faInfoCircle, faFileCode, faTable, faFileLines } from '@fortawesome/free-solid-svg-icons';
 
 import 'react-pro-sidebar/dist/css/styles.css';
 import './navbar.css';
@@ -23,7 +23,7 @@ const MENU_ITEMS = [
     {
         title: "File Info Dashboard",
         route: "/" + ROUTES.FILE_DASHBOARD,
-        icon: faInfoCircle,
+        icon: faFileLines,
     },
     {
         title: "License Info Dashboard",
@@ -43,12 +43,12 @@ const MENU_ITEMS = [
     {
         title: "Scan Info",
         route: "/" + ROUTES.SCAN_INFO,
-        icon: faInfoCircle,
+        icon: faFileCode,
     },
     {
-        title: "Help with Application",
-        route: "/" + ROUTES.HELP,
-        icon: faQuestion,
+        title: "About workbench",
+        route: "/" + ROUTES.ABOUT,
+        icon: faInfoCircle,
     },
 ]
 

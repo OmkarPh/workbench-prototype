@@ -12,7 +12,7 @@ import { WorkbenchDBProvider } from './contexts/workbenchContext';
 import Layout from './components/Layout/Layout';
 import TemporaryPage from './pages/TemporaryPage';
 
-import Help from './pages/Help';
+import About from './pages/About/About';
 import Home from './pages/Home/Home'
 import ScanInfo from './pages/ScanInfo/ScanInfo';
 import TableView from './pages/TableView/TableView';
@@ -29,6 +29,7 @@ import 'startbootstrap-simple-sidebar/dist/css/styles.css';
 
 import './app.css';
 import './dashStyles.css';
+import './customFaColors.css';
 
 
 const App = () => {
@@ -39,7 +40,7 @@ const App = () => {
           <Routes>
             <Route path={ROUTES.HOME}>
               <Route index element={<Home />} />
-              <Route path={ROUTES.HELP} element={<Help />} />
+              <Route path={ROUTES.ABOUT} element={<About />} />
               <Route path={ROUTES.TABLE_VIEW} element={<TableView />} />
               <Route path={ROUTES.FILE_DASHBOARD} element={<FileInfoDash />} />
               <Route path={ROUTES.LICENSE_DASHBOARD} element={<LicenseInfoDash />} />

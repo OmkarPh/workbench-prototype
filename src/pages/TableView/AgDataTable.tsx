@@ -19,6 +19,7 @@ const defaultColDef: ColDef = {
   filter: true,
   wrapText: true,
   autoHeight: true,
+  wrapHeaderText: true,
 };
 const paginationOptions = [25, 50, 100, 200];
 const defaultPaginationOption = paginationOptions[0];
@@ -67,7 +68,7 @@ const AgDataTable = (props: AgDataTableProps) => {
         rowData={tableData}
         onGridReady={onGridReady}
         components={frameworkComponents}
-        className="ag-theme-alpine"
+        className="ag-theme-alpine ag-grid-customClass"
 
         ensureDomOrder
         enableCellTextSelection

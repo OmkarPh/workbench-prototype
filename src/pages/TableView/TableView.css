@@ -34,15 +34,18 @@
   margin-left: 10px;
 }
 
-.ag-theme-alpine {
+.ag-grid-customClass {
   font-size: 12px !important;
   --ag-cell-horizontal-border: 1px solid rgb(225 225 225) !important;
 }
-.ag-theme-alpine .ag-cell-wrapper {
+.ag-cell-wrapper {
   padding: 7px 0 10px 0;
   font-size: 14px;
-  /* font: 15px Lato, Helvetica, sans-serif; */
   line-height: 1.5;
+}
+.ag-cell-wrapper .ag-cell-value {
+  max-height: 300px;
+  overflow: scroll;
 }
 
 .filterComponent {

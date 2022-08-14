@@ -59,18 +59,41 @@ function getTemplate() {
       ]
     },
     {
+      label: '&Edit',
+      submenu: [
+        {
+          label: 'Cut',
+          accelerator: 'CmdOrCtrl+X',
+          role: 'cut'
+        },
+        {
+          label: 'Copy',
+          accelerator: 'CmdOrCtrl+C',
+          role: 'copy'
+        },
+        {
+          label: 'Paste',
+          accelerator: 'CmdOrCtrl+V',
+          role: 'paste'
+        },
+        {
+          label: 'Select All',
+          accelerator: 'CmdOrCtrl+A',
+          role: 'selectAll'
+        },
+      ]
+    },
+    {
       label: '&View',
       submenu: [
         {
           label: 'Table View',
-          accelerator: process.platform === 'darwin' ?
-            'Cmd+Shift+T' : 'Ctrl+Shift+T',
+          accelerator: 'CmdOrCtrl+Shift+T',
           click: sendNavEventToRenderer(ROUTES.TABLE_VIEW),
         },
         {
           label: 'Chart Summary View',
-          accelerator: process.platform === 'darwin' ?
-            'Cmd+Shift+D' : 'Ctrl+Shift+D',
+          accelerator: 'CmdOrCtrl+Shift+D',
           click: sendNavEventToRenderer(ROUTES.CHART_SUMMARY),
         },
         {
@@ -78,18 +101,16 @@ function getTemplate() {
         },
         {
           label: 'Reload',
-          accelerator: process.platform === 'darwin' ?
-            'Cmd+R' : 'Ctrl+R',
-          click: (item: MenuItem, focusedWindow: BrowserWindow) => {
-            if (focusedWindow) {
+          accelerator: 'CmdOrCtrl+R',
+          click: (_: MenuItem, focusedWindow: BrowserWindow) => {
+            if(focusedWindow) {
               focusedWindow.reload();
             }
           }
         },
         {
           label: 'Toggle Full Screen',
-          accelerator: process.platform === 'darwin' ?
-            'Ctrl+Command+F' : 'F11',
+          accelerator: isMac ? 'Ctrl+Command+F' : 'F11',
           click: (item: MenuItem, focusedWindow: BrowserWindow) => {
             if (focusedWindow) {
               focusedWindow.setFullScreen(
@@ -99,8 +120,7 @@ function getTemplate() {
         },
         {
           label: 'Toggle Developer Tools',
-          accelerator: process.platform === 'darwin' ?
-            'Alt+Command+I' : 'Alt+Ctrl+I',
+          accelerator: 'CmdOrCtrl+Alt+I',
           click: (item: MenuItem, focusedWindow: BrowserWindow) => {
             if (focusedWindow) {
               focusedWindow.webContents.toggleDevTools();
@@ -168,83 +188,77 @@ function getTemplate() {
         {
           label: 'Show ScanCode Header Information',
           accelerator: 'CmdOrCtrl+G',
-          click: sendEventToRenderer('get-ScanHeader')
+          click: sendNavEventToRenderer(ROUTES.SCAN_INFO),
         },
         {
           type: 'separator'
         },
         {
           label: 'GitHub Repository',
-          click: () => shell.openExternal(
-            'https://github.com/nexB/scancode-workbench/')
+          click: () => shell.openExternal('https://github.com/nexB/scancode-workbench/')
         },
         {
           label: 'Licensing Information',
+          // // @TODO
+          // click: () => showErrorDialog({
+          //   title: "Not implemented",
+          //   message: "This feature is yet to be discussed"
+          // })
           click: () => {
+          // @TODO - make react route instead
             let win = new BrowserWindow({frame: true});
             win.setMenu(null);
             win.on('closed', ():void => win = null);
-            win.loadURL('file://' + __dirname + '/attribution.html');
+            win.loadFile('./attribution.html');
+            // win.loadURL('file://' + __dirname + '/attribution.html');
             win.show();
           }
         },
         {
-          // @TODO: make this version specific?
           label: 'Documentation',
-          click: () => shell.openExternal(
-            `https://scancode-workbench.readthedocs.io`)
+          click: () => shell.openExternal(`https://scancode-workbench.readthedocs.io`)
         },
         {
           label: 'Issue Tracker',
-          click: () => shell.openExternal(
-            'https://github.com/nexB/scancode-workbench/issues')
+          click: () => shell.openExternal('https://github.com/nexB/scancode-workbench/issues')
         }
       ]
     },
   ];
 
-  // Mac OS specific menu items
-  if (process.platform === 'darwin') {
+  // Mac OS specific menu item for app 
+  if (isMac) {
     template.unshift({
       label: 'ScanCode Workbench',
       submenu: [
         {
           label: 'About ScanCode Workbench',
-          click: () => {
-            let win = new BrowserWindow({
-              frame: true,
-              width: 250,
-              height: 200
-            });
-            win.on('closed', ():void => win = null);
-            win.loadURL('file://' + __dirname + '/about.html');
-            win.show();
-          }
+          click: sendNavEventToRenderer(ROUTES.ABOUT),
         },
         {
           label: `Version ${packageJson.version}`,
           enabled: false
         },
         {
-          type: 'separator'
+          type: 'separator',
         },
         {
           label: 'Services',
           role: 'services',
-          accelerator: ''
+          accelerator: '',
         },
         {
-          type: 'separator'
+          type: 'separator',
         },
         {
           label: 'Hide Electron',
           accelerator: 'Command+H',
-          role: 'hide'
+          role: 'hide',
         },
         {
           label: 'Hide Others',
           accelerator: 'Command+Alt+H',
-          role: 'hideOthers'
+          role: 'hideOthers',
         },
         {
           label: 'Show All',
@@ -252,12 +266,12 @@ function getTemplate() {
           accelerator: '',
         },
         {
-          type: 'separator'
+          type: 'separator',
         },
         {
           label: 'Quit',
           accelerator: 'Command+Q',
-          click: () => app.quit()
+          click: () => app.quit(),
         },
       ]
     })

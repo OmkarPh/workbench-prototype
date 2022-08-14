@@ -1,4 +1,8 @@
 import React, { useEffect, useState } from 'react'
+
+// Maintained Fork of unmaintained but popular react-json-view
+import ReactJson from '@microlink/react-json-view'
+
 import { useWorkbenchDB } from '../../contexts/workbenchContext';
 
 import './scanInfo.css';
@@ -15,6 +19,20 @@ interface ScanInfo {
   platform: string,
   platform_version: string,
   python_version: string,
+}
+
+function parseIfValidJson(str: unknown){
+  if(typeof str !== 'string')
+    return null;
+  try {
+    const parsedObj = JSON.parse(str);
+    // Return only if it is an object & not a primitive value
+    if(Object(parsedObj) === parsedObj)
+      return parsedObj;
+    return null;
+  } catch (e) {
+    return null;
+  }
 }
 
 const ScanInfo = () => {
@@ -52,19 +70,34 @@ const ScanInfo = () => {
   return (
     <div className='scan-info'>
       <h4>
-        ScanInfo
+        Scan Information
       </h4>
+      <br/>
       {
         parsedScanInfo ?
         <table border={1}>
           <tbody>
             {
-              Object.entries(parsedScanInfo).map(([key, value]) => (
-                <tr key={key}>
-                  <td> { key } </td>
-                  <td> { value || "Not found in this scan" } </td>
-                </tr>
-              ))
+              Object.entries(parsedScanInfo).map(([key, value]) => {
+                const parsedValue = parseIfValidJson(value);
+                
+                return (
+                  <tr key={key}>
+                    <td> { key } </td>
+                    <td>
+                      {
+                        parsedValue ?
+                        <ReactJson
+                          src={parsedValue}
+                          enableClipboard={false}
+                          displayDataTypes={false}
+                        />
+                        : value
+                      }
+                    </td>
+                  </tr>
+                )
+              })
             }
           </tbody>
         </table>

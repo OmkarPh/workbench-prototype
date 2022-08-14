@@ -1,10 +1,10 @@
-import { ColDef, ValueFormatterParams } from 'ag-grid-community';
+import { ColDef, ValueFormatterParams } from "ag-grid-community";
 
 import {
   ListCellRenderer,
   UrlListCellRenderer,
   EmailListCellRenderer,
-} from './CustomCellComponents/';
+} from './CustomCellComponents';
 
 
 enum CustomComponentKeys {
@@ -20,6 +20,7 @@ export const frameworkComponents = {
 };
 
 const BooleanValueFormatter = (cell: ValueFormatterParams) => cell.value ? "Yes" : "No";
+
 
 interface COLUMNS_LIST {
   // Required to update select options by field string
@@ -79,112 +80,111 @@ interface COLUMNS_LIST {
 
 export const ALL_COLUMNS: COLUMNS_LIST = {
   path: {
-    // id: "path",
     field: "path",
     headerName: "Path",
-    minWidth: 100,
     width: 500,
-    // wrapText: true,
   },
   type: {
-    // id: "type",
     field: "type",
     headerName: "Type",
     width: 120,
   },
   name: {
-    // id: "name",
     field: "name",
     headerName: "Name",
-    minWidth: 250,
+    width: 250,
   },
   extension: {
-    // id: "extension",
     field: "extension",
     headerName: "File extension",
-    wrapHeaderText: true,
     width: 150,
   },
   size: {
-    // id: "size",
     field: "size",
     headerName: "File Size",
     width: 110,
   },
   programming_language: {
-    // id: "programming_language",
     field: "programming_language",
     headerName: "Programming Language",
     width: 150,
-    wrapHeaderText: true,
   },
   mime_type: {
-    // id: "mime_type",
     field: "mime_type",
     headerName: "Mime Type",
     width: 170,
   },
   file_type: {
-    // id: "file_type",
     field: "file_type",
     headerName: "File Type",
+    width: 200,
   },
   is_binary: {
     field: 'is_binary',
-    headerName: 'Binary',
+    headerName: 'Binary File',
     valueFormatter: BooleanValueFormatter,
+    width: 100,
   },
   is_text: {
     field: 'is_text',
     headerName: 'Text File',
     valueFormatter: BooleanValueFormatter,
+    width: 100,
   },
   is_archive: {
     field: 'is_archive',
     headerName: 'Archive File',
     valueFormatter: BooleanValueFormatter,
+    width: 100,
   },
   is_media: {
     field: 'is_media',
     headerName: 'Media File',
     valueFormatter: BooleanValueFormatter,
+    width: 100,
   },
   is_source: {
     field: 'is_source',
     headerName: 'Source File',
     valueFormatter: BooleanValueFormatter,
+    width: 100,
   },
   is_script: {
     field: 'is_script',
     headerName: 'Script File',
     valueFormatter: BooleanValueFormatter,
+    width: 100,
   },
 
   copyright_statements: {
     field: 'copyright_statements',
     headerName: 'Copyright Statements',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
-    width: 310,
+    width: 450,
   },
   copyright_holders: {
     field: 'copyright_holders',
     headerName: 'Copyright Holder',
+    width: 320,
     cellRenderer: CustomComponentKeys.ListCellRenderer,
   },
   copyright_authors: {
     field: 'copyright_authors',
     headerName: 'Copyright Author',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
+    width: 320,
   },
   copyright_start_line: {
     field: 'copyright_start_line',
     headerName: 'Copyright Start Line',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
+    width: 125,
   },
   copyright_end_line: {
     field: 'copyright_end_line',
     headerName: 'Copyright End Line',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
+    width: 125,
   },
 
 
@@ -197,31 +197,37 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
     field: 'license_expressions',
     headerName: 'License Expression',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
+    width: 320,
   },
   license_key: {
     field: 'license_key',
     headerName: 'License Key',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
+    width: 320,
   },
   license_score: {
     field: 'license_score',
     headerName: 'License Score',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
+    width: 150,
   },
   license_short_name: {
     field: 'license_short_name',
     headerName: 'License Short Name',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
+    width: 240,
   },
   license_category: {
     field: 'license_category',
     headerName: 'License Category',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
+    width: 225,
   },
   license_owner: {
     field: 'license_owner',
     headerName: 'License Owner',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
+    width: 290,
   },
   // license_homepage_url: {
   //   field: 'license_homepage_url',
@@ -239,16 +245,19 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
     field: 'license_spdx_key',
     headerName: 'SPDX License Key',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
+    width: 200,
   },
   license_start_line: {
     field: 'license_start_line',
     headerName: 'License Start Line',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
+    width: 125,
   },
   license_end_line: {
     field: 'license_end_line',
     headerName: 'License End Line',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
+    width: 125,
   },
 
 
@@ -256,11 +265,13 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
     field: 'email',
     headerName: 'Email',
     cellRenderer: CustomComponentKeys.EmailListCellRenderer,
+    width: 250,
   },
   url: {
     field: 'url',
     headerName: 'URL',
     cellRenderer: CustomComponentKeys.UrlListCellRenderer,
+    width: 250,
   },
 
 
@@ -268,26 +279,31 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
     field: 'package_data_type',
     headerName: 'Package Type',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
+    width: 125,
   },
   package_data_name: {
     field: 'package_data_name',
     headerName: 'Package Name',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
+    width: 200,
   },
   package_data_version: {
     field: 'package_data_version',
     headerName: 'Package Version',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
+    width: 125,
   },
   package_data_license_expression: {
     field: 'package_data_license_expression',
     headerName: 'Package License Expression',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
+    width: 300,
   },
   package_data_primary_language: {
     field: 'package_data_primary_language',
     headerName: 'Package Primary Language',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
+    width: 150,
   },
   // package_data_homepage_url: {
   //   field: 'package_data_homepage_url',
@@ -301,120 +317,14 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
     field: 'package_data_purl',
     headerName: 'Package URL',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
+    width: 300,
   },
   
   scan_error: {
-    // id: "scan_error",
     field: "scan_error",
     headerName: "Scan Error",
-    width: 150,
+    width: 130,
   },
 };
-
 // Set Sorting order index
 Object.values(ALL_COLUMNS).forEach((col, idx) => col.sortIndex = idx);
-
-// NOTE --- 
-export const DEFAULT_EMPTY_VALUES = new Set<string | null>([
-  '', null, '[]', '[[]]'
-]);
-
-export const SET_FILTERED_COLUMNS = new Set<string>([
-  ALL_COLUMNS.type.field || "",
-  ALL_COLUMNS.extension.field || "",
-  ALL_COLUMNS.programming_language.field || "",
-  ALL_COLUMNS.file_type.field || "",
-
-  ALL_COLUMNS.copyright_holders.field || "",
-  ALL_COLUMNS.copyright_authors.field || "",
-  ALL_COLUMNS.license_score.field || "",
-  // ALL_COLUMNS..field || "",
-  // ALL_COLUMNS..field || "",
-])
-
-const FILE_COLUMN_GROUP: ColDef[] = [
-  ALL_COLUMNS.type,
-  ALL_COLUMNS.name,
-  ALL_COLUMNS.extension,
-  ALL_COLUMNS.size,
-  ALL_COLUMNS.programming_language,
-  ALL_COLUMNS.mime_type,
-  ALL_COLUMNS.file_type,
-  ALL_COLUMNS.is_binary,
-  ALL_COLUMNS.is_text,
-  ALL_COLUMNS.is_archive,
-  ALL_COLUMNS.is_media,
-  ALL_COLUMNS.is_source,
-  ALL_COLUMNS.is_script,
-];
-
-const COPYRIGHT_COLUMN_GROUP: ColDef[] = [
-  ALL_COLUMNS.copyright_statements,
-  ALL_COLUMNS.copyright_holders,
-  ALL_COLUMNS.copyright_authors,
-  ALL_COLUMNS.copyright_start_line,
-  ALL_COLUMNS.copyright_end_line,
-];
-
-
-const LICENSE_COLUMN_GROUP: ColDef[] = [
-  ALL_COLUMNS.license_policy,
-  ALL_COLUMNS.license_expressions,
-  ALL_COLUMNS.license_key,
-  ALL_COLUMNS.license_score,
-  ALL_COLUMNS.license_short_name,
-  ALL_COLUMNS.license_category,
-  ALL_COLUMNS.license_owner,
-  // ALL_COLUMNS.license_homepage_url,
-  // ALL_COLUMNS.license_text_url,
-  // ALL_COLUMNS.license_reference_url,
-  ALL_COLUMNS.license_spdx_key,
-  ALL_COLUMNS.license_start_line,
-  ALL_COLUMNS.license_end_line,
-];
-
-const ORIGIN_COLUMN_GROUP: ColDef[] = [
-  ALL_COLUMNS.copyright_statements,
-  ALL_COLUMNS.license_short_name,
-  ALL_COLUMNS.license_policy,
-  ALL_COLUMNS.license_category,
-  ALL_COLUMNS.email,
-  ALL_COLUMNS.url,
-  ALL_COLUMNS.mime_type,
-  ALL_COLUMNS.file_type,
-  ALL_COLUMNS.programming_language,
-];
-
-const PACKAGE_COLUMN_GROUP: ColDef[] = [
-  ALL_COLUMNS.package_data_type,
-  ALL_COLUMNS.package_data_name,
-  ALL_COLUMNS.package_data_version,
-  ALL_COLUMNS.package_data_license_expression,
-  ALL_COLUMNS.package_data_primary_language,
-  // ALL_COLUMNS.package_data_homepage_url,
-  // ALL_COLUMNS.package_data_download_url,
-  ALL_COLUMNS.package_data_purl,
-];
-
-
-
-const DEFAULT_COLUMN_GROUP: ColDef[] = [
-  ALL_COLUMNS.path,
-  ...FILE_COLUMN_GROUP,
-  ALL_COLUMNS.scan_error,
-];
-
-
-export const COLUMN_GROUPS = {
-  DEFAULT: DEFAULT_COLUMN_GROUP,
-
-  COPYRIGHT: COPYRIGHT_COLUMN_GROUP,
-  FILE: FILE_COLUMN_GROUP,
-  LICENSE: LICENSE_COLUMN_GROUP,
-  ORIGIN: ORIGIN_COLUMN_GROUP,
-  PACKAGE: PACKAGE_COLUMN_GROUP,
-
-  ALL: Object.values(ALL_COLUMNS),
-
-  NONE: [] as ColDef[],
-}

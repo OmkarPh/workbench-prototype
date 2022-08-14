@@ -5,7 +5,8 @@ import { ColDef, GridApi } from 'ag-grid-community';
 import AgDataTable from './AgDataTable';
 import CoreButton from '../../components/CoreButton/CoreButton';
 import CustomFilterComponent from './CustomFilterComponent';
-import { ALL_COLUMNS, COLUMN_GROUPS, DEFAULT_EMPTY_VALUES, SET_FILTERED_COLUMNS } from './columnDefs';
+import { ALL_COLUMNS } from './columnDefs';
+import { COLUMN_GROUPS, DEFAULT_EMPTY_VALUES, SET_FILTERED_COLUMNS } from './columnGroups';
 
 import { useWorkbenchDB } from '../../contexts/workbenchContext';
 import { FlatFileAttributes } from '../../services/models/flatFile';
