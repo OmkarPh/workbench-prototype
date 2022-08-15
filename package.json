@@ -16,6 +16,7 @@
     "lint": "eslint --ext .ts,.tsx .",
     "dependencyBuild": "$(npm bin)/electron-rebuild",
     "dependencyBuild-windows": ".\\node_modules\\.bin\\electron-rebuild.cmd",
+    "test": "echo 'Going good'",
     "just trial commands below": "--------------------------------------------------------",
     "forge-package": "electron-forge package",
     "rebuild-sqlite3": "electron-rebuild -f -w sqlite3",
