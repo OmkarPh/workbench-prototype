@@ -56,6 +56,7 @@ interface COLUMNS_LIST {
   license_short_name: ColDef,
   license_category: ColDef,
   license_owner: ColDef,
+  license_is_unknown: ColDef,
   // license_homepage_url: ColDef,
   // license_text_url: ColDef,
   // license_reference_url: ColDef,
@@ -228,6 +229,12 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
     headerName: 'License Owner',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
     width: 290,
+  },
+  license_is_unknown: {
+    field: 'license_is_unknown',
+    headerName: 'Unknown license',
+    valueFormatter: BooleanValueFormatter,
+    width: 100,
   },
   // license_homepage_url: {
   //   field: 'license_homepage_url',

@@ -22,9 +22,9 @@ export interface CopyrightAttributes {
   fileId: DataTypes.IntegerDataType,
   start_line: DataTypes.IntegerDataType,
   end_line: DataTypes.IntegerDataType,
-  holders: DataTypes.StringDataType,
-  authors: DataTypes.StringDataType,
-  statements: DataTypes.StringDataType,
+  holders: DataTypes.StringDataType[],
+  authors: DataTypes.StringDataType[],
+  statements: DataTypes.StringDataType[],
 }
 
 export default function copyrightModel(sequelize: Sequelize) {

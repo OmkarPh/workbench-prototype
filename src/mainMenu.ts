@@ -1,7 +1,7 @@
 import { GENERAL_ACTIONS, NAVIGATION_CHANNEL } from './constants/IpcConnection';
 import packageJson from '../package.json';
 import { app, BrowserWindow, MenuItem, shell } from 'electron';
-import { importJsonFile, openSqliteFile, saveSqliteFile, showErrorDialog } from './mainActions';
+import { importJsonFile, openSqliteFile, saveSqliteFile } from './mainActions';
 import { ROUTES } from './constants/routes';
 
 /** Returns a 'lambda' that sends the event to the renderer process. */
@@ -36,15 +36,6 @@ function getTemplate() {
           label: 'Import JSON File',
           accelerator: 'CmdOrCtrl+I',
           click: (_: MenuItem, currentWindow: BrowserWindow) => importJsonFile(currentWindow),
-        },
-        {
-          label: 'Export JSON File',
-          accelerator: 'CmdOrCtrl+E',
-          // @TODO
-          click: () => showErrorDialog({
-            title: "Not implemented",
-            message: "This feature is yet to be discussed"
-          })
         },
         // @TODO-discuss This is duplicated in App's menu tab, is it necessary under file tab also ??
         // ...(
@@ -199,18 +190,12 @@ function getTemplate() {
         },
         {
           label: 'Licensing Information',
-          // // @TODO
-          // click: () => showErrorDialog({
-          //   title: "Not implemented",
-          //   message: "This feature is yet to be discussed"
-          // })
           click: () => {
-          // @TODO - make react route instead
+            // @TOIMPROVE - make react route instead  ?
             let win = new BrowserWindow({frame: true});
             win.setMenu(null);
             win.on('closed', ():void => win = null);
             win.loadFile('./attribution.html');
-            // win.loadURL('file://' + __dirname + '/attribution.html');
             win.show();
           }
         },

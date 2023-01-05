@@ -43,7 +43,7 @@ export function formatChartData(
   // Sum the total number of times the name appears
   const count = new Map<string, number>();
 
-  $.each(names, (i, name) => {
+  $.each(names, (_, name) => {
     count.set(name.toString({}), (count.get(name.toString({})) || 0) + 1);
   });
 
